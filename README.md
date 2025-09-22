@@ -72,11 +72,11 @@ laravel環境構築
   - PHP 8.3.25
   - Laravel 11.46(fortify 1.30)
   - MySql 8.3
-  - nginx 1.21.1
+  - nginx 1.26.0
 <br>
 
 # URL<br>
   - ユーザー登録： http://localhost/register/
-  - 管理者用ログイン： http://localhost//admin/login
+  - 管理者用ログイン： http://localhost/admin/login
   - phpMyAdmin:http://localhost:8080/
   - meilhog： http://localhost:8025/

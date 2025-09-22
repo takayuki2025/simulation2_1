@@ -12,17 +12,22 @@
     <header class="header">
         <div class="header_layout">
             <img class="company" src="/title_logo/logo.svg" alt="会社名">
-
-<div class="a_tags">
-            <a class="word1" href="/attendance">仮勤怠パス</a>
-            <a class="word2" href="">勤怠一覧</a>
-            <a class="word3" href="">申請</a>
-        <form class="" action="{{ route('logout') }}" method="post">
-            @csrf
-            <button class="word4">ログアウト</button>
-        </form>
-</div>
-
+        <div class="a_tags">
+            @auth
+                @admin
+                    <a class="word1" href="/admin/attendance/list">勤怠一覧</a>
+                    <a class="word2" href="">スタッフ一覧</a>
+                    <a class="word3" href="">申請一覧</a>
+                @else
+                    <a class="word1" href="/attendance">勤怠</a>
+                    <a class="word2" href="">勤怠一覧</a>
+                    <a class="word3" href="">申請</a>
+                @endadmin
+                    <form class="" action="{{ route('logout') }}" method="post">
+                        @csrf
+                        <button class="word4">ログアウト</button>
+                    </form>
+            @endauth
         </div>
     </header>
 

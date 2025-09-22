@@ -7,7 +7,7 @@
 @section('content')
 
 <p>管理者の一覧画面です。</p>
-<a href="/login">仮のユーザーログインa</a>
+
 
 
 

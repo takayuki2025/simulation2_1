@@ -7,7 +7,7 @@
 @section('content')
 
 <p>テスト打刻画面です。</p>
-<a href="/login">仮のユーザーログインa</a>
+
 
 
 
