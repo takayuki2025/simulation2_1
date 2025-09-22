@@ -23,8 +23,6 @@ use Laravel\Fortify\Fortify;
 | contains the "web" middleware group. Now create something great!
 |
 */
-// Fortifyが提供する認証ルートを自動的に設定します。
-// Fortify::routes();
 
 // `web`ミドルウェアグループに属するすべてのルートを定義します。
 Route::group(['middleware' => 'web'], function () {
