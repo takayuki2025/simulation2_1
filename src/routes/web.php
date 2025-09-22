@@ -2,11 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+
+
 use App\Http\Controllers\Auth\AttendantManagerController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
+
+
 use Laravel\Fortify\Fortify;
 
 /*
@@ -82,4 +86,7 @@ Route::group(['middleware' => 'web'], function () {
 
     // ログアウト
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // 制作できてる確認のためだけなので削除する
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 });
