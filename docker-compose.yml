@@ -40,3 +40,12 @@ services:
       - mysql
     ports:
       - 8080:80
+
+      # MailHogサービス
+  mailhog:
+    image: mailhog/mailhog:latest
+    platform: linux/amd64
+    restart: always
+    ports:
+      - "8025:8025" # MailHog Web UI
+      - "1025:1025" # SMTPサーバー

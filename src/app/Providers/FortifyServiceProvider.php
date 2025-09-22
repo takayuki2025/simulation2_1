@@ -3,16 +3,17 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
-use App\Actions\Fortify\ResetUserPassword;
-use App\Actions\Fortify\UpdateUserPassword;
-use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
-use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
+use App\Providers\RouteServiceProvider;
+
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Auth\Events\Authenticated;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -29,20 +30,30 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+            // Fortifyのビューパスを明示的に登録
+    View::addNamespace('fortify', base_path('resources/views/vendor/fortify'));
+
+        // 新規ユーザー作成アクションを定義
         Fortify::createUsersUsing(CreateNewUser::class);
 
-        Fortify::registerView(function () {
-         return view('auth.register');
-     });
+        // ログイン試行のレート制限を定義
+        RateLimiter::for('login', function (Request $request) {
+            $email = (string) $request->email;
 
-     Fortify::loginView(function () {
-         return view('auth.login');
-     });
+            return Limit::perMinute(30)->by($email . $request->ip());
+        });
 
-     RateLimiter::for('login', function (Request $request) {
-         $email = (string) $request->email;
+        // ログイン後のリダイレクトを制御する
+        Event::listen(function (Authenticated $event) {
+            $user = Auth::user();
 
-         return Limit::perMinute(10)->by($email . $request->ip());
-     });
+            // 管理者ユーザーは /admin/attendance/list へリダイレクト
+            if ($user->role === 'admin') {
+                return redirect()->intended('/admin/attendance/list');
+            }
+
+            // それ以外のユーザーは /attendance へリダイレクト
+            return redirect()->intended('/attendance');
+        });
     }
 }

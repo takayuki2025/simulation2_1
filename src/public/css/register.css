@@ -1,0 +1,87 @@
+.register_page {
+    text-align: center;
+    margin: 0 auto;
+    max-width: 1400px;
+}
+
+.register_box {
+    position: relative;
+    top: 70px;
+}
+
+.name_form {
+    width: 500px;
+    height: 30px;
+}
+
+.email_form {
+    width: 500px;
+    height: 30px;
+}
+
+.password_form {
+    width: 500px;
+    height: 30px;
+}
+
+.submit {
+    margin-top: 10px;
+    display: block;
+}
+
+.submit_form {
+    position: relative;
+    top: 20px;
+    width: 500px;
+    height: 30px;
+    margin: 30px 0;
+    font-size: 18px;
+    font-weight: 600;
+    background-color: #ff5555;
+    border: #ff5555;
+    color: white;
+}
+
+.to_login {
+    position: relative;
+    top: 5px;
+    color: #0173cc;
+    text-decoration: none;
+    display: block;
+}
+
+.label_form_1 {
+    font-weight: 700;
+    display: block;
+    position: relative;
+    right: 238px;
+}
+
+.label_form_2 {
+    font-weight: 700;
+    margin-top: 30px;
+    display: block;
+    position: relative;
+    right: 200px;
+}
+
+.label_form_3 {
+    font-weight: 700;
+    margin-top: 30px;
+    display: block;
+    position: relative;
+    right: 215px;
+}
+
+.label_form_4 {
+    font-weight: 700;
+    margin-top: 30px;
+    display: block;
+    position: relative;
+    right: 198px;
+}
+
+
+/* .error {
+    color: #ff5555;
+} */

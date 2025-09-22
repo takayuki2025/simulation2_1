@@ -1,0 +1,45 @@
+body {
+    width: 1300px;
+    /* margin: auto; */
+}
+
+.header_layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: black;
+    height: 60px;
+}
+
+.company {
+    width: auto;
+    height: 50%;
+    margin-left: 15px;
+}
+
+.a_tags {
+    display: flex;
+    gap: 20px;
+}
+
+.word1 {
+    color: white;
+    text-decoration: none;
+}
+
+.word2 {
+    color: white;
+    text-decoration: none;
+}
+
+.word3 {
+    color: white;
+    text-decoration: none;
+}
+
+.word4 {
+    color: white;
+    background-color: black;
+    border: none;
+    text-decoration: none;
+}
