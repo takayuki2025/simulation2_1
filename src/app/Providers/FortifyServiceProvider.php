@@ -55,5 +55,15 @@ class FortifyServiceProvider extends ServiceProvider
             // それ以外のユーザーは /attendance へリダイレクト
             return redirect()->intended('/attendance');
         });
+
+        // Fortifyがログインページを表示する際に、
+        // どのBladeテンプレートを使用するかを明示的に指定しています。
+        Fortify::loginView(function () {
+            return view('auth.login');
+        });
+
+                Fortify::registerView(function () {
+            return view('auth.register');
+        });
     }
 }

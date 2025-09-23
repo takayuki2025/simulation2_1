@@ -50,6 +50,9 @@
 
         </div>
     </div>
-
+                    <form class="" action="{{ route('logout') }}" method="post">
+                        @csrf
+                        <button class="word4">ログアウト</button>
+                    </form>
 
 @endsection
