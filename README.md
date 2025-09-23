@@ -72,7 +72,7 @@ laravel環境構築
   - PHP 8.4.12
   - Laravel 12.30.1 (fortify 1.30)
   - MySql 8.4.6
-  - nginx 1.26.0
+  - nginx 1.28.0
 <br>
 
 # URL<br>
