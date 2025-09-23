@@ -15,6 +15,11 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 |
 */
 
+// 通常のトップページなど、認証を必要としないルート
+Route::get('/', function () {
+    return view('index');
+})->name('index');
+
 // ゲストユーザー向けの認証ルート
 // ログイン済みユーザーはアクセスできません。
 Route::middleware(['guest'])->group(function () {

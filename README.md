@@ -71,7 +71,7 @@ laravel環境構築
 # 使用技術<br>
   - PHP 8.4.12
   - Laravel 12.30.1 (fortify 1.30)
-  - MySql 8.3
+  - MySql 8.4.6
   - nginx 1.26.0
 <br>
 
