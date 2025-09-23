@@ -11,7 +11,9 @@ services:
       - php
 
   php:
-    build: ./docker/php
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./src:/var/www/
 
