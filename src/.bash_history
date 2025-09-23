@@ -8,3 +8,11 @@ pwd
 php -v
 php artisan --version
 exit
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan make:seeder EmployeesUserSeeder
+php artisan make:seeder AttendancesTableSeeder
+php artisan make:seeder ApplicationsTableSeeder
+php artisan migrate:fresh --seed
+exit
