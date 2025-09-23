@@ -16,3 +16,13 @@ php artisan make:seeder AttendancesTableSeeder
 php artisan make:seeder ApplicationsTableSeeder
 php artisan migrate:fresh --seed
 exit
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+exit
