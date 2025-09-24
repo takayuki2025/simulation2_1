@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\LoginController;
-use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+// use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\AttendantManagerController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,9 +18,9 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 */
 
 // 通常のトップページなど、認証を必要としないルート
-Route::get('/', function () {
-    return view('index');
-})->name('index');
+// Route::get('/', function () {
+//     return view('index');
+// })->name('index');
 
 // ゲストユーザー向けの認証ルート
 // ログイン済みユーザーはアクセスできません。
@@ -52,28 +54,28 @@ Route::middleware(['auth'])->group(function () {
     })->middleware(['signed'])->name('verification.verify');
 
     // 通常ユーザーのホーム (メール認証済みユーザーのみアクセス可能)
-    Route::get('/attendance', function () {
-        return view('user_stamping');
-    })->middleware('verified')->name('attendance');
+    // Route::get('/attendance', function () {
+    //     return view('user_stamping');
+    // })->middleware('verified')->name('attendance');
 
     // 管理者ユーザーの勤怠一覧ページ (管理者かつメール認証済みユーザーのみアクセス可能)
-    Route::get('/admin/attendance/list', function () {
-        return view('admin_attendance');
-    })->middleware('admin')->name('admin.attendance.list');
+    // Route::get('/admin/attendance/list', function () {
+    //     return view('admin_attendance');
+    // })->middleware('admin')->name('admin.attendance.list.index');
 
-
-
-    // ログアウト
-    // Route::post('/logout', function (Request $request) {
-    //     auth()->guard('web')->logout();
-    //     $request->session()->invalidate();
-    //     $request->session()->regenerateToken();
-    //     return redirect('/login');
-    // })->name('logout');
 });
-        // ログアウトはFortifyに任せます。
-    // Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-// 通常のトップページなど、認証を必要としないルートはここに配置できます。
-// Route::get('/', function () {
-//     return view('auth.login');
-// });
+
+// ユーザーの勤怠管理のルート
+Route::middleware(['auth'])->group(function () {
+    Route::get('/attendance', [AttendantManagerController::class, 'user_index'])->name('attendance.user.index');
+    Route::post('/stamping/clock-in', [AttendantManagerController::class, 'clockIn'])->name('attendance.clock_in');
+    Route::post('/stamping/clock-out', [AttendantManagerController::class, 'clockOut'])->name('attendance.clock_out');
+    Route::post('/stamping/break-start', [AttendantManagerController::class, 'breakStart'])->name('attendance.break_start');
+    Route::post('/stamping/break-end', [AttendantManagerController::class, 'breakEnd'])->name('attendance.break_end');
+    Route::get('/attendance/list', [AttendantManagerController::class, 'user_list_index'])->name('attendance.user.list.index');
+});
+
+// 管理者の勤怠管理ルート
+Route::middleware(['admin'])->group(function () {
+    Route::get('/admin/attendance/list', [AttendantManagerController::class, 'admin_list_index'])->name('admin.attendance.list.index');
+});

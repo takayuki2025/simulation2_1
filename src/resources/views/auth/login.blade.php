@@ -36,9 +36,6 @@
         <br><a href="/admin/login">移動できないけど管理者ログインページへ</a>
         </div>
     </div>
-                    <form class="" action="{{ route('login.post') }}" method="post">
-                        @csrf
-                        <button class="word4">ログアウト</button>
-                    </form>
+
 
 @endsection

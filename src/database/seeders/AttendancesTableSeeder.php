@@ -15,13 +15,13 @@ class AttendancesTableSeeder extends Seeder
     public function run(): void
     {
         // シードするユーザーIDの配列
-        $userIds = [1, 2, 3];
-        // 過去2週間（14日間）のデータを生成
+        $userIds = [2, 3, 4];
+        // 過去14日間のデータを生成（今日の分は含めない）
         $daysToSeed = 14;
 
         foreach ($userIds as $userId) {
-            // 各ユーザーに対して、今日から過去14日分のデータを生成
-            for ($i = 0; $i < $daysToSeed; $i++) {
+            // 各ユーザーに対して、昨日から過去14日分のデータを生成
+            for ($i = 1; $i <= $daysToSeed; $i++) {
                 // 日付を過去にずらす
                 $date = Carbon::today()->subDays($i);
 
@@ -44,7 +44,7 @@ class AttendancesTableSeeder extends Seeder
                 $clockOutTime = $date->copy()->setHour(18)->setMinute(0)->setSecond(0)->addMinutes($randomMinutes);
 
                 // 勤務時間（休憩時間を引く前の時間）を分単位で計算
-                $totalWorkMinutes = $clockOutTime->diffInMinutes($clockInTime);
+                $totalWorkMinutes = abs($clockOutTime->diffInMinutes($clockInTime));
                 $totalBreakMinutes = 0;
 
                 // 休憩データを定義 (最大4回)
@@ -60,11 +60,11 @@ class AttendancesTableSeeder extends Seeder
                 foreach ($breaks as $key => $break) {
                     $breakData["break_start_time_" . ($key + 1)] = $break['start'];
                     $breakData["break_end_time_" . ($key + 1)] = $break['end'];
-                    $totalBreakMinutes += $break['end']->diffInMinutes($break['start']);
+                    $totalBreakMinutes += abs($break['end']->diffInMinutes($break['start']));
                 }
 
-                // 最終的な労働時間を計算
-                $finalWorkMinutes = $totalWorkMinutes - $totalBreakMinutes;
+                // 最終的な労働時間を計算し、マイナスにならないように修正
+                $finalWorkMinutes = max(0, $totalWorkMinutes - $totalBreakMinutes);
 
                 // Attendanceレコードを作成
                 Attendance::create(array_merge([

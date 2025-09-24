@@ -25,7 +25,7 @@ return new class extends Migration
             $table->dateTime('break_end_time_3')->nullable();
             $table->dateTime('break_start_time_4')->nullable();
             $table->dateTime('break_end_time_4')->nullable();
-            $table->integer('break_total_time')->nullable();
+            $table->integer('break_total_time')->default(0)->nullable();
             $table->integer('work_time')->nullable();
             $table->timestamps();
         });

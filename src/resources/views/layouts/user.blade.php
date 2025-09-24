@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User</title>
+    <title>勤怠管理アプリ</title>
     <link rel="stylesheet" href="{{ asset('css/common.css') }}" />
     @yield('css')
 </head>
@@ -15,13 +15,13 @@
         <div class="a_tags">
             @auth
                 @admin
-                    <a class="word1" href="/admin/attendance/list">勤怠一覧</a>
+                    <a class="word1" href="{{ route('admin.attendance.list.index') }}">勤怠一覧</a>
                     <a class="word2" href="">スタッフ一覧</a>
                     <a class="word3" href="">申請一覧</a>
                 @else
-                    <a class="word1" href="/attendance">勤怠</a>
-                    <a class="word2" href="">勤怠一覧</a>
-                    <a class="word3" href="">申請</a>
+                    <a class="word1" href="{{ route('attendance.user.index') }}">勤怠</a>
+                    <a class="word2" href="{{ route('attendance.user.list.index') }}">勤怠一覧</a>
+                    <a class="word3" href="/attendance/detail/{id}">申請</a>
                 @endadmin
                     <form class="" action="{{ route('logout') }}" method="post">
                         @csrf

@@ -26,3 +26,31 @@ php artisan migrate:fresh --seed
 php artisan migrate:fresh --seed
 php artisan migrate:fresh --seed
 exit
+php artisan cache:clear
+php artisan route:clear
+php artisan config:clear
+php artisan view:clear
+composer dump-autoload
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+tail -f storage/logs/laravel.log
+exir
+exit
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+exit
