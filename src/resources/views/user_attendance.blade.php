@@ -1,106 +1,12 @@
 @extends('layouts.user')
 
+@section('css')
+<link rel="stylesheet" href="{{ asset('css/user_attendance.css') }}">
+@endsection
+
 @section('content')
 
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0 auto;
-            padding: 20px;
-            width: 1400px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .date-navigation-frame {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        .header1 {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header1 h2 {
-            margin: 0;
-            font-size: 1.5em;
-            font-weight: 600;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .header1 .navigation {
-            display: flex;
-            gap: 10px;
-        }
-        .header1 .navigation a {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.2s;
-        }
-        .header1 .navigation a:hover {
-            background-color: #0056b3;
-        }
-        .attendance-table-frame {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .attendance-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .attendance-table th {
-            padding: 12px;
-            text-align: center;
-            font-weight: 600;
-            color: #555;
-            border-bottom: 2px solid #ccc;
-        }
-        .attendance-table td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        .attendance-table tr:last-child td {
-            border-bottom: none;
-        }
-        .day-column {
-            white-space: nowrap;
-        }
-        .sunday {
-            color: #e74c3c;
-        }
-        .saturday {
-            color: #3498db;
-        }
-        .detail-button {
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.2s;
-        }
-        .detail-button:hover {
-            background-color: #218838;
-        }
-    </style>
+
 
 <body>
     @php

@@ -47,8 +47,7 @@ class LoginController extends Controller
         // 登録イベントを発火（例えば、メール認証通知を送るなど）
         event(new Registered($user));
 
-        // 登録したばかりのユーザーを自動的にログインさせる
-        Auth::login($user);
+
 
         // 登録後のリダイレクト先をメール認証通知ページに設定
         return redirect()->route('verification.notice');

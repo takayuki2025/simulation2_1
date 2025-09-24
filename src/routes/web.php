@@ -56,7 +56,11 @@ Route::middleware(['auth'])->group(function () {
     // 通常ユーザーのホーム (メール認証済みユーザーのみアクセス可能)
     // Route::get('/attendance', function () {
     //     return view('user_stamping');
-    // })->middleware('verified')->name('attendance');
+    // })->middleware('verified')->name('attendance.user.index');
+
+
+
+
 
     // 管理者ユーザーの勤怠一覧ページ (管理者かつメール認証済みユーザーのみアクセス可能)
     // Route::get('/admin/attendance/list', function () {
@@ -64,9 +68,12 @@ Route::middleware(['auth'])->group(function () {
     // })->middleware('admin')->name('admin.attendance.list.index');
 
 });
+    // Route::get('/attendance', [AttendantManagerController::class, 'user_index'])->name('attendance.user.index');
+
+
 
 // ユーザーの勤怠管理のルート
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['verified'])->group(function () {
     Route::get('/attendance', [AttendantManagerController::class, 'user_index'])->name('attendance.user.index');
     Route::post('/stamping/clock-in', [AttendantManagerController::class, 'clockIn'])->name('attendance.clock_in');
     Route::post('/stamping/clock-out', [AttendantManagerController::class, 'clockOut'])->name('attendance.clock_out');
