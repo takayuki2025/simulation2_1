@@ -16,8 +16,8 @@
                 @auth
                     @admin
                         <a class="word1" href="{{ route('admin.attendance.list.index') }}">勤怠一覧</a>
-                        <a class="word2" href="">スタッフ一覧</a>
-                        <a class="word3" href="">申請一覧</a>
+                        <a class="word2" href="{{ route('admin.staff.list.index') }}">スタッフ一覧</a>
+                        <a class="word3" href="{{ route('admin.apply.list.index') }}">申請一覧</a>
                     @else
                         @php
                             // 現在日の勤怠データに退勤時刻が設定されているかチェック

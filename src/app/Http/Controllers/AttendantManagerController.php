@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\Models\Attendance;
+use App\Models\Application;
 use Carbon\Carbon;
 
 class AttendantManagerController extends Controller
@@ -84,6 +86,32 @@ class AttendantManagerController extends Controller
         ]);
     }
 
+
+
+
+        public function admin_staff_list_index(Request $request)
+    {
+        $users = User::all();
+
+        return view('admin_staff_list', [
+            'users' => $users,
+        ]);
+    }
+
+
+
+
+
+            public function admin_apply_list_index(Request $request)
+    {
+        $applications = Application::all();
+
+        return view('admin_apply', [
+            'applications' => $applications,
+        ]);
+    }
+
+
     /**
      * 出勤処理を実行します。
      */
@@ -133,7 +161,7 @@ class AttendantManagerController extends Controller
             for ($i = 1; $i <= 4; $i++) {
                 $start = $attendance->{'break_start_time_' . $i};
                 $end = $attendance->{'break_end_time_' . $i};
-                
+
                 if (!empty($start) && !empty($end)) {
                     $totalBreakSeconds += strtotime($end) - strtotime($start);
                 }
@@ -141,7 +169,7 @@ class AttendantManagerController extends Controller
 
             // 最終的な労働時間（秒）を計算し、マイナスにならないようにする
             $finalWorkSeconds = max(0, $totalWorkSeconds - $totalBreakSeconds);
-            
+
             // 労働時間を分単位に変換
             $finalWorkMinutes = round($finalWorkSeconds / 60);
 

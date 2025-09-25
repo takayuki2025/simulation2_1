@@ -1,0 +1,99 @@
+/* 基本スタイル */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0 auto;
+    padding: 20px;
+    width: 1400px;
+}
+
+/* ページタイトル */
+.page-title {
+    width: 900px;
+    margin: 70px auto 70px 230px;
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #333;
+    border-left: 8px solid #000000;
+    padding-left: 15px;
+}
+
+/* コンテナ */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* タブのコンテナ */
+.tab-container {
+    width: 940px;
+    margin: 70px auto 70px 230px ;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 50px;
+    border-bottom: 2px solid #000000;
+}
+
+/* タブのリンク */
+.tab-link {
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    transition: color 0.3s;
+    border-bottom: 2px solid transparent;
+    margin-right: 15px;
+}
+
+.tab-link:hover {
+    color: #007bff;
+}
+
+.tab-link.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+/* 申請テーブル */
+.apply-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.apply-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #ccc;
+}
+
+.apply-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.apply-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* 詳細リンク */
+.detail-link {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.detail-link:hover {
+    background-color: #218838;
+}
