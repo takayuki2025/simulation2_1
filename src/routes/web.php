@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\LoginController;
-// use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\AttendantManagerController;
+// use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -74,12 +75,12 @@ Route::middleware(['auth'])->group(function () {
 
 // ユーザーの勤怠管理のルート
 Route::middleware(['verified'])->group(function () {
-    Route::get('/attendance', [AttendantManagerController::class, 'user_index'])->name('attendance.user.index');
+    Route::get('/attendance', [AttendantManagerController::class, 'user_index'])->name('user.attendance.index');
     Route::post('/stamping/clock-in', [AttendantManagerController::class, 'clockIn'])->name('attendance.clock_in');
     Route::post('/stamping/clock-out', [AttendantManagerController::class, 'clockOut'])->name('attendance.clock_out');
     Route::post('/stamping/break-start', [AttendantManagerController::class, 'breakStart'])->name('attendance.break_start');
     Route::post('/stamping/break-end', [AttendantManagerController::class, 'breakEnd'])->name('attendance.break_end');
-    Route::get('/attendance/list', [AttendantManagerController::class, 'user_list_index'])->name('attendance.user.list.index');
+    Route::get('/attendance/list', [AttendantManagerController::class, 'user_list_index'])->name('user.attendance.list.index');
     Route::get('/attendance/detail/{id?}', [AttendantManagerController::class, 'user_attendance_detail_index'])->name('user.attendance.detail.index');
     Route::post('/attendance/update', [AttendantManagerController::class, 'attendance_update'])->name('attendance.update');
 });
@@ -89,7 +90,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/attendance/list', [AttendantManagerController::class, 'admin_list_index'])->name('admin.attendance.list.index');
     Route::get('/admin/staff/list', [AttendantManagerController::class, 'admin_staff_list_index'])->name('admin.staff.list.index');
 
-    // Route::get('/stamp_correction_request/list', [AttendantManagerController::class, 'admin_apply_list_index'])->name('admin.apply.list.index');
+
 
 
 });
