@@ -6,9 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\Login;
+// use Illuminate\Auth\Events\Login;
+// use Illuminate\Auth\Events\Registered;
+
 
 class LoginController extends Controller
 {
@@ -108,20 +109,4 @@ class LoginController extends Controller
             return redirect()->intended('/attendance');
         }
     }
-
-    /**
-     * ログアウト処理を実行する
-     * このメソッドはコメントアウトされています。
-     * Fortifyを使用する場合、ログアウト処理はFortifyの機能に任せるのが一般的です。
-     * Fortifyは、AuthenticatedSessionController::destroyメソッドでログアウトを処理し、
-     * 自動的にリダイレクトを行います。
-     */
-    // public function logout(Request $request)
-    // {
-    //     Auth::logout();
-    //     $request->session()->invalidate();
-    //     $request->session()->regenerateToken();
-
-    //     return redirect('/login');
-    // }
 }

@@ -56,3 +56,16 @@ php artisan migrate:fresh --seed
 exit
 php artisan migrate:fresh --seed
 exit
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan route:clear
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan config:clear
+php artisan cache:clear
+php artisan route:list
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+exit

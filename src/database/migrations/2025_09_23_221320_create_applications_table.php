@@ -29,7 +29,7 @@ return new class extends Migration
             $table->integer('break_total_time')->default(0)->nullable();
             $table->integer('work_time')->nullable();
             $table->string('reason')->nullable();
-            $table->boolean('pending')->default(false);
+            $table->boolean('pending')->default(true);
             $table->timestamps();
         });
     }

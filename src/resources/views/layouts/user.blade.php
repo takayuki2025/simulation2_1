@@ -17,7 +17,7 @@
                     @admin
                         <a class="word1" href="{{ route('admin.attendance.list.index') }}">勤怠一覧</a>
                         <a class="word2" href="{{ route('admin.staff.list.index') }}">スタッフ一覧</a>
-                        <a class="word3" href="{{ route('admin.apply.list.index') }}">申請一覧</a>
+                        <a class="word3" href="{{ route('apply.list') }}">申請一覧</a>
                     @else
                         @php
                             // 現在日の勤怠データに退勤時刻が設定されているかチェック
@@ -26,12 +26,12 @@
                         @if ($isClockedOut)
                             {{-- 退勤済みの場合に表示するリンク --}}
                             <a class="word1" href="{{ route('attendance.user.list.index') }}">今月の勤怠一覧</a>
-                            <a class="word2" href="{{ route('attendance.user.apply.index') }}">申請一覧</a>
+                            <a class="word2" href="{{ route('apply_list') }}">申請一覧</a>
                         @else
                             {{-- 勤務中の場合や、まだ出勤打刻をしていない場合に表示するリンク --}}
                             <a class="word1" href="{{ route('attendance.user.index') }}">勤怠</a>
                             <a class="word2" href="{{ route('attendance.user.list.index') }}">勤怠一覧</a>
-                            <a class="word3" href="{{ route('attendance.user.apply.index') }}">申請</a>
+                            <a class="word3" href="{{ route('apply.list') }}">申請</a>
                         @endif
                     @endadmin
                     <form action="{{ route('logout') }}" method="post">

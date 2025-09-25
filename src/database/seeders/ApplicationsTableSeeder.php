@@ -16,7 +16,7 @@ class ApplicationsTableSeeder extends Seeder
     public function run(): void
     {
         // シードするユーザーIDの配列
-        $userIds = [1, 2, 3];
+        $userIds = [2, 3, 4]; // ユーザーIDを2, 3, 4に修正
         // 過去14日間のデータを生成
         $daysToSeed = 14;
 
@@ -31,8 +31,8 @@ class ApplicationsTableSeeder extends Seeder
                     continue;
                 }
 
-                // 土日は35%の確率で出勤する
-                if (rand(1, 100) > 35) {
+                // 土日は50%の確率で出勤する
+                if (rand(1, 100) > 50) {
                     continue;
                 }
 
@@ -44,7 +44,7 @@ class ApplicationsTableSeeder extends Seeder
                 $clockOutTime = $date->copy()->setHour(18)->setMinute(0)->setSecond(0)->addMinutes($randomMinutes);
 
                 // 勤務時間（休憩時間を引く前の時間）を分単位で計算
-                $totalWorkMinutes = $clockOutTime->diffInMinutes($clockInTime);
+                $totalWorkMinutes = abs($clockOutTime->diffInMinutes($clockInTime));
                 $totalBreakMinutes = 0;
 
                 // 休憩データを定義 (最大4回)
@@ -59,11 +59,12 @@ class ApplicationsTableSeeder extends Seeder
                 foreach ($breaks as $key => $break) {
                     $breakData["break_start_time_" . ($key + 1)] = $break['start'];
                     $breakData["break_end_time_" . ($key + 1)] = $break['end'];
-                    $totalBreakMinutes += $break['end']->diffInMinutes($break['start']);
+                    // 休憩時間の計算にabs()を適用
+                    $totalBreakMinutes += abs($break['end']->diffInMinutes($break['start']));
                 }
 
-                // 最終的な労働時間を計算
-                $finalWorkMinutes = $totalWorkMinutes - $totalBreakMinutes;
+                // 最終的な労働時間を計算し、マイナスにならないように修正
+                $finalWorkMinutes = max(0, $totalWorkMinutes - $totalBreakMinutes);
 
                 // pendingカラムは50%の確率でfalseにする
                 $pending = (rand(1, 100) <= 50) ? false : true;
@@ -82,7 +83,7 @@ class ApplicationsTableSeeder extends Seeder
                         'work_time' => $finalWorkMinutes,
                         'break_total_time' => $totalBreakMinutes,
                         'pending' => $pending,
-                        'reason' => '休日出勤のため出勤', // reasonカラムに文字列をセット
+                        'reason' => '休日出勤のため出勤',
                     ], $breakData));
                 }
             }

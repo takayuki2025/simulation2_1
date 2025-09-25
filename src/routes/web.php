@@ -80,7 +80,7 @@ Route::middleware(['verified'])->group(function () {
     Route::post('/stamping/break-start', [AttendantManagerController::class, 'breakStart'])->name('attendance.break_start');
     Route::post('/stamping/break-end', [AttendantManagerController::class, 'breakEnd'])->name('attendance.break_end');
     Route::get('/attendance/list', [AttendantManagerController::class, 'user_list_index'])->name('attendance.user.list.index');
-    Route::get('/stamp_correction_request/list', [AttendantManagerController::class, 'user_apply_index'])->name('attendance.user.apply.index');
+    // Route::get('/stamp_correction_request/list', [AttendantManagerController::class, 'user_apply_index'])->name('attendance.user.apply.index');
 });
 
 // 管理者の勤怠管理ルート
@@ -88,7 +88,19 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/attendance/list', [AttendantManagerController::class, 'admin_list_index'])->name('admin.attendance.list.index');
     Route::get('/admin/staff/list', [AttendantManagerController::class, 'admin_staff_list_index'])->name('admin.staff.list.index');
 
-    Route::get('/stamp_correction_request/list', [AttendantManagerController::class, 'admin_apply_list_index'])->name('admin.apply.list.index');
+    // Route::get('/stamp_correction_request/list', [AttendantManagerController::class, 'admin_apply_list_index'])->name('admin.apply.list.index');
 
 
 });
+
+// 申請一覧共通ルート
+Route::get('/stamp_correction_request/list', function (Request $request) {
+    // ユーザーの`role`が`admin`かどうかをチェックします
+    if ($request->user()->role === 'admin') {
+        // ユーザーが管理者であれば、管理者のコントローラーを呼び出す
+        return app(AttendantManagerController::class)->admin_apply_list_index($request);
+    } else {
+        // ユーザーが管理者でなければ、通常ユーザーのコントローラーを呼び出す
+        return app(AttendantManagerController::class)->user_apply_index();
+    }
+})->middleware(['auth', 'verified'])->name('apply.list');

@@ -7,12 +7,12 @@
 @section('content')
 
 <h2 class="page-title">申請一覧</h2>
-
     <div class="tab-container">
-        <a href="?status=pending" class="tab-link {{ request('status', 'pending') == 'pending' ? 'active' : '' }}">承認待ち</a>
-        <a href="?status=approved" class="tab-link {{ request('status') == 'approved' ? 'active' : '' }}">承認済み</a>
+        <!-- 承認待ち: pending=true -->
+        <a href="?pending=true" class="tab-link {{ request('pending', 'true') == 'true' ? 'active' : '' }}">承認待ち</a>
+        <!-- 承認済み: pending=false -->
+        <a href="?pending=false" class="tab-link {{ request('pending') == 'false' ? 'active' : '' }}">承認済み</a>
     </div>
-
 <div class="container">
 
 
@@ -29,7 +29,7 @@
         </thead>
         <tbody>
             @foreach ($applications as $application)
-            <tr class="application-row" data-status="{{ $application->pending ? 'pending' : 'approved' }}">
+            <tr class="application-row" data-pending="{{ $application->pending ? 'true' : 'false' }}">
                 <td>
                     @if ($application->pending)
                         承認待ち

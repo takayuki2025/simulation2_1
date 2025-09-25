@@ -102,9 +102,25 @@ class AttendantManagerController extends Controller
 
 
 
-            public function admin_apply_list_index(Request $request)
+    public function admin_apply_list_index(Request $request)
     {
-        $applications = Application::all();
+        // 'pending'というクエリパラメータを取得。存在しない場合は'false'をデフォルト値とする
+        $status = $request->query('pending', 'false');
+
+        // Applicationモデルのクエリを開始
+        $query = Application::query();
+
+        // クエリパラメータ'pending'の値に応じてデータをフィルタリング
+        if ($status === 'true') {
+            // 'pending'がtrueの場合は、承認済みの申請のみを取得
+            $query->where('pending', true);
+        } else {
+            // 'pending'がfalseまたは指定がない場合は、承認待ちの申請のみを取得
+            $query->where('pending', false);
+        }
+
+        // フィルタリングされた結果を取得
+        $applications = $query->get();
 
         return view('admin_apply', [
             'applications' => $applications,
