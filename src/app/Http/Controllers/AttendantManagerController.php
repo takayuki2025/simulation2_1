@@ -50,6 +50,24 @@ class AttendantManagerController extends Controller
     }
 
 
+
+
+
+        public function user_apply_index()
+    {
+        // 認証済みユーザーを取得
+        $user = Auth::user();
+
+        // ユーザーの全勤怠レコードを新しい順に取得
+        $attendances = Attendance::where('user_id', $user->id)
+                            ->orderBy('checkin_date', 'desc')
+                            ->get();
+
+        // 勤怠データをビューに渡して表示
+        return view('user_apply', compact('attendances'));
+    }
+
+
     public function admin_list_index(Request $request)
     {
         // リクエストから日付を取得、なければ今日の日付を使用

@@ -12,22 +12,34 @@
     <header class="header">
         <div class="header_layout">
             <img class="company" src="/title_logo/logo.svg" alt="会社名">
-        <div class="a_tags">
-            @auth
-                @admin
-                    <a class="word1" href="{{ route('admin.attendance.list.index') }}">勤怠一覧</a>
-                    <a class="word2" href="">スタッフ一覧</a>
-                    <a class="word3" href="">申請一覧</a>
-                @else
-                    <a class="word1" href="{{ route('attendance.user.index') }}">勤怠</a>
-                    <a class="word2" href="{{ route('attendance.user.list.index') }}">勤怠一覧</a>
-                    <a class="word3" href="/attendance/detail/{id}">申請</a>
-                @endadmin
-                    <form class="" action="{{ route('logout') }}" method="post">
+            <div class="a_tags">
+                @auth
+                    @admin
+                        <a class="word1" href="{{ route('admin.attendance.list.index') }}">勤怠一覧</a>
+                        <a class="word2" href="">スタッフ一覧</a>
+                        <a class="word3" href="">申請一覧</a>
+                    @else
+                        @php
+                            // 現在日の勤怠データに退勤時刻が設定されているかチェック
+                            $isClockedOut = isset($attendance) && isset($attendance->clock_out_time);
+                        @endphp
+                        @if ($isClockedOut)
+                            {{-- 退勤済みの場合に表示するリンク --}}
+                            <a class="word1" href="{{ route('attendance.user.list.index') }}">今月の勤怠一覧</a>
+                            <a class="word2" href="{{ route('attendance.user.apply.index') }}">申請一覧</a>
+                        @else
+                            {{-- 勤務中の場合や、まだ出勤打刻をしていない場合に表示するリンク --}}
+                            <a class="word1" href="{{ route('attendance.user.index') }}">勤怠</a>
+                            <a class="word2" href="{{ route('attendance.user.list.index') }}">勤怠一覧</a>
+                            <a class="word3" href="{{ route('attendance.user.apply.index') }}">申請</a>
+                        @endif
+                    @endadmin
+                    <form action="{{ route('logout') }}" method="post">
                         @csrf
                         <button class="word4">ログアウト</button>
                     </form>
-            @endauth
+                @endauth
+            </div>
         </div>
     </header>
 
