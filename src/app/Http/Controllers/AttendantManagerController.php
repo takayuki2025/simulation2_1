@@ -37,22 +37,115 @@ class AttendantManagerController extends Controller
         return view('user_stamping', compact('attendance', 'greeting'));
     }
 
-    public function user_list_index()
+
+    public function user_list_index(Request $request)
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
 
-        // ユーザーの全勤怠レコードを新しい順に取得
+        // URLパラメータから年と月を取得、なければ現在の日付を使用
+        $year = $request->get('year', date('Y'));
+        $month = $request->get('month', date('m'));
+        $date = Carbon::create($year, $month, 1);
+
+        // 前月と次月のURLを生成
+        $prevMonth = $date->copy()->subMonth();
+        $nextMonth = $date->copy()->addMonth();
+
+        // ログインユーザーのIDを取得
+        $userId = Auth::id();
+
+        // ユーザーのその月の勤怠レコードを取得
         $attendances = Attendance::where('user_id', $user->id)
-                            ->orderBy('checkin_date', 'desc')
+                            ->whereYear('checkin_date', $year)
+                            ->whereMonth('checkin_date', $month)
                             ->get();
 
+        // ビューに渡すデータを連想配列としてまとめる
+        $viewData = [
+            'attendances' => $attendances,
+            'date' => $date,
+            'prevMonth' => $prevMonth,
+            'nextMonth' => $nextMonth,
+            'userId' => $userId,
+        ];
+
         // 勤怠データをビューに渡して表示
-        return view('user_attendance', compact('attendances'));
+        return view('user_attendance', $viewData);
     }
 
 
+     public function user_attendance_detail_index(Request $request, $id = null)
+    {
+        // 認証済みユーザーを取得
+        $user = Auth::user();
 
+        // クエリパラメータから日付を取得、存在しなければ現在の日付
+        $date = $request->input('date') ?? Carbon::now()->toDateString();
+
+        // 勤怠データを取得
+        $attendance = null;
+        if ($id) {
+            // URLからIDが渡された場合は、そのIDで検索
+            $attendance = Attendance::find($id);
+        } else {
+            // IDが渡されなかった場合は、日付とユーザーIDで検索
+            $attendance = Attendance::where('user_id', $user->id)
+                                    ->where('checkin_date', $date)
+                                    ->first();
+        }
+
+        // 勤怠データが存在するかどうかに関係なく、その日の申請データを検索して取得
+        // `$application` を確実に定義する
+        $application = Application::where('user_id', $user->id)
+                                ->where('checkin_date', $date)
+                                ->first();
+
+        // 休憩時間のフォーム入力欄の準備
+        $formBreakTimes = [];
+        $maxBreaks = 4; // 最大休憩回数を設定
+        
+        // 既存の休憩データがあれば取得
+        $existingBreakCount = 0;
+        if ($attendance) {
+            for ($i = 1; $i <= $maxBreaks; $i++) {
+                $breakStartTime = $attendance->{"break_start_time_{$i}"} ?? '';
+                $breakEndTime = $attendance->{"break_end_time_{$i}"} ?? '';
+                
+                if ($breakStartTime || $breakEndTime) {
+                    $formBreakTimes[] = [
+                        'start_time' => $breakStartTime ? Carbon::parse($breakStartTime)->format('H:i') : '',
+                        'end_time' => $breakEndTime ? Carbon::parse($breakEndTime)->format('H:i') : ''
+                    ];
+                    $existingBreakCount++;
+                }
+            }
+        }
+        
+        // 既存の休憩データが2つ未満の場合、空の入力欄を追加
+        $minBreaks = 2;
+        if ($existingBreakCount < $minBreaks) {
+            for ($i = $existingBreakCount; $i < $minBreaks; $i++) {
+                $formBreakTimes[] = [
+                    'start_time' => '',
+                    'end_time' => ''
+                ];
+            }
+        }
+
+        // ビューに渡すデータをまとめる
+        $viewData = [
+            'attendance' => $attendance,
+            'user' => $user,
+            // 勤怠データが存在しない場合は、リクエストから取得した$dateを渡す
+            'date' => $attendance ? $attendance->checkin_date : $date,
+            'formBreakTimes' => $formBreakTimes,
+            'application' => $application, // ここで申請データをビューに渡す
+        ];
+
+        // 勤怠詳細データをビューに渡して表示
+        return view('user_attendance_detail', $viewData);
+    }
 
 
         public function user_apply_index()
@@ -257,4 +350,70 @@ class AttendantManagerController extends Controller
 
         return redirect()->route('attendance.user.index');
     }
+
+
+        /**
+     * 勤怠データを保存（新規作成または更新）する
+     * * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function attendance_update(Request $request)
+    {
+        // 認証済みユーザーを取得
+        $user = Auth::user();
+
+        // フォームから送信された勤怠IDを取得
+        $attendanceId = $request->input('attendance_id');
+
+        // フォームから送信されたデータを取得
+        $date = $request->input('checkin_date');
+        $checkinTime = trim($request->input('clock_in_time'));
+        $checkoutTime = trim($request->input('clock_out_time'));
+        $reason = trim($request->input('reason'));
+        $breakTimes = $request->input('break_times', []);
+        
+        // 勤怠データを applications テーブルに保存
+        $application = new Application();
+        $application->user_id = $user->id;
+        $application->checkin_date = $date;
+        $application->pending = true; // 新しい申請は承認待ち状態（true）として保存
+
+        // 勤怠IDが存在する場合のみセット
+        if ($attendanceId) {
+            $application->attendance_id = $attendanceId;
+        }
+
+        // 日付と時間を結合してDateTimeオブジェクトを作成
+        if (!empty($checkinTime)) {
+            $application->clock_in_time = Carbon::parse($date . ' ' . $checkinTime);
+        }
+        if (!empty($checkoutTime)) {
+            $application->clock_out_time = Carbon::parse($date . ' ' . $checkoutTime);
+        }
+        
+        // 休憩時間を個別のカラムに設定
+        for ($i = 0; $i < count($breakTimes) && $i < 4; $i++) {
+            $breakStartTime = trim($breakTimes[$i]['start_time'] ?? '');
+            $breakEndTime = trim($breakTimes[$i]['end_time'] ?? '');
+            
+            if (!empty($breakStartTime)) {
+                $application->{'break_start_time_' . ($i + 1)} = Carbon::parse($date . ' ' . $breakStartTime);
+            }
+            if (!empty($breakEndTime)) {
+                $application->{'break_end_time_' . ($i + 1)} = Carbon::parse($date . ' ' . $breakEndTime);
+            }
+        }
+
+        $application->reason = $reason;
+        
+        // work_timeはここでは計算せずnullのまま保存
+        $application->work_time = null;
+        // break_total_timeも同様にここでは計算せずnullのまま保存
+        $application->break_total_time = null;
+
+        $application->save();
+
+        return redirect()->route('user.attendance.detail.index', ['date' => $date])->with('success', '勤怠修正の申請を送信しました。');
+    }
+
 }

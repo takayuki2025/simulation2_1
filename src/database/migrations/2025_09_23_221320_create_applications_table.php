@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('applications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('attendance_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('attendance_id')->nullable()->constrained()->cascadeOnDelete();
             $table->date('checkin_date')->nullable();
             $table->dateTime('clock_in_time')->nullable();
             $table->dateTime('clock_out_time')->nullable();

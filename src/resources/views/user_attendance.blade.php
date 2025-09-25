@@ -6,10 +6,8 @@
 
 @section('content')
 
-
-
 <body>
-    @php
+    <!-- @php
         // URLパラメータから年と月を取得、なければ現在の日付を使用
         $year = request()->get('year', date('Y'));
         $month = request()->get('month', date('m'));
@@ -18,7 +16,10 @@
         // 前月と次月のURLを生成
         $prevMonth = $date->copy()->subMonth();
         $nextMonth = $date->copy()->addMonth();
-    @endphp
+
+        // ログインユーザーのIDを取得
+        $userId = Auth::id();
+    @endphp -->
 
     <div class="container">
         <div class="title">
@@ -74,13 +75,14 @@
                                 <td>{{ $hasClockedOut ? \Carbon\Carbon::parse($attendance->clock_out_time)->format('H:i') : '' }}</td>
                                 <td>{{ $hasClockedOut && $attendance->break_total_time > 0 ? floor($attendance->break_total_time / 60) . ':' . str_pad($attendance->break_total_time % 60, 2, '0', STR_PAD_LEFT) : '' }}</td>
                                 <td>{{ $hasClockedOut && $attendance->work_time > 0 ? floor($attendance->work_time / 60) . ':' . str_pad($attendance->work_time % 60, 2, '0', STR_PAD_LEFT) : '' }}</td>
-                                <td><a href="/attendance/detail/{{ $attendance->id }}" class="detail-button">詳細</a></td>
+                                <td><a href="{{ route('user.attendance.detail.index', ['id' => $attendance->id]) }}" class="detail-button">詳細</a></td>
                             @else
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
-                                <td>-</td>
+                                <!-- 勤怠データがない場合でも詳細ボタンを表示 -->
+                                <td><a href="{{ route('user.attendance.detail.index', ['user_id' => $userId, 'date' => $currentDay->format('Y-m-d')]) }}" class="detail-button">詳細</a></td>
                             @endif
                         </tr>
                     @endfor

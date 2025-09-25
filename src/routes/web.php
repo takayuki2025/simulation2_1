@@ -80,7 +80,8 @@ Route::middleware(['verified'])->group(function () {
     Route::post('/stamping/break-start', [AttendantManagerController::class, 'breakStart'])->name('attendance.break_start');
     Route::post('/stamping/break-end', [AttendantManagerController::class, 'breakEnd'])->name('attendance.break_end');
     Route::get('/attendance/list', [AttendantManagerController::class, 'user_list_index'])->name('attendance.user.list.index');
-    // Route::get('/stamp_correction_request/list', [AttendantManagerController::class, 'user_apply_index'])->name('attendance.user.apply.index');
+    Route::get('/attendance/detail/{id?}', [AttendantManagerController::class, 'user_attendance_detail_index'])->name('user.attendance.detail.index');
+    Route::post('/attendance/update', [AttendantManagerController::class, 'attendance_update'])->name('attendance.update');
 });
 
 // 管理者の勤怠管理ルート

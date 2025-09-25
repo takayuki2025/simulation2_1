@@ -38,5 +38,8 @@ class Application extends Model
         return $this->belongsTo(User::class);
     }
 
-
+        public function Attendance(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

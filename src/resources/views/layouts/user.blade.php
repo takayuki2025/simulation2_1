@@ -26,7 +26,7 @@
                         @if ($isClockedOut)
                             {{-- 退勤済みの場合に表示するリンク --}}
                             <a class="word1" href="{{ route('attendance.user.list.index') }}">今月の勤怠一覧</a>
-                            <a class="word2" href="{{ route('apply_list') }}">申請一覧</a>
+                            <a class="word2" href="{{ route('apply.list') }}">申請一覧</a>
                         @else
                             {{-- 勤務中の場合や、まだ出勤打刻をしていない場合に表示するリンク --}}
                             <a class="word1" href="{{ route('attendance.user.index') }}">勤怠</a>

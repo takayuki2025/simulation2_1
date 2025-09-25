@@ -1,0 +1,135 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0 auto;
+    padding: 0;
+    width: 1400px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.tile_1 {
+    border-left: 8px solid #000000;
+    padding-left: 15px;
+    margin: 40px 0 30px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.attendance-detail-frame {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.detail-table {
+    width: 100%;
+    /* セルの境界線を結合して単一の線にします */
+    border-collapse: collapse;
+}
+
+/* 各セル（th, td）から個別の下線を削除 */
+.detail-table th,
+.detail-table td {
+    padding: 15px 10px;
+    text-align: left;
+    font-size: 16px;
+    border-bottom: none;
+}
+
+/* テーブルの行（tr）全体に下線を追加 */
+.detail-table tr {
+    border-bottom: 1px solid #ddd;
+}
+
+/* ヘッダーのスタイル */
+.detail-table th {
+    background-color: #ffffff;
+    font-weight: 600;
+    width: 30%;
+}
+
+/* 最後の行の下線を削除し、パディングも調整します */
+.detail-table .last-row {
+    border-bottom: none;
+}
+
+.detail-table .last-row td,
+.detail-table .last-row th {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.time-inputs {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+/* input[type="time"] を input[type="text"] に変更 */
+.time-inputs input[type="text"] {
+    width: 80px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.time-inputs span {
+    margin: 0 5px;
+    color: #555;
+}
+
+textarea {
+    width: 50%;
+    height: 60px;
+    margin-top: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.button-container {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    color: #fff;
+    text-align: center;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+}
+
+.update-button {
+    background-color: #28a745;
+}
+
+.update-button:hover {
+    background-color: #218838;
+}
+
+.back-button {
+    background-color: #f44336;
+    margin-left: 10px;
+}
+
+.message-approved,
+.message-pending {
+    color: #f44336;
+}
