@@ -119,3 +119,36 @@ body {
 .detail-button:hover {
     background-color: #218838;
 }
+
+.csv-area {
+ text-align: right;
+ margin: 20px 20px 0 0;
+
+}
+
+/* ★★★ CSVボタンのサイズを変更するための修正点 ★★★ */
+.csv-submit {
+    /* 1. パディングを追加してボタンサイズを調整 */
+    padding: 10px 20px;
+    /* 上下10px, 左右20px の余白 */
+    /* 2. フォントサイズを調整してボタン全体を大きく見せる */
+    font-size: 1em;
+    /* 3. その他見た目の調整 */
+    background-color: #000000;
+    color: white;
+    border: none;
+    /* デフォルトのボタン枠線を削除 */
+    border-radius: 5px;
+    /* 角を少し丸くする */
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    /* ホバー時のアニメーションを追加 */
+}
+
+.csv-submit:hover {
+    background-color: #333333;
+    /* ホバーで少し色を変える */
+    transform: translateY(-1px);
+    /* わずかに浮き上がらせるエフェクト */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

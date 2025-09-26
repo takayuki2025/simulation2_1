@@ -80,7 +80,19 @@
     </table>
 </div>
 
-</div>
+     <div class="csv-area">
+        {{-- ★修正点: actionをCSV出力用のルートに変更します --}}
+        <form action="{{ route('admin.staff.attendance.export') }}" method="POST" class="csv-button">
+        @csrf
+        
+        {{-- ★追加点: ユーザーID、年、月を隠しフィールドで送信します --}}
+        <input type="hidden" name="user_id" value="{{ $staffUser->id }}">
+        <input type="hidden" name="year" value="{{ $year }}">
+        <input type="hidden" name="month" value="{{ $month }}">
+
+        <button type="submit" class="csv-submit">CSV出力</button>
+        </form>
+    </div>
 
 </body>
 

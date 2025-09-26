@@ -10,6 +10,7 @@ use App\Models\Application;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log; // 大規模なプロジェクトの時のためLogファサードのインポートを追加
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendantManagerController extends Controller
 {
@@ -750,5 +751,115 @@ class AttendantManagerController extends Controller
             // エラーメッセージと共にリダイレクト
         return redirect()->route('apply.list')->with('error', '勤怠承認中にエラーが発生しました。');
         }
+    }
+
+
+    /**
+     * 指定されたユーザー、年、月の勤怠データをCSV形式でダウンロードする
+     *
+     * @param Request $request POSTリクエストで送信された user_id, year, month を含む
+     * @return StreamedResponse CSVファイルダウンロードレスポンス
+     */
+    public function export(Request $request)
+    {
+        // 1. リクエストからパラメータを取得
+        $userId = $request->input('user_id');
+        $year = $request->input('year');
+        $month = $request->input('month');
+
+        // 必須パラメータの確認
+        if (empty($userId) || empty($year) || empty($month)) {
+            return redirect()->back()->with('error', 'CSV出力に必要な情報が不足しています。');
+        }
+
+        // 2. 期間の設定とデータ取得
+        $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::create($year, $month, 1)->endOfMonth();
+
+        // ユーザー名を取得（ファイル名やCSV内容に使用）
+        $user = User::find($userId);
+        $userName = $user ? $user->name : 'UnknownUser';
+
+        // 勤怠データを取得（画面表示時と同じロジックを使用）
+        $attendances = Attendance::where('user_id', $userId)
+            ->whereDate('checkin_date', '>=', $startDate->format('Y-m-d'))
+            ->whereDate('checkin_date', '<=', $endDate->format('Y-m-d'))
+            ->orderBy('checkin_date', 'asc')
+            ->get();
+
+        // 3. CSV生成ロジック
+        $fileName = $userName . '_勤怠_' . $year . '年' . $month . '月.csv';
+        
+        // ----------------------------------------------------
+        // 分単位の時間を HH:MM 形式に変換するヘルパー関数
+        $formatMinutes = function ($minutes) {
+            if (!is_numeric($minutes) || $minutes <= 0) return '0:00';
+            $hours = floor($minutes / 60);
+            $remainingMinutes = $minutes % 60;
+            return $hours . ':' . str_pad($remainingMinutes, 2, '0', STR_PAD_LEFT);
+        };
+        // ----------------------------------------------------
+
+        // StreamedResponseでCSVダウンロードをストリーム配信
+        $response = new StreamedResponse(function () use ($userName, $year, $month, $attendances, $formatMinutes) {
+            $stream = fopen('php://output', 'w');
+
+            // Excelなどの文字化け対策（BOMを付与）
+            fwrite($stream, "\xEF\xBB\xBF");
+
+            // ヘッダー行
+            $header = [
+                'ユーザー名',
+                '日付',
+                '曜日',
+                '出勤時刻',
+                '退勤時刻',
+                '休憩時間(H:i)',
+                '労働時間(H:i)'
+            ];
+            fputcsv($stream, $header);
+
+            // データ行 (月のすべての日を出力)
+            $currentDate = Carbon::create($year, $month, 1);
+            $daysInMonth = $currentDate->daysInMonth;
+            $dayOfWeekMap = ['日', '月', '火', '水', '木', '金', '土'];
+
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $date = Carbon::create($year, $month, $i);
+                $dayOfWeek = $dayOfWeekMap[$date->dayOfWeek];
+                $attendance = $attendances->firstWhere('checkin_date', $date->format('Y-m-d'));
+
+                if ($attendance) {
+                    $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time;
+
+                    $row = [
+                        $userName,
+                        $date->format('Y-m-d'),
+                        $dayOfWeek,
+                        $attendance->clock_in_time ? Carbon::parse($attendance->clock_in_time)->format('H:i') : '',
+                        $hasClockedOut ? Carbon::parse($attendance->clock_out_time)->format('H:i') : '',
+                        $formatMinutes($attendance->break_total_time ?? 0),
+                        $formatMinutes($attendance->work_time ?? 0),
+                    ];
+                } else {
+                    // 勤怠記録がない日
+                    $row = [
+                        $userName,
+                        $date->format('Y-m-d'),
+                        $dayOfWeek,
+                        '-', '-', '0:00', '0:00'
+                    ];
+                }
+                fputcsv($stream, $row);
+            }
+
+            fclose($stream);
+        }, 200, [
+            // ダウンロード時のファイル名を指定
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
+
+        return $response;
     }
 }

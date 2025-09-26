@@ -96,7 +96,7 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/apply/attendance/approve', [AttendantManagerController::class, 'admin_apply_attendance_approve'])->name('admin.apply.attendance.approve');
 
 
-
+Route::post('/admin/staff/attendance/export', [AttendantManagerController::class, 'export'])->name('admin.staff.attendance.export');
 });
 
 // 申請一覧共通ルート
