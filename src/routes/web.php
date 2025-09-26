@@ -89,7 +89,8 @@ Route::middleware(['verified'])->group(function () {
 Route::middleware(['admin'])->group(function () {
     Route::get('/admin/attendance/list', [AttendantManagerController::class, 'admin_list_index'])->name('admin.attendance.list.index');
     Route::get('/admin/staff/list', [AttendantManagerController::class, 'admin_staff_list_index'])->name('admin.staff.list.index');
-
+    Route::get('/stamp_correction_request/approve/{attendance_correct_request_id}', [AttendantManagerController::class, 'admin_apply_judgement_index'])->name('admin.apply.judgement.index');
+    Route::post('/admin/attendance/update', [AttendantManagerController::class, 'admin_attendance_update'])->name('admin.attendance.update');
 
 
 

@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Application;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log; // 大規模なプロジェクトの時のためLogファサードのインポートを追加
 
 class AttendantManagerController extends Controller
 {
@@ -75,7 +77,7 @@ class AttendantManagerController extends Controller
     }
 
 
-     public function user_attendance_detail_index(Request $request, $id = null)
+    public function user_attendance_detail_index(Request $request, $id = null)
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
@@ -104,14 +106,14 @@ class AttendantManagerController extends Controller
         // 休憩時間のフォーム入力欄の準備
         $formBreakTimes = [];
         $maxBreaks = 4; // 最大休憩回数を設定
-        
+
         // 既存の休憩データがあれば取得
         $existingBreakCount = 0;
         if ($attendance) {
             for ($i = 1; $i <= $maxBreaks; $i++) {
                 $breakStartTime = $attendance->{"break_start_time_{$i}"} ?? '';
                 $breakEndTime = $attendance->{"break_end_time_{$i}"} ?? '';
-                
+
                 if ($breakStartTime || $breakEndTime) {
                     $formBreakTimes[] = [
                         'start_time' => $breakStartTime ? Carbon::parse($breakStartTime)->format('H:i') : '',
@@ -121,7 +123,7 @@ class AttendantManagerController extends Controller
                 }
             }
         }
-        
+
         // 既存の休憩データが2つ未満の場合、空の入力欄を追加
         $minBreaks = 2;
         if ($existingBreakCount < $minBreaks) {
@@ -148,7 +150,7 @@ class AttendantManagerController extends Controller
     }
 
 
-        public function user_apply_index()
+    public function user_apply_index()
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
@@ -197,8 +199,8 @@ class AttendantManagerController extends Controller
 
     public function admin_apply_list_index(Request $request)
     {
-        // 'pending'というクエリパラメータを取得。存在しない場合は'false'をデフォルト値とする
-        $status = $request->query('pending', 'false');
+        // 'pending'というクエリパラメータを取得。存在しない場合は'true'をデフォルト値とする
+        $status = $request->query('pending', 'true');
 
         // Applicationモデルのクエリを開始
         $query = Application::query();
@@ -218,6 +220,50 @@ class AttendantManagerController extends Controller
         return view('admin_apply', [
             'applications' => $applications,
         ]);
+    }
+
+
+    public function admin_apply_judgement_index($attendance_correct_request_id)
+    {
+        // 申請IDからApplicationモデルのデータを取得
+        $application = Application::with('user')->find($attendance_correct_request_id);
+
+        // もし該当する申請データがなければ、エラーページなどにリダイレクト
+        if (!$application) {
+            return redirect()->back()->with('error', '申請が見つかりませんでした。');
+        }
+
+        // 複数回の休憩に対応するための配列
+        $breakTimes = [];
+        $maxBreaks = 5; // 最大休憩回数を設定。必要に応じて変更してください。
+
+        // 休憩データをループで取得
+        for ($i = 1; $i <= $maxBreaks; $i++) {
+            $breakStartTimeField = "break_start_time_{$i}";
+            $breakEndTimeField = "break_end_time_{$i}";
+
+            if (isset($application->$breakStartTimeField) || isset($application->$breakEndTimeField)) {
+                $breakTimes[] = [
+                    'start_time' => $application->$breakStartTimeField ? Carbon::parse($application->$breakStartTimeField)->format('H:i') : null,
+                    'end_time' => $application->$breakEndTimeField ? Carbon::parse($application->$breakEndTimeField)->format('H:i') : null,
+                ];
+            }
+        }
+
+        // ビューに渡すデータを整理
+        $data = [
+            'name' => $application->user->name,
+            'date' => Carbon::parse($application->checkin_date)->format('Y年m月d日'),
+            'clock_in_time' => $application->clock_in_time ? Carbon::parse($application->clock_in_time)->format('H:i') : '-',
+            'clock_out_time' => $application->clock_out_time ? Carbon::parse($application->clock_out_time)->format('H:i') : '-',
+            'break_times' => $breakTimes,
+            'reason' => $application->reason,
+            'pending' => $application->pending, // pendingステータスを追加
+            'application_id' => $application->id,
+        ];
+
+        // 整理したデータをadmin_apply_judgement.blade.phpに渡して表示
+        return view('admin_apply_judgement', compact('data'));
     }
 
 
@@ -243,7 +289,7 @@ class AttendantManagerController extends Controller
             ]);
         }
 
-        return redirect()->route('attendance.user.index');
+        return redirect()->route('user.attendance.index');
     }
 
     /**
@@ -289,7 +335,7 @@ class AttendantManagerController extends Controller
             ]);
         }
 
-        return redirect()->route('attendance.user.index');
+        return redirect()->route('user.attendance.index');
     }
 
     /**
@@ -317,7 +363,7 @@ class AttendantManagerController extends Controller
             }
         }
 
-        return redirect()->route('attendance.user.index');
+        return redirect()->route('user.attendance.index');
     }
 
     /**
@@ -348,7 +394,7 @@ class AttendantManagerController extends Controller
             }
         }
 
-        return redirect()->route('attendance.user.index');
+        return redirect()->route('user.attendance.index');
     }
 
 
@@ -371,7 +417,7 @@ class AttendantManagerController extends Controller
         $checkoutTime = trim($request->input('clock_out_time'));
         $reason = trim($request->input('reason'));
         $breakTimes = $request->input('break_times', []);
-        
+
         // 勤怠データを applications テーブルに保存
         $application = new Application();
         $application->user_id = $user->id;
@@ -390,12 +436,12 @@ class AttendantManagerController extends Controller
         if (!empty($checkoutTime)) {
             $application->clock_out_time = Carbon::parse($date . ' ' . $checkoutTime);
         }
-        
+
         // 休憩時間を個別のカラムに設定
         for ($i = 0; $i < count($breakTimes) && $i < 4; $i++) {
             $breakStartTime = trim($breakTimes[$i]['start_time'] ?? '');
             $breakEndTime = trim($breakTimes[$i]['end_time'] ?? '');
-            
+
             if (!empty($breakStartTime)) {
                 $application->{'break_start_time_' . ($i + 1)} = Carbon::parse($date . ' ' . $breakStartTime);
             }
@@ -405,7 +451,7 @@ class AttendantManagerController extends Controller
         }
 
         $application->reason = $reason;
-        
+
         // work_timeはここでは計算せずnullのまま保存
         $application->work_time = null;
         // break_total_timeも同様にここでは計算せずnullのまま保存
@@ -416,4 +462,92 @@ class AttendantManagerController extends Controller
         return redirect()->route('user.attendance.detail.index', ['date' => $date])->with('success', '勤怠修正の申請を送信しました。');
     }
 
+
+    public function admin_attendance_update(Request $request)
+    {
+        // リクエストからアプリケーションIDを取得
+        $applicationId = $request->input('id');
+
+        if (empty($applicationId)) {
+            // IDがリクエストに含まれていない場合はエラーを返す
+            return redirect()->route('admin.applications.index')->with('error', '承認する勤怠申請が指定されていません。');
+        }
+
+        try {
+            // トランザクションを開始
+            DB::beginTransaction();
+
+            // 指定されたIDの勤怠申請レコードを検索
+            $application = Application::findOrFail($applicationId);
+
+            // 申請内容に基づいて、attendancesテーブルのレコードを更新または新規作成
+            // ユーザーIDと日付で既存のレコードを探す
+            $attendance = Attendance::firstOrNew([
+                'user_id' => $application->user_id,
+                'checkin_date' => $application->checkin_date,
+            ]);
+
+            // applicationsテーブルのデータをattendancesテーブルにコピー
+            $attendance->clock_in_time = $application->clock_in_time;
+            $attendance->clock_out_time = $application->clock_out_time;
+
+            // --- ここから計算ロジックを追加 ---
+
+            $totalWorkSeconds = 0;
+            $totalBreakSeconds = 0;
+
+            // 労働時間を計算
+            // 退勤時間と出勤時間が両方存在する場合のみ計算
+            if ($application->clock_in_time && $application->clock_out_time) {
+                // Unixタイムスタンプを使用して総勤務時間（秒）を計算
+                $totalWorkSeconds = strtotime($application->clock_out_time) - strtotime($application->clock_in_time);
+
+                // すべての休憩時間を再計算
+                for ($i = 1; $i <= 4; $i++) {
+                    $start = $application->{'break_start_time_' . $i};
+                    $end = $application->{'break_end_time_' . $i};
+
+                    if ($start && $end) {
+                        $totalBreakSeconds += strtotime($end) - strtotime($start);
+                    }
+                }
+            }
+
+            // 最終的な労働時間（秒）を計算し、マイナスにならないようにする
+            $finalWorkSeconds = max(0, $totalWorkSeconds - $totalBreakSeconds);
+
+            // 労働時間を分単位に変換して代入
+            $attendance->work_time = round($finalWorkSeconds / 60);
+
+            // 休憩時間を分単位に変換して代入
+            $attendance->break_total_time = round($totalBreakSeconds / 60);
+
+            // 休憩時間をループでコピー
+            for ($i = 1; $i <= 4; $i++) {
+                $attendance->{'break_start_time_' . $i} = $application->{'break_start_time_' . $i};
+                $attendance->{'break_end_time_' . $i} = $application->{'break_end_time_' . $i};
+            }
+
+            // 勤怠レコードを保存
+            $attendance->save();
+
+            // applicationsテーブルの`pending`を`false`に更新
+            // このアクションは、`applications`テーブルに`pending`というboolean型のカラムが存在することを前提としています。
+            $application->update(['pending' => false]);
+
+            // トランザクションをコミット
+            DB::commit();
+
+            // 成功メッセージと共にリダイレクト
+            return redirect()->route('apply.list')->with('success', '勤怠申請を承認しました。');
+
+        } catch (\Exception $e) {
+            // エラーが発生した場合はトランザクションをロールバック
+            DB::rollBack();
+            Log::error('勤怠承認エラー: ' . $e->getMessage());
+
+            // エラーメッセージと共にリダイレクト
+        return redirect()->route('apply.list')->with('error', '勤怠承認中にエラーが発生しました。');
+        }
+    }
 }

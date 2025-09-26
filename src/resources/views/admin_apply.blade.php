@@ -48,7 +48,7 @@
                 <td>{{ $application->reason }}</td>
                 <td>{{ $application->created_at->format('Y/m/d') }}</td>
                 <td>
-                    <a href="" class="detail-link">詳細へ</a>
+                    <a href="{{ route('admin.apply.judgement.index', ['attendance_correct_request_id' => $application->id]) }}" class="detail-link">詳細へ</a>
                 </td>
             </tr>
             @endforeach

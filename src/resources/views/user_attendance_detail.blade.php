@@ -65,17 +65,21 @@
             </table>
     </div>
 
-<div class="button-container">
-    <!-- `$application` が存在し、`pending`が`true`の場合にメッセージを表示 -->
-    @if($application && $application->pending)
-        <span class="message-pending">＊承認待ちのため修正はできません。</span>
-    <!-- `$application` が存在し、`pending`が`false`の場合にメッセージを表示 -->
-    @elseif($application && !$application->pending)
-        <span class="message-approved">＊この日は一度承認したので修正できません。</span>
-    @else
-        <button type="submit" class="button update-button">更新</button>
-    @endif
-</div>
+        <div class="button-container">
+            <!-- 申請データが`null`ではない場合に、承認ステータスをチェックする -->
+            @if($application)
+                <!-- pendingが`true`の場合にメッセージを表示 -->
+                @if($application->pending)
+                    <span class="message-pending">＊承認待ちのため修正はできません。</span>
+                <!-- pendingが`false`の場合にメッセージを表示 -->
+                @else
+                    <span class="message-approved">＊この日は一度承認されたので修正できません。</span>
+                @endif
+            @else
+                <!-- 勤怠申請データが存在しない場合は修正ボタンを表示 -->
+                <button type="submit" class="button update-button">修正</button>
+            @endif
+        </div>
 
         </form>
 </div>
