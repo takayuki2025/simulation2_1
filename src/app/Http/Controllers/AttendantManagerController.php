@@ -16,7 +16,7 @@ class AttendantManagerController extends Controller
     /**
      * 打刻勤怠ページを表示します。
      */
-    public function user_index()
+    public function user_stamping_index()
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
@@ -40,7 +40,7 @@ class AttendantManagerController extends Controller
     }
 
 
-    public function user_list_index(Request $request)
+    public function user_month_index(Request $request)
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
@@ -70,10 +70,12 @@ class AttendantManagerController extends Controller
             'prevMonth' => $prevMonth,
             'nextMonth' => $nextMonth,
             'userId' => $userId,
+            'year' => $year, // ★追加: yearをビューに渡す
+            'month' => $month, // ★追加: monthをビューに渡す
         ];
 
         // 勤怠データをビューに渡して表示
-        return view('user_attendance', $viewData);
+        return view('user_month_attendance', $viewData);
     }
 
 
@@ -161,14 +163,14 @@ class AttendantManagerController extends Controller
                             ->get();
 
         // 勤怠データをビューに渡して表示
-        return view('user_apply', compact('attendances'));
+        return view('user_apply_list', compact('attendances'));
     }
 
 
     /**
      * 管理者用日次勤怠一覧を表示
      */
-    public function admin_list_index(Request $request)
+    public function admin_staff_daily_index(Request $request)
     {
         // URLパラメータから日付を取得、なければ今日の日付を使用
         $date = $request->get('date', Carbon::now()->toDateString());
@@ -181,7 +183,7 @@ class AttendantManagerController extends Controller
         // ユーザーの一覧を取得し、IDが1のユーザーを除外する
         $users = User::where('id', '!=', 1)->get();
 
-        return view('admin_attendance', compact('attendances', 'users'));
+        return view('admin_staff_daily_attendance', compact('attendances', 'users'));
     }
 
 
@@ -321,7 +323,7 @@ class AttendantManagerController extends Controller
         // フィルタリングされた結果を取得
         $applications = $query->get();
 
-        return view('admin_apply', [
+        return view('admin_apply_list', [
             'applications' => $applications,
         ]);
     }

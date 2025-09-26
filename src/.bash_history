@@ -77,3 +77,8 @@ exit
 php artisan cache:clear
 php artisan route:cache
 exit
+php artisan route:clear
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+exit

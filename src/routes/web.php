@@ -75,19 +75,19 @@ Route::middleware(['auth'])->group(function () {
 
 // ユーザーの勤怠管理のルート
 Route::middleware(['verified'])->group(function () {
-    Route::get('/attendance', [AttendantManagerController::class, 'user_index'])->name('user.attendance.index');
+    Route::get('/attendance', [AttendantManagerController::class, 'user_stamping_index'])->name('user.stamping.index');
     Route::post('/stamping/clock-in', [AttendantManagerController::class, 'clockIn'])->name('attendance.clock_in');
     Route::post('/stamping/clock-out', [AttendantManagerController::class, 'attendance_create'])->name('attendance.create');
     Route::post('/stamping/break-start', [AttendantManagerController::class, 'breakStart'])->name('attendance.break_start');
     Route::post('/stamping/break-end', [AttendantManagerController::class, 'breakEnd'])->name('attendance.break_end');
-    Route::get('/attendance/list', [AttendantManagerController::class, 'user_list_index'])->name('user.attendance.list.index');
+    Route::get('/attendance/list', [AttendantManagerController::class, 'user_month_index'])->name('user.month.index');
     Route::get('/attendance/detail/{id?}', [AttendantManagerController::class, 'user_attendance_detail_index'])->name('user.attendance.detail.index');
     Route::post('/attendance/update', [AttendantManagerController::class, 'application_create'])->name('application.create');
 });
 
 // 管理者の勤怠管理ルート
 Route::middleware(['admin'])->group(function () {
-    Route::get('/admin/attendance/list', [AttendantManagerController::class, 'admin_list_index'])->name('admin.attendance.list.index');
+    Route::get('/admin/attendance/list', [AttendantManagerController::class, 'admin_staff_daily_index'])->name('admin.attendance.list.index');
     Route::get('/admin/attendance/{id}', [AttendantManagerController::class, 'admin_user_attendance_detail_index'])->name('admin.user.attendance.detail.index');
     Route::post('/admin/attendance/approve', [AttendantManagerController::class, 'admin_attendance_approve'])->name('admin.attendance.approve');
     Route::get('/admin/staff/list', [AttendantManagerController::class, 'admin_staff_list_index'])->name('admin.staff.list.index');
