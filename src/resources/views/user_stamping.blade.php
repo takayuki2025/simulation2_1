@@ -76,7 +76,7 @@
                     <p class="day_and_week" id="currentDayOfWeek">{{ $currentDate }} ({{ $currentDay }}曜日)</p>
                     <p class="time_only" id="currentTime">{{ $currentTime }}</p>
                     <div class="submit_out_or_break">
-                        <form action="{{ route('attendance.clock_out') }}" method="post">
+                        <form action="{{ route('attendance.create') }}" method="post">
                             @csrf
                             <input type="submit" class="submit_form_2" value="退勤">
                         </form>

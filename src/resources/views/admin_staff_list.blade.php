@@ -25,7 +25,9 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
-                        <a href="#" class="detail-button">詳細</a>
+                                    <a href="{{ route('admin.staff.month.index', ['id' => $user->id]) }}">
+                勤怠詳細
+            </a>
                     </td>
                 </tr>
                 @endif

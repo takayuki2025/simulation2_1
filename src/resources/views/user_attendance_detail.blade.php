@@ -14,7 +14,7 @@
 </div>
 
     <div class="attendance-detail-frame">
-        <form action="{{ route('attendance.update') }}" method="POST" id="attendance-form">
+        <form action="{{ route('application.create') }}" method="POST" id="attendance-form">
             @csrf
             <!-- 勤怠データが存在する場合、IDを渡す -->
             @if($attendance)

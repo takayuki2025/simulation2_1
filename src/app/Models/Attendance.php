@@ -27,6 +27,7 @@ class Attendance extends Model
         'break_end_time_4',
         'break_total_time',
         'work_time',
+        'reason',
     ];
 
 

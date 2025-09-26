@@ -2,8 +2,8 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f7f7f7;
     margin: 0 auto;
-    padding: 20px;
-    width: 1400px;
+    /* padding: 20px; */
+    max-width: 1400px;
 }
 
 .page-title {

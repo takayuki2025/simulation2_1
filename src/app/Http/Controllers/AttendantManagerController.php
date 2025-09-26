@@ -182,6 +182,77 @@ class AttendantManagerController extends Controller
     }
 
 
+    public function admin_user_attendance_detail_index(Request $request, $id = null)
+    {
+        // 認証済みユーザーを取得
+        $user = Auth::user();
+
+        // クエリパラメータから日付を取得、存在しなければ現在の日付
+        $date = $request->input('date') ?? Carbon::now()->toDateString();
+
+        // 勤怠データを取得
+        $attendance = null;
+        if ($id) {
+            // URLからIDが渡された場合は、そのIDで検索
+            $attendance = Attendance::find($id);
+        } else {
+            // IDが渡されなかった場合は、日付とユーザーIDで検索                   　　　　　　　　　　　この下の３行いらないかも
+            $attendance = Attendance::where('user_id', $user->id)
+                                    ->where('checkin_date', $date)
+                                    ->first();
+        }
+
+        // 勤怠データが存在するかどうかに関係なく、その日の申請データを検索して取得
+        // `$application` を確実に定義する
+        $application = Application::where('user_id', $user->id)
+                                ->where('checkin_date', $date)
+                                ->first();
+
+        // 休憩時間のフォーム入力欄の準備
+        $formBreakTimes = [];
+        $maxBreaks = 4; // 最大休憩回数を設定
+
+        // 既存の休憩データがあれば取得
+        $existingBreakCount = 0;
+        if ($attendance) {
+            for ($i = 1; $i <= $maxBreaks; $i++) {
+                $breakStartTime = $attendance->{"break_start_time_{$i}"} ?? '';
+                $breakEndTime = $attendance->{"break_end_time_{$i}"} ?? '';
+
+                if ($breakStartTime || $breakEndTime) {
+                    $formBreakTimes[] = [
+                        'start_time' => $breakStartTime ? Carbon::parse($breakStartTime)->format('H:i') : '',
+                        'end_time' => $breakEndTime ? Carbon::parse($breakEndTime)->format('H:i') : ''
+                    ];
+                    $existingBreakCount++;
+                }
+            }
+        }
+
+        // 既存の休憩データが2つ未満の場合、空の入力欄を追加
+        $minBreaks = 2;
+        if ($existingBreakCount < $minBreaks) {
+            for ($i = $existingBreakCount; $i < $minBreaks; $i++) {
+                $formBreakTimes[] = [
+                    'start_time' => '',
+                    'end_time' => ''
+                ];
+            }
+        }
+
+        // ビューに渡すデータをまとめる
+        $viewData = [
+            'attendance' => $attendance,
+            'user' => $user,
+            // 勤怠データが存在しない場合は、リクエストから取得した$dateを渡す
+            'date' => $attendance ? $attendance->checkin_date : $date,
+            'formBreakTimes' => $formBreakTimes,
+            'application' => $application, // ここで申請データをビューに渡す
+        ];
+
+        // 勤怠詳細データをビューに渡して表示
+        return view('admin_attendance_detail', $viewData);
+    }
 
 
         public function admin_staff_list_index(Request $request)
@@ -194,7 +265,35 @@ class AttendantManagerController extends Controller
     }
 
 
+    public function admin_staff_month_index(Request $request, $id)
+    {
+        // URLパラメータから年と月を取得、なければ現在の日付を使用
+        $year = $request->get('year', date('Y'));
+        $month = $request->get('month', date('m'));
+        $date = Carbon::create($year, $month, 1);
 
+        // 前月と次月のURLを生成
+        $prevMonth = $date->copy()->subMonth();
+        $nextMonth = $date->copy()->addMonth();
+
+        // 指定されたIDのユーザーとその月の勤怠レコードを取得
+        $users = User::all();
+        $attendances = Attendance::where('user_id', $id)
+            ->whereYear('checkin_date', $year)
+            ->whereMonth('checkin_date', $month)
+            ->get();
+        
+        $viewData = [
+            'attendances' => $attendances,
+            'date' => $date,
+            'prevMonth' => $prevMonth,
+            'nextMonth' => $nextMonth,
+            'users' => $users,
+            'userId' => $id, // 修正: URLから取得した$idをビューに渡す
+        ];
+
+        return view('admin_staff_month_attendance', $viewData);
+    }
 
 
     public function admin_apply_list_index(Request $request)
@@ -295,7 +394,7 @@ class AttendantManagerController extends Controller
     /**
      * 退勤処理を実行します。
      */
-    public function clockOut()
+    public function attendance_create()
     {
         $user = Auth::user();
         $today = Carbon::today();
@@ -403,7 +502,7 @@ class AttendantManagerController extends Controller
      * * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function attendance_update(Request $request)
+    public function application_create(Request $request)
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
@@ -463,7 +562,103 @@ class AttendantManagerController extends Controller
     }
 
 
-    public function admin_attendance_update(Request $request)
+    /**
+     * 管理者が勤怠詳細を修正・承認する
+     *
+     * 既存の勤怠を更新し、勤怠がない日は新規作成する
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function admin_attendance_approve(Request $request)
+    {
+        // 認証済みユーザーを取得
+        $user = Auth::user();
+
+        // フォームから送信された勤怠IDと日付を取得
+        $attendanceId = $request->input('id') ?? $request->input('attendance_id');
+        $date = $request->input('checkin_date');
+
+        try {
+            DB::beginTransaction();
+
+            // IDが存在すれば既存レコードを検索、なければ新規インスタンスを作成
+            if ($attendanceId) {
+                $attendance = Attendance::find($attendanceId);
+                // IDがあってもレコードが見つからない場合はエラー
+                if (!$attendance) {
+                    throw new \Exception('指定された勤怠記録が見つかりませんでした。');
+                }
+            } else {
+                // 新しい勤怠レコードのインスタンスを作成
+                $attendance = new Attendance();
+                $attendance->user_id = $user->id; // 新規作成時は管理者ユーザーなので修正が必要　　　　　　　　　　　　　　　　　　　　　　　ユーザーIDを紐付け
+                $attendance->checkin_date = $date; // 新規作成時は日付も紐付け
+            }
+
+            // フォームから送信されたデータを取得
+            $checkinTime = trim($request->input('clock_in_time'));
+            $checkoutTime = trim($request->input('clock_out_time'));
+            $breakTimes = $request->input('break_times', []);
+            $reason = trim($request->input('reason'));
+
+            // 出勤・退勤時間を更新
+            $attendance->clock_in_time = !empty($checkinTime) ? Carbon::parse($date . ' ' . $checkinTime) : null;
+            $attendance->clock_out_time = !empty($checkoutTime) ? Carbon::parse($date . ' ' . $checkoutTime) : null;
+
+            // 休憩時間の初期化
+            for ($i = 1; $i <= 4; $i++) {
+                $attendance->{'break_start_time_' . $i} = null;
+                $attendance->{'break_end_time_' . $i} = null;
+            }
+
+            $totalBreakSeconds = 0;
+
+            // 休憩時間を更新し、合計休憩時間（秒）を計算
+            foreach ($breakTimes as $index => $breakTime) {
+                if ($index >= 4) {
+                    break;
+                }
+
+                $breakStartTime = trim($breakTime['start_time'] ?? '');
+                $breakEndTime = trim($breakTime['end_time'] ?? '');
+
+                if (!empty($breakStartTime) && !empty($breakEndTime)) {
+                    $attendance->{'break_start_time_' . ($index + 1)} = Carbon::parse($date . ' ' . $breakStartTime);
+                    $attendance->{'break_end_time_' . ($index + 1)} = Carbon::parse($date . ' ' . $breakEndTime);
+                    $totalBreakSeconds += $attendance->{'break_end_time_' . ($index + 1)}->timestamp - $attendance->{'break_start_time_' . ($index + 1)}->timestamp;
+                }
+            }
+
+            // 総労働時間（秒）を計算
+            $totalWorkSeconds = 0;
+            if ($attendance->clock_in_time && $attendance->clock_out_time) {
+                $totalWorkSeconds = $attendance->clock_out_time->timestamp - $attendance->clock_in_time->timestamp;
+            }
+
+            // 最終的な労働時間と休憩時間を分単位で計算し、レコードに設定
+            $finalWorkSeconds = max(0, $totalWorkSeconds - $totalBreakSeconds);
+            $attendance->work_time = round($finalWorkSeconds / 60);
+            $attendance->break_total_time = round($totalBreakSeconds / 60);
+            $attendance->reason = $reason;
+
+            // 勤怠レコードを保存して更新を確定
+            $attendance->save();
+
+            DB::commit();
+
+            return redirect()->route('admin.attendance.list.index', ['id' => $attendance->user_id])->with('success', '勤怠データを修正しました。');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('勤怠修正エラー: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', '勤怠データの修正中にエラーが発生しました。');
+        }
+    }
+
+
+    public function admin_apply_attendance_approve(Request $request)
     {
         // リクエストからアプリケーションIDを取得
         $applicationId = $request->input('id');

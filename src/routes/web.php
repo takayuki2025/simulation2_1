@@ -77,20 +77,23 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['verified'])->group(function () {
     Route::get('/attendance', [AttendantManagerController::class, 'user_index'])->name('user.attendance.index');
     Route::post('/stamping/clock-in', [AttendantManagerController::class, 'clockIn'])->name('attendance.clock_in');
-    Route::post('/stamping/clock-out', [AttendantManagerController::class, 'clockOut'])->name('attendance.clock_out');
+    Route::post('/stamping/clock-out', [AttendantManagerController::class, 'attendance_create'])->name('attendance.create');
     Route::post('/stamping/break-start', [AttendantManagerController::class, 'breakStart'])->name('attendance.break_start');
     Route::post('/stamping/break-end', [AttendantManagerController::class, 'breakEnd'])->name('attendance.break_end');
     Route::get('/attendance/list', [AttendantManagerController::class, 'user_list_index'])->name('user.attendance.list.index');
     Route::get('/attendance/detail/{id?}', [AttendantManagerController::class, 'user_attendance_detail_index'])->name('user.attendance.detail.index');
-    Route::post('/attendance/update', [AttendantManagerController::class, 'attendance_update'])->name('attendance.update');
+    Route::post('/attendance/update', [AttendantManagerController::class, 'application_create'])->name('application.create');
 });
 
 // 管理者の勤怠管理ルート
 Route::middleware(['admin'])->group(function () {
     Route::get('/admin/attendance/list', [AttendantManagerController::class, 'admin_list_index'])->name('admin.attendance.list.index');
+    Route::get('/admin/attendance/{id}', [AttendantManagerController::class, 'admin_user_attendance_detail_index'])->name('admin.user.attendance.detail.index');
+    Route::post('/admin/attendance/approve', [AttendantManagerController::class, 'admin_attendance_approve'])->name('admin.attendance.approve');
     Route::get('/admin/staff/list', [AttendantManagerController::class, 'admin_staff_list_index'])->name('admin.staff.list.index');
+    Route::get('/admin/attendance/staff/{id}', [AttendantManagerController::class, 'admin_staff_month_index'])->name('admin.staff.month.index');
     Route::get('/stamp_correction_request/approve/{attendance_correct_request_id}', [AttendantManagerController::class, 'admin_apply_judgement_index'])->name('admin.apply.judgement.index');
-    Route::post('/admin/attendance/update', [AttendantManagerController::class, 'admin_attendance_update'])->name('admin.attendance.update');
+    Route::post('/admin/apply/attendance/approve', [AttendantManagerController::class, 'admin_apply_attendance_approve'])->name('admin.apply.attendance.approve');
 
 
 

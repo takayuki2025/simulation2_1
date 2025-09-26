@@ -69,7 +69,7 @@
                             <td>{{ $attendance->break_total_time > 0 ? floor($attendance->break_total_time / 60) . ':' . str_pad($attendance->break_total_time % 60, 2, '0', STR_PAD_LEFT) : '' }}</td>
                             <!-- 合計時間が0ではない場合のみ表示 -->
                             <td>{{ $attendance->work_time > 0 ? floor($attendance->work_time / 60) . ':' . str_pad($attendance->work_time % 60, 2, '0', STR_PAD_LEFT) : '' }}</td>
-                            <td><a href="/attendance/detail/{{ $attendance->id }}" class="detail-button">詳細</a></td>
+                            <td><a href="{{ route('admin.user.attendance.detail.index', $attendance->id) }}" class="detail-button">詳細</a></td>
                         </tr>
                     @endforeach
                 </tbody>

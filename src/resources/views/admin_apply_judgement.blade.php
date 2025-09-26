@@ -60,7 +60,7 @@
 
 <div class="button-container">
     @if($data['pending'])
-    <form action="{{ route('admin.attendance.update') }}" method="post">
+    <form action="{{ route('admin.apply.attendance.approve') }}" method="post">
         @csrf
         <input type="hidden" name="id" value="{{ $data['application_id'] }}">
         <button type="submit" class="button update-button">承認</button>
