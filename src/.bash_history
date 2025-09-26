@@ -74,3 +74,6 @@ php artisan migrate:fresh --seed
 exit
 php artisan migrate:fresh --seed
 exit
+php artisan cache:clear
+php artisan route:cache
+exit

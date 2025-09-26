@@ -165,46 +165,42 @@ class AttendantManagerController extends Controller
     }
 
 
+    /**
+     * 管理者用日次勤怠一覧を表示
+     */
     public function admin_list_index(Request $request)
     {
-        // リクエストから日付を取得、なければ今日の日付を使用
-        $date = $request->input('date', Carbon::now()->toDateString());
+        // URLパラメータから日付を取得、なければ今日の日付を使用
+        $date = $request->get('date', Carbon::now()->toDateString());
 
-        // 指定された日付の全ユーザーの勤怠データを取得
-        $attendances = Attendance::with('user')
-            ->whereDate('checkin_date', $date)
-            ->orderBy('checkin_date', 'asc')
-            ->get();
+        // 指定された日付の全ユーザーの勤怠レコードを取得
+        $attendances = Attendance::where('checkin_date', $date)
+                                ->with('user')
+                                ->get();
 
-        return view('admin_attendance', [
-            'attendances' => $attendances,
-        ]);
+        // ユーザーの一覧を取得し、IDが1のユーザーを除外する
+        $users = User::where('id', '!=', 1)->get();
+
+        return view('admin_attendance', compact('attendances', 'users'));
     }
 
 
     public function admin_user_attendance_detail_index(Request $request, $id = null)
     {
-        // 認証済みユーザーを取得
-        $user = Auth::user();
-
-        // クエリパラメータから日付を取得、存在しなければ現在の日付
+        // クエリパラメータからユーザーID（スタッフのID）と日付を取得
+        $userId = $request->input('user_id') ?? $id;
         $date = $request->input('date') ?? Carbon::now()->toDateString();
+        
+        // 対象スタッフのユーザー情報を取得
+        $staffUser = User::findOrFail($userId);
 
         // 勤怠データを取得
-        $attendance = null;
-        if ($id) {
-            // URLからIDが渡された場合は、そのIDで検索
-            $attendance = Attendance::find($id);
-        } else {
-            // IDが渡されなかった場合は、日付とユーザーIDで検索                   　　　　　　　　　　　この下の３行いらないかも
-            $attendance = Attendance::where('user_id', $user->id)
-                                    ->where('checkin_date', $date)
-                                    ->first();
-        }
+        $attendance = Attendance::where('user_id', $userId)
+                                ->where('checkin_date', $date)
+                                ->first();
 
         // 勤怠データが存在するかどうかに関係なく、その日の申請データを検索して取得
-        // `$application` を確実に定義する
-        $application = Application::where('user_id', $user->id)
+        $application = Application::where('user_id', $userId)
                                 ->where('checkin_date', $date)
                                 ->first();
 
@@ -243,11 +239,11 @@ class AttendantManagerController extends Controller
         // ビューに渡すデータをまとめる
         $viewData = [
             'attendance' => $attendance,
-            'user' => $user,
-            // 勤怠データが存在しない場合は、リクエストから取得した$dateを渡す
-            'date' => $attendance ? $attendance->checkin_date : $date,
+            // 修正点: staffUserを渡す
+            'user' => $staffUser,
+            'date' => $date,
             'formBreakTimes' => $formBreakTimes,
-            'application' => $application, // ここで申請データをビューに渡す
+            'application' => $application,
         ];
 
         // 勤怠詳細データをビューに渡して表示
@@ -276,6 +272,11 @@ class AttendantManagerController extends Controller
         $prevMonth = $date->copy()->subMonth();
         $nextMonth = $date->copy()->addMonth();
 
+
+        // ★修正点1: 指定されたIDのユーザーを1人だけ取得
+        $staffUser = User::findOrFail($id);
+
+
         // 指定されたIDのユーザーとその月の勤怠レコードを取得
         $users = User::all();
         $attendances = Attendance::where('user_id', $id)
@@ -288,8 +289,12 @@ class AttendantManagerController extends Controller
             'date' => $date,
             'prevMonth' => $prevMonth,
             'nextMonth' => $nextMonth,
-            'users' => $users,
-            'userId' => $id, // 修正: URLから取得した$idをビューに渡す
+            // ★修正点2: 取得した特定のユーザーデータをビューに渡す
+            'staffUser' => $staffUser,
+            'userId' => $id,
+            // ★修正点: ビューで必要となる年と月の変数を追加
+            'year' => $year,
+            'month' => $month,
         ];
 
         return view('admin_staff_month_attendance', $viewData);
@@ -563,26 +568,21 @@ class AttendantManagerController extends Controller
 
 
     /**
-     * 管理者が勤怠詳細を修正・承認する
-     *
-     * 既存の勤怠を更新し、勤怠がない日は新規作成する
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * 管理者用勤怠承認（修正）処理
      */
     public function admin_attendance_approve(Request $request)
     {
-        // 認証済みユーザーを取得
-        $user = Auth::user();
-
         // フォームから送信された勤怠IDと日付を取得
-        $attendanceId = $request->input('id') ?? $request->input('attendance_id');
+        $attendanceId = $request->input('attendance_id');
         $date = $request->input('checkin_date');
+        $staffUserId = $request->input('user_id');
+        // ★修正点1: 元のリダイレクト先を取得
+        $redirectTo = $request->input('redirect_to');
 
         try {
             DB::beginTransaction();
 
-            // IDが存在すれば既存レコードを検索、なければ新規インスタンスを作成
+            // 勤怠IDが存在すれば既存レコードを検索
             if ($attendanceId) {
                 $attendance = Attendance::find($attendanceId);
                 // IDがあってもレコードが見つからない場合はエラー
@@ -591,9 +591,12 @@ class AttendantManagerController extends Controller
                 }
             } else {
                 // 新しい勤怠レコードのインスタンスを作成
+                if (!$staffUserId) {
+                    throw new \Exception('ユーザーIDが指定されていません。');
+                }
                 $attendance = new Attendance();
-                $attendance->user_id = $user->id; // 新規作成時は管理者ユーザーなので修正が必要　　　　　　　　　　　　　　　　　　　　　　　ユーザーIDを紐付け
-                $attendance->checkin_date = $date; // 新規作成時は日付も紐付け
+                $attendance->user_id = $staffUserId;
+                $attendance->checkin_date = $date;
             }
 
             // フォームから送信されたデータを取得
@@ -647,7 +650,8 @@ class AttendantManagerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.attendance.list.index', ['id' => $attendance->user_id])->with('success', '勤怠データを修正しました。');
+            // ★修正点2: 元のページにリダイレクト
+            return redirect($redirectTo)->with('success', '勤怠データを修正しました。');
 
         } catch (\Exception $e) {
             DB::rollBack();

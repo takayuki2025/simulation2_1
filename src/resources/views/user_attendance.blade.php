@@ -7,19 +7,7 @@
 @section('content')
 
 <body>
-    <!-- @php
-        // URLパラメータから年と月を取得、なければ現在の日付を使用
-        $year = request()->get('year', date('Y'));
-        $month = request()->get('month', date('m'));
-        $date = \Carbon\Carbon::create($year, $month, 1);
 
-        // 前月と次月のURLを生成
-        $prevMonth = $date->copy()->subMonth();
-        $nextMonth = $date->copy()->addMonth();
-
-        // ログインユーザーのIDを取得
-        $userId = Auth::id();
-    @endphp -->
 
     <div class="container">
         <div class="title">
