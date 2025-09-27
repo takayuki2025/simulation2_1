@@ -153,18 +153,35 @@ class AttendantManagerController extends Controller
     }
 
 
-    public function user_apply_index()
+    /**
+     * 認証ユーザー自身の申請一覧を表示する。
+     */
+    public function user_apply_index(Request $request)
     {
-        // 認証済みユーザーを取得
-        $user = Auth::user();
+        // 認証ユーザーのIDを取得
+        $userId = Auth::id();
 
-        // ユーザーの全勤怠レコードを新しい順に取得
-        $attendances = Attendance::where('user_id', $user->id)
-                            ->orderBy('checkin_date', 'desc')
-                            ->get();
+        // 'pending'というクエリパラメータを取得。存在しない場合は'true'をデフォルト値とする
+        $status = $request->query('pending', 'true');
 
-        // 勤怠データをビューに渡して表示
-        return view('user_apply_list', compact('attendances'));
+        // 認証ユーザーの申請のみをフィルタリング
+        $query = Application::where('user_id', $userId);
+
+        // クエリパラメータ'pending'の値に応じてデータをフィルタリング
+        if ($status === 'true') {
+            // 'pending'がtrueの場合は、承認待ちの申請のみを取得
+            $query->where('pending', true);
+        } else {
+            // 'pending'がfalseまたは指定がない場合は、承認済みの申請のみを取得
+            $query->where('pending', false);
+        }
+
+        // 最新のものが上に来るように降順でソートして取得
+        $applications = $query->orderBy('created_at', 'desc')->get();
+
+        return view('user_apply_list', [
+            'applications' => $applications,
+        ]);
     }
 
 
@@ -396,7 +413,7 @@ class AttendantManagerController extends Controller
             ]);
         }
 
-        return redirect()->route('user.attendance.index');
+        return redirect()->route('user.stamping.index');
     }
 
     /**
@@ -442,7 +459,7 @@ class AttendantManagerController extends Controller
             ]);
         }
 
-        return redirect()->route('user.attendance.index');
+        return redirect()->route('user.stamping.index');
     }
 
     /**
@@ -470,7 +487,7 @@ class AttendantManagerController extends Controller
             }
         }
 
-        return redirect()->route('user.attendance.index');
+        return redirect()->route('user.stamping.index');
     }
 
     /**
@@ -501,7 +518,7 @@ class AttendantManagerController extends Controller
             }
         }
 
-        return redirect()->route('user.attendance.index');
+        return redirect()->route('user.stamping.index');
     }
 
 

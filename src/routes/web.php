@@ -96,17 +96,19 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/apply/attendance/approve', [AttendantManagerController::class, 'admin_apply_attendance_approve'])->name('admin.apply.attendance.approve');
 
 
-Route::post('/admin/staff/attendance/export', [AttendantManagerController::class, 'export'])->name('admin.staff.attendance.export');
+    Route::post('/admin/staff/attendance/export', [AttendantManagerController::class, 'export'])->name('admin.staff.attendance.export');
 });
 
 // 申請一覧共通ルート
 Route::get('/stamp_correction_request/list', function (Request $request) {
     // ユーザーの`role`が`admin`かどうかをチェックします
     if ($request->user()->role === 'admin') {
-        // ユーザーが管理者であれば、管理者のコントローラーを呼び出す
+        // 管理者であれば、管理者のコントローラーを呼び出す
+        // ★修正点: $request を渡す
         return app(AttendantManagerController::class)->admin_apply_list_index($request);
     } else {
         // ユーザーが管理者でなければ、通常ユーザーのコントローラーを呼び出す
-        return app(AttendantManagerController::class)->user_apply_index();
+        // ★修正点: $request を渡す
+        return app(AttendantManagerController::class)->user_apply_index($request);
     }
 })->middleware(['auth', 'verified'])->name('apply.list');
