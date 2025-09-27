@@ -27,6 +27,8 @@ class Application extends Model
         protected $casts = [
         // カラム名を 'break_time' に変更
         'break_time' => 'array',
+        'clock_in_time' => 'datetime', // ★これがあるか確認
+    'clock_out_time' => 'datetime',
     ];
 
         public function user(): BelongsTo

@@ -44,35 +44,24 @@
 </tr>
 </thead>
 <tbody>
-@php
-// この月の全日をループ
-$daysInMonth = $date->daysInMonth;
-@endphp
-@for ($i = 1; $i <= $daysInMonth; $i++)
-@php
-$currentDay = \Carbon\Carbon::create($year, $month, $i);
-// その日の勤怠データを取得
-$attendance = $attendances->firstWhere('checkin_date', $currentDay->format('Y-m-d'));
-$dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][$currentDay->dayOfWeek];
-@endphp
-<tr class="{{ $currentDay->dayOfWeek == 0 ? 'sunday' : '' }} {{ $currentDay->dayOfWeek == 6 ? 'saturday' : '' }}">
-<td class="day-column">{{ $i }}日 ({{ $dayOfWeek }})</td>
-@if ($attendance)
-@php
-// 退勤時間が記録されているか、かつ出勤時間と同じ値ではないかチェック
-$hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time;
-@endphp
-{{-- 出勤時間 --}}
-<td>{{ \Carbon\Carbon::parse($attendance->clock_in_time)->format('H:i') }}</td>
-{{-- 退勤時間 --}}
-<td>{{ $hasClockedOut ? \Carbon\Carbon::parse($attendance->clock_out_time)->format('H:i') : '' }}</td>
-{{-- 休憩時間 --}}
-<td>{{ $hasClockedOut && $attendance->break_total_time > 0 ? floor($attendance->break_total_time / 60) . ':' . str_pad($attendance->break_total_time % 60, 2, '0', STR_PAD_LEFT) : '' }}</td>
-{{-- 合計勤務時間 --}}
-<td>{{ $hasClockedOut && $attendance->work_time > 0 ? floor($attendance->work_time / 60) . ':' . str_pad($attendance->work_time % 60, 2, '0', STR_PAD_LEFT) : '' }}</td>
+{{-- コントローラーで準備した月次勤怠データ配列をループ --}}
+@foreach ($monthlyAttendanceData as $dayData)
+{{-- 土日クラスはコントローラーから渡されたフラグで設定 --}}
+<tr class="{{ $dayData['isSunday'] ? 'sunday' : '' }} {{ $dayData['isSaturday'] ? 'saturday' : '' }}">
+<td class="day-column">{{ $dayData['day'] }}日 ({{ $dayData['dayOfWeek'] }})</td>
+{{-- 勤怠データがある場合 --}}
+@if ($dayData['attendance'])
+{{-- 出勤時間（すでにフォーマット済み） --}}
+<td>{{ $dayData['clockInTime'] }}</td>
+{{-- 退勤時間（すでにフォーマット済み） --}}
+<td>{{ $dayData['clockOutTime'] }}</td>
+{{-- 休憩時間（すでにフォーマット済み） --}}
+<td>{{ $dayData['breakTimeDisplay'] }}</td>
+{{-- 合計勤務時間（すでにフォーマット済み） --}}
+<td>{{ $dayData['workTimeDisplay'] }}</td>
 {{-- 詳細ボタン（勤怠データありの場合） --}}
 <td>
-<a href="{{ route('admin.user.attendance.detail.index', ['id' => $attendance->user_id, 'date' => $currentDay->format('Y-m-d'), 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
+<a href="{{ route('admin.user.attendance.detail.index', ['id' => $dayData['attendance']->user_id, 'date' => $dayData['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
 </td>
 @else
 {{-- 勤怠データがない場合 --}}
@@ -82,11 +71,11 @@ $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_
 <td>-</td>
 {{-- 詳細ボタン（勤怠データなしの場合、スタッフIDを使用して詳細ページへ） --}}
 <td>
-<a href="{{ route('admin.user.attendance.detail.index', ['id' => $staffUser->id, 'date' => $currentDay->format('Y-m-d'), 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
+<a href="{{ route('admin.user.attendance.detail.index', ['id' => $staffUser->id, 'date' => $dayData['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
 </td>
 @endif
 </tr>
-@endfor
+@endforeach
 </tbody>
 </table>
 </div>
@@ -96,13 +85,14 @@ $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_
 <form action="{{ route('admin.staff.attendance.export') }}" method="POST" class="csv-button">
 @csrf
 
-{{-- ユーザーID、年、月を隠しフィールドで送信 --}} 
-<input type="hidden" name="user_id" value="{{ $staffUser->id }}"> 
-<input type="hidden" name="year" value="{{ $year }}"> 
-<input type="hidden" name="month" value="{{ $month }}"> 
+{{-- ユーザーID、年、月を隠しフィールドで送信 --}}
+<input type="hidden" name="user_id" value="{{ $staffUser->id }}">
+<input type="hidden" name="year" value="{{ $year }}">
+<input type="hidden" name="month" value="{{ $month }}">
 
-<button type="submit" class="csv-submit">CSV出力</button> 
-</form> 
+<button type="submit" class="csv-submit">CSV出力</button>
+
+</form>
 
 </div>
 

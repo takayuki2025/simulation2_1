@@ -136,10 +136,4 @@ textarea {
 }
 
 /* type="text" の <input> と <textarea> の両方を一括指定 */
-input[type="text"],
-textarea {
-    /* 文字色を統一 */
-    color: #7d7f83;
-    /* 例: 少し濃い青色 */
-    font-weight: 500;
-}
+/* input[type="text"],

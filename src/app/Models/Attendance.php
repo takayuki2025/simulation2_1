@@ -30,6 +30,9 @@ class Attendance extends Model
     protected $casts = [
         // カラム名を 'break_time' に変更
         'break_time' => 'array',
+        'clock_in_time' => 'datetime',
+        'clock_out_time' => 'datetime',
+        // 'checkin_date' => 'date',
     ];
 
         public function user(): BelongsTo
