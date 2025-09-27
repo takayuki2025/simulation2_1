@@ -17,13 +17,13 @@
         <div class="date-navigation-frame">
             <div class="header1">
                 <div class="navigation">
-                    <a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}">前月</a>
+                    <a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}"><span class="arrow">←</span>前月</a>
                 </div>
                 <h2>
-                    📅 <span id="current-date-display">{{ $date->format('Y年m月') }}</span>
+                    📅 <span id="current-date-display">{{ $date->format('Y/m') }}</span>
                 </h2>
                 <div class="navigation">
-                    <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}">次月</a>
+                    <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}">次月<span class="arrow">→</span></a>
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
                             $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][$currentDay->dayOfWeek];
                         @endphp
                         <tr class="{{ $currentDay->dayOfWeek == 0 ? 'sunday' : '' }} {{ $currentDay->dayOfWeek == 6 ? 'saturday' : '' }}">
-                            <td class="day-column">{{ $i }}日 ({{ $dayOfWeek }})</td>
+                            <td class="day-column">{{ $month }}/{{ $currentDay->format('d') }}({{ $dayOfWeek }})</td>
                             @if ($attendance)
                                 @php
                                     // 退勤時間が記録されているか、かつ出勤時間と同じ値ではないかチェック
@@ -65,10 +65,10 @@
                                 <td>{{ $hasClockedOut && $attendance->work_time > 0 ? floor($attendance->work_time / 60) . ':' . str_pad($attendance->work_time % 60, 2, '0', STR_PAD_LEFT) : '' }}</td>
                                 <td><a href="{{ route('user.attendance.detail.index', ['id' => $attendance->id]) }}" class="detail-button">詳細</a></td>
                             @else
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                                 <!-- 勤怠データがない場合でも詳細ボタンを表示 -->
                                 <td><a href="{{ route('user.attendance.detail.index', ['user_id' => $userId, 'date' => $currentDay->format('Y-m-d')]) }}" class="detail-button">詳細</a></td>
                             @endif
