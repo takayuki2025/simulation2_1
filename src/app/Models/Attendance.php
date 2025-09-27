@@ -17,20 +17,20 @@ class Attendance extends Model
         'checkin_date',
         'clock_in_time',
         'clock_out_time',
-        'break_start_time_1',
-        'break_end_time_1',
-        'break_start_time_2',
-        'break_end_time_2',
-        'break_start_time_3',
-        'break_end_time_3',
-        'break_start_time_4',
-        'break_end_time_4',
+        // カラム名を 'break_time' に変更
+        'break_time',
         'break_total_time',
         'work_time',
         'reason',
     ];
 
-
+    /**
+     * JSONカラムをPHPの配列として扱うよう設定
+     */
+    protected $casts = [
+        // カラム名を 'break_time' に変更
+        'break_time' => 'array',
+    ];
 
         public function user(): BelongsTo
     {

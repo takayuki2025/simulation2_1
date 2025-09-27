@@ -16,7 +16,7 @@ class ApplicationsTableSeeder extends Seeder
     public function run(): void
     {
         // シードするユーザーIDの配列
-        $userIds = [2, 3, 4]; // ユーザーIDを2, 3, 4に修正
+        $userIds = [2, 3, 4]; 
         // 過去14日間のデータを生成
         $daysToSeed = 14;
 
@@ -47,19 +47,24 @@ class ApplicationsTableSeeder extends Seeder
                 $totalWorkMinutes = abs($clockOutTime->diffInMinutes($clockInTime));
                 $totalBreakMinutes = 0;
 
-                // 休憩データを定義 (最大4回)
+                // 休憩データを定義 (Carbonインスタンス)
                 $breaks = [
+                    // JSON内部キーを 'start' と 'end' に変更
                     ['start' => $date->copy()->setHour(12)->setMinute(0)->addMinutes(rand(-5, 5)), 'end' => $date->copy()->setHour(13)->setMinute(0)->addMinutes(rand(-5, 5))],
                     ['start' => $date->copy()->setHour(15)->setMinute(0)->addMinutes(rand(-5, 5)), 'end' => $date->copy()->setHour(15)->setMinute(15)->addMinutes(rand(-5, 5))],
                     ['start' => $date->copy()->setHour(16)->setMinute(0)->addMinutes(rand(-5, 5)), 'end' => $date->copy()->setHour(16)->setMinute(10)->addMinutes(rand(-5, 5))],
                 ];
 
-                $breakData = [];
+                // JSONカラム 'break_time' に格納するデータ配列を準備
+                $breakTimeJsonArray = [];
                 // 各休憩時間を合計し、配列に格納
-                foreach ($breaks as $key => $break) {
-                    $breakData["break_start_time_" . ($key + 1)] = $break['start'];
-                    $breakData["break_end_time_" . ($key + 1)] = $break['end'];
-                    // 休憩時間の計算にabs()を適用
+                foreach ($breaks as $break) {
+                    // start/end の Carbonインスタンスを文字列に変換して配列に追加
+                    $breakTimeJsonArray[] = [
+                        'start' => $break['start']->toDateTimeString(),
+                        'end' => $break['end']->toDateTimeString(),
+                    ];
+                    // 休憩時間の計算
                     $totalBreakMinutes += abs($break['end']->diffInMinutes($break['start']));
                 }
 
@@ -67,14 +72,14 @@ class ApplicationsTableSeeder extends Seeder
                 $finalWorkMinutes = max(0, $totalWorkMinutes - $totalBreakMinutes);
 
                 // pendingカラムは50%の確率でfalseにする
-                $pending = (rand(1, 100) <= 50) ? false : true;
+                $pending = (rand(1, 100) <= 0) ? false : true;
 
                 // 既存のAttendanceレコードからランダムにIDを取得
                 $attendance = Attendance::inRandomOrder()->first();
 
                 // Attendanceレコードが存在する場合にのみApplicationレコードを作成
                 if ($attendance) {
-                    Application::create(array_merge([
+                    Application::create([
                         'user_id' => $userId,
                         'attendance_id' => $attendance->id, // attendance_idを追加
                         'clock_in_time' => $clockInTime,
@@ -84,7 +89,9 @@ class ApplicationsTableSeeder extends Seeder
                         'break_total_time' => $totalBreakMinutes,
                         'pending' => $pending,
                         'reason' => '休日出勤のため出勤',
-                    ], $breakData));
+                        // 新しいJSONカラムに配列を渡す
+                        'break_time' => $breakTimeJsonArray,
+                    ]);
                 }
             }
         }

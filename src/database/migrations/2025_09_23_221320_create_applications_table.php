@@ -18,14 +18,7 @@ return new class extends Migration
             $table->date('checkin_date')->nullable();
             $table->dateTime('clock_in_time')->nullable();
             $table->dateTime('clock_out_time')->nullable();
-            $table->dateTime('break_start_time_1')->nullable();
-            $table->dateTime('break_end_time_1')->nullable();
-            $table->dateTime('break_start_time_2')->nullable();
-            $table->dateTime('break_end_time_2')->nullable();
-            $table->dateTime('break_start_time_3')->nullable();
-            $table->dateTime('break_end_time_3')->nullable();
-            $table->dateTime('break_start_time_4')->nullable();
-            $table->dateTime('break_end_time_4')->nullable();
+            $table->json('break_time')->nullable();
             $table->integer('break_total_time')->default(0)->nullable();
             $table->integer('work_time')->nullable();
             $table->string('reason')->nullable();

@@ -47,19 +47,23 @@ class AttendancesTableSeeder extends Seeder
                 $totalWorkMinutes = abs($clockOutTime->diffInMinutes($clockInTime));
                 $totalBreakMinutes = 0;
 
-                // 休憩データを定義 (最大4回)
-                // 休憩時間にもランダムな変動を加える
+                // 休憩データを定義 (Carbonインスタンス)
                 $breaks = [
+                    // JSON内部キーを 'start' と 'end' に変更
                     ['start' => $date->copy()->setHour(12)->setMinute(0)->addMinutes(rand(-5, 5)), 'end' => $date->copy()->setHour(13)->setMinute(0)->addMinutes(rand(-5, 5))],
                     ['start' => $date->copy()->setHour(15)->setMinute(0)->addMinutes(rand(-5, 5)), 'end' => $date->copy()->setHour(15)->setMinute(15)->addMinutes(rand(-5, 5))],
                     ['start' => $date->copy()->setHour(16)->setMinute(0)->addMinutes(rand(-5, 5)), 'end' => $date->copy()->setHour(16)->setMinute(10)->addMinutes(rand(-5, 5))],
                 ];
 
-                $breakData = [];
+                // JSONカラム 'break_time' に格納するデータ配列を準備
+                $breakTimeJsonArray = [];
                 // 各休憩時間を合計し、配列に格納
-                foreach ($breaks as $key => $break) {
-                    $breakData["break_start_time_" . ($key + 1)] = $break['start'];
-                    $breakData["break_end_time_" . ($key + 1)] = $break['end'];
+                foreach ($breaks as $break) {
+                    // start/end の Carbonインスタンスを文字列に変換して配列に追加
+                    $breakTimeJsonArray[] = [
+                        'start' => $break['start']->toDateTimeString(),
+                        'end' => $break['end']->toDateTimeString(),
+                    ];
                     $totalBreakMinutes += abs($break['end']->diffInMinutes($break['start']));
                 }
 
@@ -67,14 +71,16 @@ class AttendancesTableSeeder extends Seeder
                 $finalWorkMinutes = max(0, $totalWorkMinutes - $totalBreakMinutes);
 
                 // Attendanceレコードを作成
-                Attendance::create(array_merge([
+                Attendance::create([
                     'user_id' => $userId,
                     'clock_in_time' => $clockInTime,
                     'clock_out_time' => $clockOutTime,
                     'checkin_date' => $date->toDateString(),
                     'work_time' => $finalWorkMinutes,
                     'break_total_time' => $totalBreakMinutes,
-                ], $breakData));
+                    // 新しいJSONカラムに配列を渡す
+                    'break_time' => $breakTimeJsonArray,
+                ]);
             }
         }
     }

@@ -82,3 +82,9 @@ php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
 exit
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+php artisan migrate:fresh --seed
+exit
