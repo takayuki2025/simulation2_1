@@ -17,9 +17,9 @@
         <form action="{{ route('application.create') }}" method="POST" id="attendance-form">
             @csrf
             <!-- 勤怠データが存在する場合、IDを渡す -->
-            @if($attendance)
-            <input type="hidden" name="id" value="{{ $attendance->id }}">
-            <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
+            @if($initialData['id'])
+            <input type="hidden" name="id" value="{{ $initialData['id'] }}">
+            <input type="hidden" name="attendance_id" value="{{ $initialData['id'] }}">
             @endif
             <input type="hidden" name="checkin_date" value="{{ \Carbon\Carbon::parse($date)->format('Y-m-d') }}">
 
@@ -40,9 +40,12 @@
                     <tr>
                         <th>出勤・退勤時間</th>
                         <td class="time-inputs">
-                            <input type="text" name="clock_in_time" value="{{ $attendance && $attendance->clock_in_time ? \Carbon\Carbon::parse($attendance->clock_in_time)->format('H:i') : '' }}">
+                            {{-- initialDataの値を優先して使用 --}}
+                            <input type="text" name="clock_in_time" 
+                                value="{{ $initialData['clock_in_time'] ? \Carbon\Carbon::parse($initialData['clock_in_time'])->format('H:i') : '' }}">
                             <span>〜</span>
-                            <input type="text" name="clock_out_time" value="{{ $attendance && $attendance->clock_out_time ? \Carbon\Carbon::parse($attendance->clock_out_time)->format('H:i') : '' }}">
+                            <input type="text" name="clock_out_time" 
+                                value="{{ $initialData['clock_out_time'] ? \Carbon\Carbon::parse($initialData['clock_out_time'])->format('H:i') : '' }}">
                         </td>
                     </tr>
                     @foreach($formBreakTimes as $index => $breakTime)
@@ -58,7 +61,8 @@
                     <tr class="last-row">
                         <th>備考</th>
                         <td>
-                            <textarea name="reason">{{ $attendance ? $attendance->reason : '' }}</textarea>
+                            {{-- initialDataの値を優先して使用 --}}
+                            <textarea name="reason">{{ $initialData['reason'] }}</textarea>
                         </td>
                     </tr>
                 </tbody>

@@ -88,7 +88,9 @@ class AttendantManagerController extends Controller
         // クエリパラメータから日付を取得、存在しなければ現在の日付
         $date = $request->input('date') ?? Carbon::now()->toDateString();
 
-        // 勤怠データを取得
+        // ----------------------------------------------------
+        // 1. 勤怠データ ($attendance) の取得
+        // ----------------------------------------------------
         $attendance = null;
         if ($id) {
             // URLからIDが渡された場合は、そのIDで検索
@@ -100,22 +102,49 @@ class AttendantManagerController extends Controller
                                     ->first();
         }
 
-        // 勤怠データが存在するかどうかに関係なく、その日の申請データを検索して取得
-        // `$application` を確実に定義する
+        // ----------------------------------------------------
+        // 2. 申請データ ($application) の取得
+        // ----------------------------------------------------
+        // その日の申請データを検索して取得
         $application = Application::where('user_id', $user->id)
                                 ->where('checkin_date', $date)
                                 ->first();
 
-        // 休憩時間のフォーム入力欄の準備
+        // ----------------------------------------------------
+        // 3. フォーム初期値 ($initialData) の決定（申請データ優先）
+        // ----------------------------------------------------
+        $sourceData = $application ?? $attendance;
+
+        $initialData = [
+            'clock_in_time' => null,
+            'clock_out_time' => null,
+            'reason' => null,
+            'break_times' => [], // 後で整形
+            'id' => $attendance ? $attendance->id : null, // 勤怠IDは必ずattendanceから取得
+        ];
+
+        if ($sourceData) {
+            $initialData['clock_in_time'] = $sourceData->clock_in_time;
+            $initialData['clock_out_time'] = $sourceData->clock_out_time;
+            
+            // 備考（reason）は申請データに存在すればそちらを、なければ勤怠データから取得
+            $initialData['reason'] = $application ? $application->reason : ($attendance ? $attendance->reason : null);
+        }
+
+        // ----------------------------------------------------
+        // 4. 休憩時間のフォーム入力欄の準備
+        // ----------------------------------------------------
         $formBreakTimes = [];
         $maxBreaks = 4; // 最大休憩回数を設定
 
-        // 既存の休憩データがあれば取得
+        // 優先順位: 申請データ -> 勤怠データ
         $existingBreakCount = 0;
-        if ($attendance) {
+        $dataToUseForBreaks = $application ?? $attendance;
+
+        if ($dataToUseForBreaks) {
             for ($i = 1; $i <= $maxBreaks; $i++) {
-                $breakStartTime = $attendance->{"break_start_time_{$i}"} ?? '';
-                $breakEndTime = $attendance->{"break_end_time_{$i}"} ?? '';
+                $breakStartTime = $dataToUseForBreaks->{"break_start_time_{$i}"} ?? '';
+                $breakEndTime = $dataToUseForBreaks->{"break_end_time_{$i}"} ?? '';
 
                 if ($breakStartTime || $breakEndTime) {
                     $formBreakTimes[] = [
@@ -140,12 +169,12 @@ class AttendantManagerController extends Controller
 
         // ビューに渡すデータをまとめる
         $viewData = [
-            'attendance' => $attendance,
+            'attendance' => $attendance, // 既存の勤怠データ
             'user' => $user,
-            // 勤怠データが存在しない場合は、リクエストから取得した$dateを渡す
-            'date' => $attendance ? $attendance->checkin_date : $date,
-            'formBreakTimes' => $formBreakTimes,
-            'application' => $application, // ここで申請データをビューに渡す
+            'date' => Carbon::parse($date)->toDateString(), // 必ず 'Y-m-d' 形式で渡す
+            'formBreakTimes' => $formBreakTimes, // 組み立てられた休憩時間フォーム
+            'application' => $application, // 申請データ
+            'initialData' => $initialData, // フォームの初期値に使用するメインデータ
         ];
 
         // 勤怠詳細データをビューに渡して表示
