@@ -136,19 +136,25 @@ class AttendantManagerController extends Controller
 
             if ($attendance) {
                 // 退勤時間が記録されているか、かつ出勤時間と同じ値ではないかチェック
+                // このフラグは休憩・合計時間の表示に必要
                 $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time;
                 
                 $data['clock_in'] = Carbon::parse($attendance->clock_in_time)->format('H:i');
+                
+                // 退勤時間は打刻があれば表示
                 $data['clock_out'] = $hasClockedOut ? Carbon::parse($attendance->clock_out_time)->format('H:i') : '';
                 
                 // 休憩時間 (分を H:i 形式に変換)
-                if ($hasClockedOut && $attendance->break_total_time > 0) {
+                // 合計休憩時間は打刻が完了していなくても記録されている可能性はありますが、
+                // 今回は「合計」との表示バランスを考慮し、$hasClockedOutを外して0分でも表示するようにします。
+                if ($attendance->break_total_time !== null) {
                     $minutes = $attendance->break_total_time;
                     $data['break_time'] = floor($minutes / 60) . ':' . str_pad($minutes % 60, 2, '0', STR_PAD_LEFT);
                 }
 
                 // 合計勤務時間 (分を H:i 形式に変換)
-                if ($hasClockedOut && $attendance->work_time > 0) {
+                // 0分でも表示するように修正します。
+                if ($attendance->work_time !== null) {
                     $minutes = $attendance->work_time;
                     $data['work_time'] = floor($minutes / 60) . ':' . str_pad($minutes % 60, 2, '0', STR_PAD_LEFT);
                 }
@@ -832,6 +838,7 @@ class AttendantManagerController extends Controller
 
     /**
      * 休憩終了処理を実行します。（JSON休憩対応）
+     * 休憩終了時に break_total_time を計算・保存するように修正しました。
      */
     public function breakEnd()
     {
@@ -858,9 +865,32 @@ class AttendantManagerController extends Controller
             }
 
             if ($updated) {
+                // --- 追加したロジック (ここから) ---
+
+                // 1. 総休憩時間（秒）をJSON配列から計算
+                $totalBreakSeconds = 0;
+                foreach ($breakTimes as $break) {
+                    if (!empty($break['start']) && !empty($break['end'])) { 
+                        $start = Carbon::parse($break['start']);
+                        $end = Carbon::parse($break['end']);
+                        
+                        // 休憩終了が開始より後であることを確認
+                        if ($end->gt($start)) {
+                           $totalBreakSeconds += $end->timestamp - $start->timestamp;
+                        }
+                    }
+                }
+                
+                // 2. 総休憩時間を分単位に変換
+                $totalBreakMinutes = round($totalBreakSeconds / 60);
+
+                // 3. break_time と break_total_time の両方を更新
                 $attendance->update([
                     'break_time' => $breakTimes,
+                    'break_total_time' => $totalBreakMinutes, // 休憩終了時に総休憩時間を更新
                 ]);
+                
+                // --- 追加したロジック (ここまで) ---
             }
         }
 

@@ -151,3 +151,24 @@ php artisan make:test Id16Test
 ./vendor/bin/phpunit 
 ./vendor/bin/phpunit 
 exit
+php artisan migrate:fresh -- seed
+php artisan migrate:fresh -seed
+php artisan migrate:fresh -- seed.
+php artisan migrate:fresh -seed.
+php artisan migrate:fresh --seed
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+exit
