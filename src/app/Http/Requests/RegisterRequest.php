@@ -38,10 +38,10 @@ class RegisterRequest extends FormRequest
             'name.required' => 'お名前を入力してください。',
             'email.required' => 'メールアドレスを入力してください。',
             'email.unique' => 'このメールアドレスは既に登録されています。',
+            'email.email' => 'メールアドレス形式で入力してください。',
             'password.required' => 'パスワードを入力してください。',
             'password.min' => 'パスワードは8文字以上で入力してください。',
             'password.confirmed' => 'パスワードと一致しません。',
-            // 他のカスタムメッセージもここに追加できます
             'password_confirmation.required' => '確認用パスワードを入力してください。',
         ];
     }

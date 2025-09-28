@@ -27,33 +27,6 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    /**
-     * 新規ユーザー登録を実行する
-     */
-    // public function register(Request $request)
-    // {
-    //     // バリデーションルールを定義
-    //     $request->validate([
-    //         'name' => ['required', 'string', 'max:255'],
-    //         'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-    //         'password' => ['required', 'string', 'min:8', 'confirmed'],
-    //     ]);
-
-    //     // 新しいユーザーをデータベースに作成
-    //     $user = User::create([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'password' => Hash::make($request->password),
-    //     ]);
-
-    //     // 登録イベントを発火（例えば、メール認証通知を送るなど）
-    //     event(new Registered($user));
-
-
-
-    //     // 登録後のリダイレクト先をメール認証通知ページに設定
-    //     return redirect()->route('verification.notice');
-    // }
 
 
     /**

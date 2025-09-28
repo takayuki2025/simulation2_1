@@ -3,14 +3,13 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ExampleTest extends TestCase
+class Id09Test extends TestCase
 {
     /**
-     * A basic test example.
-     *
-     * @return void
+     * A basic feature test example.
      */
     public function test_example()
     {

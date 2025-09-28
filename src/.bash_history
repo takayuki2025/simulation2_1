@@ -109,3 +109,45 @@ php artisan test
 composer show laravel/framework
 cat app/Console/Kernel.php
 exit
+./vendor/bin/phpunit
+./vendor/bin/phpunit Id01Test
+./vendor/bin/phpunit tests/Feature/Id01Test.php
+./vendor/bin/phpunit tests/Feature/Id01Test.php
+./vendor/bin/phpunit tests/Feature/Id01Test.php
+php artisan make:test Id02Test
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+php artisan make:test Id03Test
+php artisan make:test Id04Test
+php artisan make:test Id05Test
+php artisan make:test Id06Test
+php artisan make:test Id07Test
+php artisan make:test Id08Test
+php artisan make:test Id09Test
+php artisan make:test Id10Test
+php artisan make:test Id11Test
+php artisan make:test Id12Test
+php artisan make:test Id13Test
+php artisan make:test Id14Test
+php artisan make:test Id15Test
+php artisan make:test Id16Test
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+./vendor/bin/phpunit 
+exit
