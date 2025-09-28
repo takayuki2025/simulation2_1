@@ -49,13 +49,29 @@
         <tr>
             <th>出勤・退勤時間</th>
             <td class="time-inputs">
-                {{-- ★修正箇所: 勤怠データ ($attendance) ではなく、優先度の高いデータソース ($primaryData) を参照する --}}
-                {{-- $primaryData はコントローラーで ($application ?? $attendance) として定義されています。 --}}
-                <input type="text" name="clock_in_time" 
-                    value="{{ $primaryData && $primaryData->clock_in_time ? \Carbon\Carbon::parse($primaryData->clock_in_time)->format('H:i') : '' }}">
+                {{-- 1. 出勤時刻ブロック --}}
+                <div class="input-block">
+                    <input type="text" name="clock_in_time" 
+                           value="{{ $primaryData && $primaryData->clock_in_time ? \Carbon\Carbon::parse($primaryData->clock_in_time)->format('H:i') : '' }}"
+                           class="@error('clock_in_time') is-invalid @enderror">
+                    {{-- 出勤時刻のエラーメッセージ --}}
+                    @error('clock_in_time')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
+                
                 <span>〜</span>
-                <input type="text" name="clock_out_time" 
-                    value="{{ $primaryData && $primaryData->clock_out_time ? \Carbon\Carbon::parse($primaryData->clock_out_time)->format('H:i') : '' }}">
+
+                {{-- 2. 退勤時刻ブロック --}}
+                <div class="input-block">
+                    <input type="text" name="clock_out_time" 
+                           value="{{ $primaryData && $primaryData->clock_out_time ? \Carbon\Carbon::parse($primaryData->clock_out_time)->format('H:i') : '' }}"
+                           class="@error('clock_out_time') is-invalid @enderror">
+                    {{-- 退勤時刻のエラーメッセージ --}}
+                    @error('clock_out_time')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
             </td>
         </tr>
         {{-- break_times配列をPOST送信 --}}
@@ -63,10 +79,30 @@
         <tr>
             <th>休憩{{ $index + 1 }}</th>
             <td class="time-inputs">
-                {{-- name属性を配列形式 [index][key] にすることで、連想配列としてPOSTされます --}}
-                <input type="text" name="break_times[{{ $index }}][start_time]" value="{{ $breakTime['start_time'] ?? '' }}">
+                {{-- 休憩開始時刻ブロック --}}
+                <div class="input-block">
+                    {{-- name属性を配列形式 [index][key] にすることで、連想配列としてPOSTされます --}}
+                    <input type="text" name="break_times[{{ $index }}][start_time]" 
+                           value="{{ $breakTime['start_time'] ?? '' }}"
+                           class="@error('break_times.' . $index . '.start_time') is-invalid @enderror">
+                    {{-- 休憩開始時刻のエラーメッセージ --}}
+                    @error('break_times.' . $index . '.start_time')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
+                
                 <span>〜</span>
-                <input type="text" name="break_times[{{ $index }}][end_time]" value="{{ $breakTime['end_time'] ?? '' }}">
+
+                {{-- 休憩終了時刻ブロック --}}
+                <div class="input-block">
+                    <input type="text" name="break_times[{{ $index }}][end_time]" 
+                           value="{{ $breakTime['end_time'] ?? '' }}"
+                           class="@error('break_times.' . $index . '.end_time') is-invalid @enderror">
+                    {{-- 休憩終了時刻のエラーメッセージ --}}
+                    @error('break_times.' . $index . '.end_time')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
             </td>
         </tr>
         @endforeach
@@ -74,7 +110,12 @@
             <th>備考</th>
             <td>
                 {{-- 備考欄も $primaryData を参照するように修正 --}}
-                <textarea name="reason">{{ $primaryData ? $primaryData->reason : '' }}</textarea>
+                <textarea name="reason" class="@error('reason') is-invalid @enderror">{{ $primaryData ? $primaryData->reason : '' }}</textarea>
+
+                {{-- 備考のエラーメッセージ --}}
+                @error('reason')
+                    <span class="error-message">{{ $message }}</span>
+                @enderror
             </td>
         </tr>
     </tbody>

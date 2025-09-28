@@ -90,3 +90,5 @@ php artisan migrate:fresh --seed
 exit
 php artisan migrate:fresh --seed
 exit
+php artisan migrate:fresh --seed
+exit

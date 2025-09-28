@@ -94,8 +94,6 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/attendance/staff/{id?}', [AttendantManagerController::class, 'admin_staff_month_index'])->name('admin.staff.month.index');
     Route::get('/stamp_correction_request/approve/{attendance_correct_request_id}', [AttendantManagerController::class, 'admin_apply_judgement_index'])->name('admin.apply.judgement.index');
     Route::post('/admin/apply/attendance/approve', [AttendantManagerController::class, 'admin_apply_attendance_approve'])->name('admin.apply.attendance.approve');
-
-
     Route::post('/admin/staff/attendance/export', [AttendantManagerController::class, 'export'])->name('admin.staff.attendance.export');
 });
 

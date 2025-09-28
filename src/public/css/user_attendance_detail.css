@@ -133,3 +133,93 @@ textarea {
 .message-pending {
     color: #f44336;
 }
+
+
+
+
+
+
+
+
+
+
+/* --- バリデーションエラー表示用スタイル --- */
+
+/* 1. エラーのある入力フィールドのスタイル */
+.is-invalid {
+    /* 目立つ赤い境界線とシャドウ */
+    border: 1px solid #e3342f !important;
+    box-shadow: 0 0 0 0.1rem rgba(227, 52, 47, 0.4);
+}
+
+/* 4. エラーメッセージのスタイル調整 (小さく、下部に表示) */
+.error-message {
+    color: #e3342f;
+    /* 赤いテキスト */
+    font-size: 0.60rem;
+    /* より小さく */
+    margin-top: 2px;
+    /* 入力とメッセージの間のスペース */
+    font-weight: 500;
+    /* .input-blockの幅いっぱいを使って、その範囲で改行 */
+    width: 100%;
+    white-space: normal;
+}
+
+/* 隠しフィールドのエラーを、フォーム上部に目立たせるためのスタイル */
+.date-error {
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #e3342f;
+    background-color: #fcebeb;
+    border-radius: 5px;
+}
+
+/* 3. テーブルセルのレイアウト調整（time-inputs） */
+.detail-table td.time-inputs {
+    /* Flexboxを有効にし、要素を横に並べる */
+    display: flex;
+    align-items: flex-start;
+    /* 要素を上揃え */
+    flex-wrap: nowrap;
+    /* 意図しない改行を避ける */
+    gap: 10px;
+    /* input-block間のスペースを調整 */
+}
+
+/* Inputとそのエラーメッセージをセットで縦に並べるためのコンテナ */
+.input-block {
+    display: flex;
+    flex-direction: column;
+    /* 要素を縦に積み重ねる (Inputの上にError) */
+    /* *** フォームサイズ固定のための修正 *** */
+    flex-grow: 0;
+    /* 拡大を禁止 */
+    flex-shrink: 0;
+    /* 縮小を禁止 */
+    width: 120px;
+    /* 幅を固定 (既存のデザインに合わせて調整) */
+}
+
+/* time-inputs内の入力フィールドの幅調整 */
+.detail-table td.time-inputs input[type="text"] {
+    width: 100%;
+    /* input-blockの幅いっぱい（固定幅120pxに収まる） */
+    flex-shrink: 0;
+}
+
+/* time-inputs内の '〜' のスタイル */
+.detail-table td.time-inputs span {
+    margin: 0 5px;
+    align-self: center;
+    flex-shrink: 0;
+}
+
+/* 備考欄のtextareaのエラーメッセージ */
+.detail-table tr.last-row td>.error-message {
+    display: block;
+    /* spanをブロック要素として扱い、textareaの下に表示 */
+    width: 100%;
+    margin-top: 5px;
+}

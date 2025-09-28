@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\LoginRequest;
 // use Illuminate\Auth\Events\Login;
 // use Illuminate\Auth\Events\Registered;
 
@@ -59,53 +60,49 @@ class LoginController extends Controller
      * ログイン処理を実行する
      * このメソッドは、通常ユーザーと管理者、両方のログイン処理を共通で扱っています。
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        // バリデーション
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        // フォームリクエストによってバリデーションは完了しています
+        $credentials = $request->only('email', 'password');
+
+        // 管理者ログインページからのリクエストか確認
+        $isAdminLogin = $request->isAdminLogin(); // LoginRequestで定義したメソッドを使用
 
         // 入力されたメールアドレスでユーザーを検索
         $user = User::where('email', $credentials['email'])->first();
 
-        // 管理者ログインページからのリクエストか確認
-        $isAdminLogin = $request->routeIs('admin.login.post');
-
-        // ユーザーが存在しない、またはパスワードが一致しない場合はエラーを返す
+        // ユーザーが存在しない、またはパスワードが一致しない場合のチェック
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return redirect()->route($isAdminLogin ? 'admin.login' : 'login')
+            $route = $isAdminLogin ? 'admin.login' : 'login';
+            return redirect()->route($route)
                 ->withErrors([
-                    'email' => '入力された情報が一致しません。',
+                    // Fortifyのデフォルト動作に合わせて、認証失敗時のエラーは email に表示させるのが一般的
+                    'email' => 'ログイン情報が登録されていません。',
                 ])->onlyInput('email');
         }
 
+        // 認証成功後のロールに基づく処理
         if ($isAdminLogin) {
             // 管理者ログインページからのリクエストの場合
             if ($user->role !== 'admin') {
-                // ロールがadminではない場合はログインを拒否
                 return redirect()->route('admin.login')
-                    ->withErrors([
-                        'email' => '入力されたユーザーは管理者ではありません。',
-                    ])->onlyInput('email');
+                    ->withErrors(['email' => 'ユーザー専用のログインページからログインしてください。'])
+                    ->onlyInput('email');
             }
-            // 認証成功、セッション再生成、管理者ダッシュボードにリダイレクト
-            $request->session()->regenerate();
+            // 管理者として認証
             Auth::login($user);
+            $request->session()->regenerate();
             return redirect()->intended('/admin/attendance/list');
         } else {
             // 通常ユーザーログインページからのリクエストの場合
             if ($user->role === 'admin') {
-                // ロールがadminの場合はログインを拒否
                 return redirect()->route('login')
-                    ->withErrors([
-                        'email' => '入力された管理者ユーザーはログインできません。',
-                    ])->onlyInput('email');
+                    ->withErrors(['email' => '管理者ユーザーは管理者用ログインページからログインしてください。'])
+                    ->onlyInput('email');
             }
-            // 認証成功、セッション再生成、通常ユーザーダッシュボードにリダイレクト
-            $request->session()->regenerate();
+            // 一般ユーザーとして認証
             Auth::login($user);
+            $request->session()->regenerate();
             return redirect()->intended('/attendance');
         }
     }

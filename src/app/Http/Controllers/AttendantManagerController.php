@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Application;
+use App\Http\Requests\ApplicationAndAttendantRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log; // 大規模なプロジェクトの時のためLogファサードのインポートを追加
@@ -870,7 +871,7 @@ class AttendantManagerController extends Controller
     /**
      * 勤怠データを保存（新規作成または更新）する (JSON休憩対応/日跨ぎ補正)
      */
-    public function application_create(Request $request)
+    public function application_create(ApplicationAndAttendantRequest $request)
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
@@ -958,7 +959,7 @@ class AttendantManagerController extends Controller
      * 管理者による手動での勤怠データ修正・承認処理
      * 日跨ぎ、休憩時間の合計計算ロジックを修正済み
      */
-    public function admin_attendance_approve(Request $request)
+    public function admin_attendance_approve(ApplicationAndAttendantRequest $request)
     {
         // フォームから送信された勤怠IDと日付を取得
         $attendanceId = $request->input('attendance_id');
