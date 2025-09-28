@@ -92,3 +92,20 @@ php artisan migrate:fresh --seed
 exit
 php artisan migrate:fresh --seed
 exit
+php artisan make:test Id01Test
+php artisan test
+php artisan test
+vendor/bin/phpunit tests/Feature/Id01Test.php
+vendor/bin/phpunit tests/Feature/Id01Test.php
+./vendor/bin/phpunit --display-deprecations tests/Feature/Id01Test.php
+./vendor/bin/phpunit -v tests/Feature/Id01Test.php
+./vendor/bin/phpunit --verbose tests/Feature/Id01Test.php
+./vendor/bin/phpunit --help
+./vendor/bin/phpunit --display-deprecations tests/Feature/Id01Test.php
+./vendor/bin/phpunit --display-phpunit-deprecations tests/Feature/Id01Test.php
+./vendor/bin/phpunit --migrate-configuration
+./vendor/bin/phpunit tests/Feature/Id01Test.php
+php artisan test
+composer show laravel/framework
+cat app/Console/Kernel.php
+exit
