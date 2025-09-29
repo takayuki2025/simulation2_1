@@ -140,7 +140,7 @@
         @endif
     @else
         <!-- 勤怠申請データが存在しない場合は修正ボタンを表示 -->
-        <button type="submit" class="button update-button">修正申請</button>
+        <button type="submit" class="button update-button">修正</button>
     @endif
 </div>
 

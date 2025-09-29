@@ -336,6 +336,7 @@ class AttendantManagerController extends Controller
             }
             
             return [
+                'id' => $application->id, // ★ 修正箇所: IDを追加
                 'status_text' => $application->pending ? '承認待ち' : '承認済み',
                 'status_color' => $application->pending ? 'orange' : 'green',
                 'user_name' => $application->user->name,

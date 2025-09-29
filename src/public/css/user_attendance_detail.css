@@ -154,7 +154,7 @@ textarea {
 
 /* 4. エラーメッセージのスタイル調整 (小さく、下部に表示) */
 .error-message {
-    color: #e3342f;
+    color: #e3342f !important;
     /* 赤いテキスト */
     font-size: 0.60rem;
     /* より小さく */

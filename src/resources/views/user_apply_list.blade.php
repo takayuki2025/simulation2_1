@@ -51,7 +51,7 @@
 <td>
 {{-- 日付が有効な場合のみリンクを表示 --}}
 @if ($application['has_target_date'])
-<a href="{{ $application['detail_url'] }}" class="detail-link">詳細へ</a>
+<a href="{{ $application['detail_url'] }}" class="detail-link">詳細</a>
 @else
 <span style="color: #777; font-size: 0.8em;">日付不明</span>
 @endif

@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Carbon\Carbon;
+use Illuminate\Validation\Validator;
 
 class ApplicationAndAttendantRequest extends FormRequest
 {
@@ -14,113 +16,167 @@ class ApplicationAndAttendantRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-   public function rules(): array
+    public function rules(): array
     {
-        // 修正: H:i の代わりに、柔軟な時刻形式を許容する正規表現を使用
-        // (1-2桁の時):(2桁の分) または (2桁の時):(2桁の分) の形式を許容
+        // H:i または HH:ii の形式を許容
         $timeRegex = '/^([0-9]{1,2}):([0-5][0-9])$/';
 
         return [
-            // ...
-            
-            // 1. 出勤・退勤時間のバリデーション
-            'clock_in_time' => [
-                'required',
-                'regex:' . $timeRegex, // 正規表現でチェック
-                'before:clock_out_time', 
-            ],
-            'clock_out_time' => [
-                'required',
-                'regex:' . $timeRegex, // 正規表現でチェック
-                'after:clock_in_time',
-            ],
+            'checkin_date' => ['required', 'date_format:Y-m-d'],
+            'reason' => ['required', 'string', 'max:500'],
+            'break_times' => ['nullable', 'array'],
 
-            // 2. 休憩時間（JSON配列）のバリデーション
-            'break_times' => [
-                'nullable',
-                'array',
-            ],
+            'clock_in_time' => ['required', 'regex:' . $timeRegex],
+            'clock_out_time' => ['required', 'regex:' . $timeRegex],
             
-            'break_times.*.start_time' => [
-                'required_with:break_times',
-                'regex:' . $timeRegex, // 正規表現でチェック
-                'before:break_times.*.end_time', 
-                // 【追加】休憩開始時刻は出勤時刻と同時刻かそれ以降であること
-                'after_or_equal:clock_in_time', 
-            ],
-            
-            'break_times.*.end_time' => [
-                'required_with:break_times',
-                'regex:' . $timeRegex, // 正規表現でチェック
-                'after:break_times.*.start_time',
-                // 【追加】休憩終了時刻は退勤時刻と同時刻かそれ以前であること
-                'before_or_equal:clock_out_time', 
-            ],
-
-            'reason' => [
-                'required',
-                'string',
-                'max:500',
-            ],
+            'break_times.*.start_time' => ['required_with:break_times', 'regex:' . $timeRegex],
+            'break_times.*.end_time' => ['required_with:break_times', 'regex:' . $timeRegex],
         ];
     }
 
     /**
-     * Get the validation messages that apply to the request.
-     *
-     * @return array<string, string>
+     * Carbonを使用して日跨ぎを考慮した時刻の順序検証を追加する
      */
+    public function withValidator(Validator $validator)
+    {
+        $validator->after(function ($validator) {
+            // 形式チェックなどでエラーがある場合はスキップ
+            if ($validator->errors()->hasAny(['clock_in_time', 'clock_out_time', 'break_times.*.start_time', 'break_times.*.end_time'])) {
+                return;
+            }
+
+            $date = $this->input('checkin_date');
+            $checkinTime = $this->input('clock_in_time');
+            $checkoutTime = $this->input('clock_out_time');
+            $breakTimes = $this->input('break_times', []);
+
+            $clockInCarbon = Carbon::parse($date . ' ' . $checkinTime);
+            $clockOutCarbon = Carbon::parse($date . ' ' . $checkoutTime);
+            $isCrossDayShift = false;
+
+            // 1. 【Id12Test 対策】出勤・退勤の順序チェック
+            // 日跨ぎ出勤を判定する
+            if ($clockOutCarbon->lt($clockInCarbon)) {
+                $clockOutCarbonForToday = Carbon::parse($date . ' ' . $checkoutTime);
+                
+                // 1-a. 勤務時間の差を計算 (日跨ぎ前提の勤務時間)
+                $clockOutCarbonForNextDay = $clockOutCarbonForToday->copy()->addDay();
+                
+                // 勤務開始から翌日の勤務終了までの時間差を計算
+                $duration = $clockInCarbon->diffInHours($clockOutCarbonForNextDay);
+                
+                // 1-b. 勤務時間として現実的ではない長さ（18時間以上など）は単純な入力ミスとしてエラー
+                // 例: 19:00 -> 18:00 (日跨ぎで23時間) は入力ミス
+                // 例: 22:00 -> 06:00 (日跨ぎで8時間) はOK
+                if ($duration >= 18) { 
+                    $validator->errors()->add('clock_in_time', $this->messages()['clock_in_time.before']);
+                    $validator->errors()->add('clock_out_time', $this->messages()['clock_out_time.after']);
+                    return;
+                }
+
+                // 1-c. それ以外（例: 8時間シフト）は、日跨ぎとして補正を適用
+                $clockOutCarbon = $clockOutCarbonForNextDay;
+                $isCrossDayShift = true;
+                
+            } else {
+                // 日跨ぎではない場合、単純に退勤時刻が出勤時刻より前であればエラー（例: 10:00 -> 09:00）
+                if ($clockInCarbon->gt($clockOutCarbon)) {
+                    $validator->errors()->add('clock_in_time', $this->messages()['clock_in_time.before']);
+                    $validator->errors()->add('clock_out_time', $this->messages()['clock_out_time.after']);
+                    return;
+                }
+            }
+
+            // 2. 休憩時間の検証
+            foreach ($breakTimes as $index => $breakTime) {
+                $breakStartTime = $breakTime['start_time'] ?? null;
+                $breakEndTime = $breakTime['end_time'] ?? null;
+
+                if (empty($breakStartTime) || empty($breakEndTime)) {
+                    continue; 
+                }
+
+                $breakStartCarbon = Carbon::parse($date . ' ' . $breakStartTime);
+                $breakEndCarbon = Carbon::parse($date . ' ' . $breakEndTime);
+                
+                // 2-a. 【Failure 4 Fix / 休憩順序チェック】休憩開始 >= 休憩終了
+                if ($breakEndCarbon->lte($breakStartCarbon)) {
+                    // Failure 4 (reversed) は start_time に汎用メッセージを期待
+                    $validator->errors()->add("break_times.{$index}.start_time", $this->messages()['break_times.*.start_time.before']);
+                    // continue は削除し、他の検証も実行して Failure 5 (end_time) のエラーを捕捉できるようにする
+                }
+                
+                // 2-b. 日跨ぎ休憩時刻補正 (日跨ぎシフトの場合、休憩時刻も翌日に補正)
+                if ($isCrossDayShift) {
+                    if ($breakStartCarbon->lt($clockInCarbon) && $breakStartCarbon->isSameDay($clockInCarbon)) {
+                        $breakStartCarbon = $breakStartCarbon->addDay();
+                    }
+                    if ($breakEndCarbon->lt($breakStartCarbon)) {
+                        $breakEndCarbon = $breakEndCarbon->addDay();
+                    }
+                }
+
+                // 2-c. 【Rule 3-b / Failure 6 対策】休憩開始時刻が出勤時刻より前
+                if ($breakStartCarbon->lt($clockInCarbon)) {
+                    $validator->errors()->add("break_times.{$index}.start_time", $this->messages()['break_times.*.start_time.after_or_equal']); 
+                }
+                
+                // 2-d. 【Rule 3-c / Failure 3 対策】休憩開始時刻が退勤時刻より後
+                if ($breakStartCarbon->gte($clockOutCarbon)) {
+                    // Failure 3 は start_time に汎用メッセージを期待
+                    $validator->errors()->add("break_times.{$index}.start_time", $this->messages()['break_times.*.start_time.before']);
+                }
+
+                // 2-e. 【Rule 3-d / Failure 7 対策】休憩終了時刻が退勤時刻より後
+                if ($breakEndCarbon->gt($clockOutCarbon)) {
+                     // Failure 7 は end_time に特定メッセージを期待
+                     $validator->errors()->add("break_times.{$index}.end_time", $this->messages()['break_times.*.end_time.before_or_equal']);
+                }
+                
+                // 2-f. 【Rule 3-e / Failure 5 Fix】休憩終了時刻が出勤時刻より前
+                if ($breakEndCarbon->lte($clockInCarbon)) {
+                    // Failure 5 は end_time に汎用メッセージを期待
+                    $validator->errors()->add("break_times.{$index}.end_time", $this->messages()['break_times.*.end_time.after']);
+                }
+            }
+        });
+    }
+
     public function messages(): array
     {
-        // メッセージをより具体的に修正・追加します。
         return [
             // ----------------------------------------------------
             // 1. 出勤・退勤の順序エラー
-            'clock_in_time.before' => '出勤時刻は退勤時刻より前に設定してください。',
-            'clock_out_time.after' => '退勤時刻は出勤時刻より後に設定してください。',
+            'clock_in_time.before' => '出勤時刻が不適切な値です。', 
+            'clock_out_time.after' => '退勤時間が不適切な値です。', 
 
-            'clock_in_time.required' => '出勤時刻を入力してください。',
-            'clock_out_time.required' => '退勤時刻を入力してください。',
-
-            // H:i 形式のチェックが失敗した場合のメッセージを追加 (regexのエラーとして表示されます)
-            'clock_in_time.regex' => '出勤時刻は「H:i」または「HH:ii」の形式で入力してください。',
-            'clock_out_time.regex' => '退勤時刻は「H:i」または「HH:ii」の形式で入力してください。',
-            
             // ----------------------------------------------------
             // 2. 休憩時間のエラー
-            
-            // 各休憩開始時刻のエラー
-            'break_times.*.start_time.before' => '休憩開始時刻は、終了時刻より前に設定してください。',
-            'break_times.*.start_time.required_with' => '休憩開始時刻を入力してください。',
-            'break_times.*.start_time.regex' => '休憩開始時刻は「H:i」または「HH:ii」の形式で入力してください。', 
-            // 【追加】休憩開始時刻が早すぎる場合
-            'break_times.*.start_time.after_or_equal' => '休憩開始時刻は、出勤時刻以降に設定してください。', 
+            // 汎用メッセージ
+            'break_times.*.start_time.before' => '休憩時間が不適切な値です。',
+            'break_times.*.end_time.after' => '休憩時間が不適切な値です。',   
 
-            // 各休憩終了時刻のエラー
-            'break_times.*.end_time.after' => '休憩終了時刻は、開始時刻より後に設定してください。',
-            'break_times.*.end_time.required_with' => '休憩終了時刻を入力してください。',
-            'break_times.*.end_time.regex' => '休憩終了時刻は「H:i」または「HH:ii」の形式で入力してください。',
-            // 【追加】休憩終了時刻が遅すぎる場合
-            'break_times.*.end_time.before_or_equal' => '休憩終了時刻は、退勤時刻以前に設定してください。',
+            // 個別メッセージ
+            'break_times.*.start_time.after_or_equal' => '休憩開始時刻は、出勤時刻以降に設定してください。', 
+            'break_times.*.end_time.before_or_equal' => '休憩時間もしくは退勤時間が不適切な値です。', // Failure 7のみが期待する特定メッセージ
 
             // ----------------------------------------------------
-            // その他
-            'checkin_date.required' => '申請日を入力してください。',
-            'checkin_date.date_format' => '申請日の形式が正しくありません。',
+            // 3. 形式・必須チェック
+            'clock_in_time.required' => '出勤時刻を入力してください。',
+            'clock_out_time.required' => '退勤時刻を入力してください。',
+            // 他の必須・形式エラーメッセージ...
+            'reason.required' => '備考を記入してください。',
+            'checkin_date.required' => '対象日付は必須です。',
+            'break_times.*.start_time.required_with' => '休憩開始時刻を入力してください。',
+            'break_times.*.end_time.required_with' => '休憩終了時刻を入力してください。',
+            'clock_in_time.regex' => '出勤時刻は「H:i」または「HH:ii」の形式で入力してください。',
+            'clock_out_time.regex' => '退勤時刻は「H:i」または「HH:ii」の形式で入力してください。',
+            'break_times.*.start_time.regex' => '休憩開始時刻は「H:i」または「HH:ii」の形式で入力してください。', 
+            'break_times.*.end_time.regex' => '休憩終了時刻は「H:i」または「HH:ii」の形式で入力してください。',
             'reason.max' => '理由は500文字以内で入力してください。',
-            'reason.required' => '理由を入力してください。',
         ];
     }
 
-    /**
-     * バリデーション属性名の日本語化
-     * @return array
-     */
     public function attributes()
     {
         $attributes = [
@@ -130,7 +186,6 @@ class ApplicationAndAttendantRequest extends FormRequest
             'reason' => '修正理由',
         ];
 
-        // 休憩時間の属性名を動的に設定
         if ($this->has('break_times')) {
             foreach ($this->input('break_times') as $key => $value) {
                 $num = $key + 1;

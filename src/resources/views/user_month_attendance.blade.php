@@ -25,7 +25,7 @@
         </h2>
         <div class="navigation">
             {{-- nextMonthから年と月を取得してリンクを生成 --}}
-            <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}">次月<span class="arrow">→</span></a>
+            <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}">翌月<span class="arrow">→</span></a>
         </div>
     </div>
 </div>
