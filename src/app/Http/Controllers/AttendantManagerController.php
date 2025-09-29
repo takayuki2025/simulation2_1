@@ -113,6 +113,9 @@ class AttendantManagerController extends Controller
 
         $formattedAttendanceData = [];
         $daysInMonth = $date->daysInMonth;
+        
+        // ★追加: 今日の日付を取得 (比較に使用)
+        $today = Carbon::now()->startOfDay();
 
         for ($i = 1; $i <= $daysInMonth; $i++) {
             $currentDay = Carbon::createFromDate($year, $month, $i);
@@ -125,6 +128,7 @@ class AttendantManagerController extends Controller
             $data = [
                 'day_label' => "{$month}/{$currentDay->format('d')}({$dayOfWeek})",
                 'is_weekend' => $currentDay->dayOfWeek == 0 || $currentDay->dayOfWeek == 6,
+                'date_key' => $dateKey, // ★追加: 日付文字列をBladeに渡す
                 'clock_in' => '',
                 'clock_out' => '',
                 'break_time' => '',
@@ -132,11 +136,12 @@ class AttendantManagerController extends Controller
                 // デフォルトのURLを、勤怠データがない場合を想定して生成
                 'detail_url' => route('user.attendance.detail.index', ['date' => $dateKey]), 
                 'attendance_id' => null, 
+                // ★追加: 詳細ボタンの表示制御のためにCarbonオブジェクトを追加
+                'current_day_carbon' => $currentDay, 
             ];
 
             if ($attendance) {
                 // 退勤時間が記録されているか、かつ出勤時間と同じ値ではないかチェック
-                // このフラグは休憩・合計時間の表示に必要
                 $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time;
                 
                 $data['clock_in'] = Carbon::parse($attendance->clock_in_time)->format('H:i');
@@ -145,21 +150,18 @@ class AttendantManagerController extends Controller
                 $data['clock_out'] = $hasClockedOut ? Carbon::parse($attendance->clock_out_time)->format('H:i') : '';
                 
                 // 休憩時間 (分を H:i 形式に変換)
-                // 合計休憩時間は打刻が完了していなくても記録されている可能性はありますが、
-                // 今回は「合計」との表示バランスを考慮し、$hasClockedOutを外して0分でも表示するようにします。
                 if ($attendance->break_total_time !== null) {
                     $minutes = $attendance->break_total_time;
                     $data['break_time'] = floor($minutes / 60) . ':' . str_pad($minutes % 60, 2, '0', STR_PAD_LEFT);
                 }
 
                 // 合計勤務時間 (分を H:i 形式に変換)
-                // 0分でも表示するように修正します。
                 if ($attendance->work_time !== null) {
                     $minutes = $attendance->work_time;
                     $data['work_time'] = floor($minutes / 60) . ':' . str_pad($minutes % 60, 2, '0', STR_PAD_LEFT);
                 }
 
-                // ★修正点: 勤怠IDと日付の両方を渡すことで、詳細コントローラーのロジックを安定させる
+                // 勤怠IDと日付の両方を渡すことで、詳細コントローラーのロジックを安定させる
                 $data['detail_url'] = route('user.attendance.detail.index', ['id' => $attendance->id, 'date' => $dateKey]);
                 $data['attendance_id'] = $attendance->id;
             }
@@ -173,6 +175,7 @@ class AttendantManagerController extends Controller
             'date' => $date,
             'prevMonth' => $prevMonth,
             'nextMonth' => $nextMonth,
+            'today' => $today, // ★追加: 今日（システムの日付）をビューに渡す
         ];
 
         // 勤怠データをビューに渡して表示
@@ -358,6 +361,7 @@ class AttendantManagerController extends Controller
 
     /**
      * 管理者用日次勤怠一覧を表示
+     * (出勤データがないスタッフも一覧に含めます)
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
@@ -368,59 +372,85 @@ class AttendantManagerController extends Controller
         $dateString = $request->get('date', Carbon::now()->toDateString());
         $currentDate = Carbon::parse($dateString);
 
-        // 指定された日付の全ユーザーの勤怠レコードを取得
-        // with('user') は、ユーザー名表示のためにリレーションを事前にロードします
+        // 1. 指定された日付の全ユーザーの勤怠レコードを取得し、ユーザーIDでインデックス付け
         $attendances = Attendance::where('checkin_date', $dateString)
                                 ->with('user')
-                                ->get();
+                                ->get()
+                                ->keyBy('user_id'); // ユーザーIDをキーとしてアクセスしやすくする
 
-        // ユーザーの一覧を取得し、IDが1のユーザーを除外する (管理者を除外する想定)
-        // ここでは、attendancesに含まれるユーザーのみを対象とするため、ユーザー一覧の取得は不要かもしれません。
-        // もし「出勤がない人も含めた全スタッフリスト」が必要なら、User::where('id', '!=', 1)->get() を使います。
-        // 今回はシンプルに、勤怠データに基づいて表示するデータを構築します。
+        // 2. 全ての一般スタッフユーザーを取得 (管理者ユーザーを除外する想定)
+        // ここではロールが'admin'ではないユーザーを取得すると仮定します。
+        $allStaffUsers = User::where('role', '!=', 'admin')
+                             ->get();
 
         // **********************************************
-        // ★ここから、Bladeから移動したデータ準備ロジック
+        // 全ユーザーの勤怠データ準備ロジック
         // **********************************************
         
-        $hasAttendance = $attendances->isNotEmpty();
         $dailyAttendanceData = [];
 
-        // 時間フォーマット用のヘルパー関数（例: 480分 -> 8:00）
+        // 時間フォーマット用のヘルパー関数（例: 480分 -> 8:00, 0分 -> 0:00）
         $formatTime = function (?int $minutes): string {
-            if ($minutes === null || $minutes <= 0) return '-';
+            // ★修正点: 勤怠データがない場合に空文字列 '' を返す（打刻済みで0分の場合 0:00）
+            if ($minutes === null) return ''; 
+            
             $hours = floor($minutes / 60);
             $mins = $minutes % 60;
             return $hours . ':' . str_pad($mins, 2, '0', STR_PAD_LEFT);
         };
 
-        foreach ($attendances as $attendance) {
-            $user = $attendance->user; // with('user')でロード済み
-            
-            // ID=1のユーザー (管理者) を表示対象から除外（Bladeのロジックに合わせて）
-            // if ($user->id == 1) continue; 
+        // 3. 全スタッフをループし、勤怠データをマージ
+        foreach ($allStaffUsers as $user) {
+            // 当日の勤怠データがあるかチェック
+            $attendance = $attendances->get($user->id);
 
-            // 退勤時間が記録されているかチェック
-            $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time;
+            $hasAttendanceRecord = $attendance !== null;
+            $hasClockedOut = $hasAttendanceRecord 
+                             ? ($attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time)
+                             : false;
 
-            $dailyAttendanceData[] = [
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'clockInTime' => Carbon::parse($attendance->clock_in_time)->format('H:i'),
-                'clockOutTime' => $hasClockedOut 
-                                    ? Carbon::parse($attendance->clock_out_time)->format('H:i') 
-                                    : '-',
-                'breakTimeDisplay' => $formatTime($attendance->break_total_time),
-                'workTimeDisplay' => $formatTime($attendance->work_time),
-                'dateString' => $dateString,
-            ];
+            if ($hasAttendanceRecord) {
+                // 勤怠データがある場合
+                $dailyAttendanceData[] = [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'clockInTime' => Carbon::parse($attendance->clock_in_time)->format('H:i'),
+                    'clockOutTime' => $hasClockedOut 
+                                        ? Carbon::parse($attendance->clock_out_time)->format('H:i') 
+                                        : '', // 退勤がない場合も空欄
+                    // 勤怠データはあるが0分の場合、0:00が表示される (formatTime内のロジックで対応)
+                    'breakTimeDisplay' => $formatTime($attendance->break_total_time),
+                    'workTimeDisplay' => $formatTime($attendance->work_time),
+                    'dateString' => $dateString,
+                ];
+            } else {
+                // 勤怠データがない場合 (全て空欄 ' ' に設定)
+                $dailyAttendanceData[] = [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'clockInTime' => '',
+                    'clockOutTime' => '',
+                    // ★修正点: 勤怠データがない日は空欄 ''
+                    'breakTimeDisplay' => '', 
+                    'workTimeDisplay' => '',
+                    'dateString' => $dateString,
+                ];
+            }
         }
+
+        // 勤怠データがあったかどうかのフラグを更新
+        $hasAttendance = $allStaffUsers->isNotEmpty();
+        
+        // **********************************************
+        // Bladeファイルで使用する今日の日付情報を追加
+        // **********************************************
+        $today = Carbon::now()->startOfDay();
 
         $viewData = [
             'currentDate' => $currentDate,
             'dailyAttendanceData' => $dailyAttendanceData,
             'hasAttendance' => $hasAttendance,
-            // $users は不要になりましたが、もし必要ならそのまま残しても構いません。
+            'today' => $today, // 今日（システムの日付）をビューに渡す
         ];
 
         return view('admin_staff_daily_attendance', $viewData);
@@ -548,23 +578,29 @@ class AttendantManagerController extends Controller
         $staffUser = User::findOrFail($id);
 
         // 指定されたIDのユーザーとその月の勤怠レコードを取得
-        // ★注意: $users = User::all(); は不要なので削除しました
         $attendances = Attendance::where('user_id', $id)
             ->whereYear('checkin_date', $year)
             ->whereMonth('checkin_date', $month)
             ->get();
         
         // **********************************************
-        // ★ここから、Bladeから移動したデータ準備ロジック
+        // データ準備ロジック
         // **********************************************
         
         $daysInMonth = $date->daysInMonth;
         $monthlyAttendanceData = [];
         $dayOfWeekArray = ['日', '月', '火', '水', '木', '金', '土'];
 
-        // 時間フォーマット用のヘルパー関数（例: 480分 -> 8:00）
+        // 時間フォーマット用のヘルパー関数（例: 480分 -> 8:00, 0分 -> 0:00）
         $formatTime = function (?int $minutes): string {
-            if ($minutes === null || $minutes <= 0) return '';
+            // ★修正点: nullの場合は空文字列 '' を返す（未打刻対応）
+            if ($minutes === null) return '';
+
+            // ★修正点: 0分以下の場合、'0:00' を返す（打刻済みで0分対応）
+            if ($minutes <= 0) {
+                return '0:00';
+            }
+
             $hours = floor($minutes / 60);
             $mins = $minutes % 60;
             return $hours . ':' . str_pad($mins, 2, '0', STR_PAD_LEFT);
@@ -577,6 +613,7 @@ class AttendantManagerController extends Controller
             // その日の勤怠データを取得
             $attendance = $attendances->firstWhere('checkin_date', $dateString);
             
+            // 勤怠データがない日の初期値はすべて空欄にする
             $dayData = [
                 'day' => $i,
                 'dayOfWeek' => $dayOfWeekArray[$currentDay->dayOfWeek],
@@ -584,10 +621,10 @@ class AttendantManagerController extends Controller
                 'isSaturday' => $currentDay->dayOfWeek === 6,
                 'dateString' => $dateString,
                 'attendance' => $attendance, // 生の勤怠データ
-                'clockInTime' => '-',
-                'clockOutTime' => '-',
-                'breakTimeDisplay' => '-',
-                'workTimeDisplay' => '-',
+                'clockInTime' => '', // 修正: 初期値を空欄に
+                'clockOutTime' => '', // 修正: 初期値を空欄に
+                'breakTimeDisplay' => '', // 修正: 初期値を空欄に
+                'workTimeDisplay' => '', // 修正: 初期値を空欄に
             ];
 
             if ($attendance) {
@@ -597,21 +634,28 @@ class AttendantManagerController extends Controller
                 // 出勤時間のフォーマット
                 $dayData['clockInTime'] = Carbon::parse($attendance->clock_in_time)->format('H:i');
                 
+                // 退勤打刻がない場合は空欄のまま
                 if ($hasClockedOut) {
                     // 退勤時間のフォーマット
                     $dayData['clockOutTime'] = Carbon::parse($attendance->clock_out_time)->format('H:i');
                     
-                    // 休憩時間のフォーマット
+                    // 休憩時間 (0分の場合 0:00 が表示される)
                     $dayData['breakTimeDisplay'] = $formatTime($attendance->break_total_time);
                     
-                    // 合計勤務時間のフォーマット
+                    // 合計勤務時間 (0分の場合 0:00 が表示される)
                     $dayData['workTimeDisplay'] = $formatTime($attendance->work_time);
+                } else {
+                    // 出勤はあるが退勤がない場合、休憩・合計は空欄のまま（初期値を使用）
+                    $dayData['breakTimeDisplay'] = '';
+                    $dayData['workTimeDisplay'] = '';
                 }
             }
             
             $monthlyAttendanceData[] = $dayData;
         }
 
+        // ★追加: 今日の日付を取得 (比較に使用)
+        $today = Carbon::now()->startOfDay();
 
         $viewData = [
             'date' => $date,
@@ -620,8 +664,9 @@ class AttendantManagerController extends Controller
             'staffUser' => $staffUser,
             'year' => $year,
             'month' => $month,
-            // ★新しい準備済みデータ配列
+            // 新しい準備済みデータ配列
             'monthlyAttendanceData' => $monthlyAttendanceData,
+            'today' => $today, // ★追加: 今日（システムの日付）をビューに渡す
         ];
 
         return view('admin_staff_month_attendance', $viewData);

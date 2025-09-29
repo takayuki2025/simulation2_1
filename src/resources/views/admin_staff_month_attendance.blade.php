@@ -24,6 +24,7 @@
 📅 <span id="current-date-display">{{ $date->format('Y年m月') }}</span>
 </h2>
 <div class="navigation">
+{{-- 次月への移動は常に許可 --}}
 <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}">次月</a>
 </div>
 </div>
@@ -61,17 +62,27 @@
 <td>{{ $dayData['workTimeDisplay'] }}</td>
 {{-- 詳細ボタン（勤怠データありの場合） --}}
 <td>
+{{-- ★未来の日付ではない場合（今日以前）のみ詳細ボタンを表示 --}}
+@if (\Carbon\Carbon::parse($dayData['dateString'])->lte($today))
 <a href="{{ route('admin.user.attendance.detail.index', ['id' => $dayData['attendance']->user_id, 'date' => $dayData['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
+@else
+&nbsp; {{-- 未来の場合は空欄 --}}
+@endif
 </td>
 @else
 {{-- 勤怠データがない場合 --}}
-<td>-</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
 {{-- 詳細ボタン（勤怠データなしの場合、スタッフIDを使用して詳細ページへ） --}}
 <td>
+{{-- ★未来の日付ではない場合（今日以前）のみ詳細ボタンを表示 --}}
+@if (\Carbon\Carbon::parse($dayData['dateString'])->lte($today))
 <a href="{{ route('admin.user.attendance.detail.index', ['id' => $staffUser->id, 'date' => $dayData['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
+@else
+&nbsp; {{-- 未来の場合は空欄 --}}
+@endif
 </td>
 @endif
 </tr>

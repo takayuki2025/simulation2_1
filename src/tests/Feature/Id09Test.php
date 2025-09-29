@@ -147,7 +147,7 @@ class Id09Test extends TestCase
 
         // 期待される前月 (2024年4月) をCarbonで計算
         $expectedPrevMonth = Carbon::create($startYear, $startMonth)->subMonth();
-        // 【修正点】Bladeの出力（ゼロパディングなし）に合わせるため、->format('m')を->monthに変更
+        // Bladeの出力（ゼロパディングなし）に合わせるため、->format('m')を->monthに変更
         $expectedPrevQuery = "?year={$expectedPrevMonth->year}&month={$expectedPrevMonth->month}";
         $expectedPrevDisplay = $expectedPrevMonth->format('Y/m'); // Bladeで表示される形式 (2024/04)
 
@@ -181,7 +181,7 @@ class Id09Test extends TestCase
 
         // 期待される翌月 (2024年6月) をCarbonで計算
         $expectedNextMonth = Carbon::create($startYear, $startMonth)->addMonth();
-        // 【修正点】Bladeの出力（ゼロパディングなし）に合わせるため、->format('m')を->monthに変更
+        // Bladeの出力（ゼロパディングなし）に合わせるため、->format('m')を->monthに変更
         $expectedNextQuery = "?year={$expectedNextMonth->year}&month={$expectedNextMonth->month}";
         $expectedNextDisplay = $expectedNextMonth->format('Y/m'); // Bladeで表示される形式 (2024/06)
 
@@ -212,8 +212,13 @@ class Id09Test extends TestCase
      */
     public function test_can_navigate_to_attendance_detail_page_and_see_data(): void
     {
+        // ★修正1: 現在日を2025年10月31日に固定し、テスト対象月（2025年10月）の全ての日付が「今日以前」になるようにします。
+        $fixedDate = Carbon::create(2025, 10, 31, 10, 0, 0);
+        Carbon::setTestNow($fixedDate);
+
         // 1. ユーザーの勤怠データを作成（テスト対象日: 2025/10/10）
         $targetDate = Carbon::create(2025, 10, 10);
+        $unpunchedDate = Carbon::create(2025, 10, 31); // 比較用：レコードのない日（ただし今日）
 
         // 期待される勤怠データ
         $expectedCheckIn = '09:00';
@@ -243,15 +248,23 @@ class Id09Test extends TestCase
 
         $response->assertStatus(200);
 
-        // 3. 詳細ボタンのhref属性が、勤怠データIDを含む正しい形式を指しているかを確認
-        $expectedPath = "/attendance/detail/{$attendance->id}?date={$targetDate->toDateString()}";
+        // 3. 勤怠データが**存在する**日 (2025/10/10) の詳細ボタンをチェック
+        // IDを含む形式: /attendance/detail/{id}?date=...
+        $expectedPathWithId = "/attendance/detail/{$attendance->id}?date={$targetDate->toDateString()}";
         
         // レンダリングされたHTMLには IDとクラス属性を含み、正確なリンク構造をアサート
-        $expectedAnchor = '<a href="http://localhost' . $expectedPath . '" class="detail-button">詳細</a>';
-        $response->assertSee($expectedAnchor, false);
+        $expectedAnchorWithId = '<a href="http://localhost' . $expectedPathWithId . '" class="detail-button">詳細</a>';
+        $response->assertSee($expectedAnchorWithId, false);
 
-        // 4. その詳細URL（相対パス）にアクセスし、成功することを確認
-        $detailResponse = $this->actingAs($this->user)->get($expectedPath);
+        // ★修正2: 勤怠データが**存在しない**日 (2025/10/31) の詳細ボタンをチェック
+        // Dateのみの形式: /attendance/detail?date=... (IDはクエリに含めない)
+        $expectedPathWithoutId = "/attendance/detail?date={$unpunchedDate->toDateString()}";
+        $expectedAnchorWithoutId = '<a href="http://localhost' . $expectedPathWithoutId . '" class="detail-button">詳細</a>';
+        $response->assertSee($expectedAnchorWithoutId, false);
+
+
+        // 4. その詳細URL（相対パス, IDあり）にアクセスし、成功することを確認
+        $detailResponse = $this->actingAs($this->user)->get($expectedPathWithId);
 
         // 詳細ページへのルーティングが存在し、正しく表示されることをアサート
         $detailResponse->assertStatus(200);
@@ -261,7 +274,6 @@ class Id09Test extends TestCase
         $detailResponse->assertSee($targetDate->format('Y年m月d日')); // 日付の表示を確認
 
         // ★★★ 出勤・退勤時刻がフォームに正しく初期値としてセットされていることを検証 ★★★
-        // assertSee(..., false) を使用して、HTMLの属性値を含む文字列の存在をチェックします。
         $detailResponse->assertSee('value="' . $expectedCheckIn . '"', false);      // 出勤時間 (例: value="09:00")
         $detailResponse->assertSee('value="' . $expectedCheckOut . '"', false);     // 退勤時間 (例: value="18:00")
         

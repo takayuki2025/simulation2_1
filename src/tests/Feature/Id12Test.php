@@ -264,109 +264,137 @@ class Id12Test extends TestCase
     }
 
     /**
-     * 承認ステータスに基づいて勤怠修正ボタンとメッセージが正しく表示されるかを確認する。
-     * user_attendance_detail.blade.php の button-container ロジックの検証。
+     * 詳細ページへの遷移、勤怠・休憩データのフォーム初期値表示、
+     * および申請ステータスに基づいて修正ボタンとメッセージが正しく表示されることをテストします。
+     *
+     * @return void
      */
-    public function test_application_status_controls_view_buttons()
+    public function test_attendance_detail_page_displays_data_and_correct_buttons_based_on_status(): void
     {
-        $testDate = '2025-12-01';
-
-        // Undefined variable $errors を回避するため、空の ViewErrorBag インスタンスを渡す。
-        $errors = new ViewErrorBag;
-        $errors->put('default', new MessageBag);
+        // ----------------------------------------------------
+        // 共通設定: 勤怠データと詳細ページURLの準備
+        // ----------------------------------------------------
+        $targetDate = Carbon::create(2025, 10, 10);
         
-        // Viewに必要な共通ダミーデータ
-        $commonViewData = [
-            'user' => $this->user,
-            'date' => $testDate,
-            'formBreakTimes' => [],
-            'errors' => $errors, 
+        // 元の勤怠データ
+        $originalCheckIn = '09:00';
+        $originalCheckOut = '18:00';
+        
+        // 休憩データ
+        $expectedBreakTimesArray = [
+            ['start' => '12:00:00', 'end' => '13:00:00'], // 休憩1
+            ['start' => '15:00:00', 'end' => '15:15:00'], // 休憩2
         ];
-        
-        // 修正申請ボタンが表示されるための勤怠データをDBに作成し、IDを確実に持つようにする
-        $realAttendance = Attendance::create([
-            'user_id' => $this->user->id, 
-            'checkin_date' => $testDate, 
-            'clock_in_time' => '09:00:00',
-            'clock_out_time' => '18:00:00',
-            'reason' => null, // 備考をnullに設定し、Applicationのデータが漏れないようにする
-        ]);
-        
-        // チェック対象のボタンHTMLの開始タグ
-        $updateButtonHtml = '<button type="submit" class="button update-button">修正</button>';
-        // チェック対象のボタンHTML（部分）
-        $updateButtonTag = '<button type="submit" class="button update-button">';
+        $expectedBreakMinutes = 75; 
+        $expectedWorkMinutes = 465; 
 
-        // =========================================================
-        // Case 1: 申請データが存在しない場合 ($application = null)
-        // =========================================================
-        $viewData1 = array_merge($commonViewData, [
-            'application' => null, // ここで明示的にnullを設定
-            'attendance' => $realAttendance, // 勤怠データあり
-            'primaryData' => $realAttendance, 
+        // 勤怠データを作成（ベースデータとして使用）
+        $attendanceBase = Attendance::factory()->create([
+            'user_id' => $this->user->id,
+            'checkin_date' => $targetDate->format('Y-m-d'),
+            // 元のデータは 09:00 / 18:00
+            'clock_in_time' => "{$originalCheckIn}:00", 
+            'clock_out_time' => "{$originalCheckOut}:00",
+            'break_time' => json_encode($expectedBreakTimesArray), 
+            'break_total_time' => $expectedBreakMinutes,
+            'work_time' => $expectedWorkMinutes,
         ]);
-        // actingAsを付与し、Authコンテキストを確実に渡す
-        $response1 = $this->actingAs($this->user)->view('user_attendance_detail', $viewData1);
         
-        // 期待: 修正ボタン全体が表示され、メッセージは非表示
-        $response1->assertSee($updateButtonHtml, false); // ボタンの完全なHTMLでチェック
-        $response1->assertDontSee('＊承認待ちのため修正はできません。');
-        $response1->assertDontSee('＊この日は一度承認されたので修正できません。');
+        $expectedPath = "/attendance/detail/{$attendanceBase->id}?date={$targetDate->toDateString()}";
+        $updateButtonHtml = '<button type="submit" class="button update-button">修正</button>';
+
+        // ----------------------------------------------------
+        // Case 1: 申請データなし (データ表示と「修正」ボタンの表示検証)
+        // 詳細ページには元の勤怠データが表示されるべき（勤怠一覧からの遷移を想定）
+        // ----------------------------------------------------
+        $detailResponse = $this->actingAs($this->user)->get($expectedPath);
+
+        // ルーティングと基本表示のアサート
+        $detailResponse->assertStatus(200);
+        $detailResponse->assertSee('勤怠詳細・修正申請', 'h2');
+        $detailResponse->assertSee($targetDate->format('Y年m月d日'));
+
+        // ★★★ フォームへのデータ初期値セットを検証 (元のデータ 09:00 / 18:00) ★★★
+        $detailResponse->assertSee('value="' . $originalCheckIn . '"', false);      
+        $detailResponse->assertSee('value="' . $originalCheckOut . '"', false);     
+        $detailResponse->assertSee('value="12:00"', false); // 休憩1 開始
+        $detailResponse->assertSee('value="13:00"', false); // 休憩1 終了
+        $detailResponse->assertSee('value="15:00"', false); // 休憩2 開始
+        $detailResponse->assertSee('value="15:15"', false); // 休憩2 終了
+
+        // ★★★ ボタン表示ロジックの検証（Case 1: 申請データなし => 修正ボタンが表示される）★★★
+        $detailResponse->assertSee($updateButtonHtml, false); 
+        $detailResponse->assertDontSee('＊承認待ちのため修正はできません。');
+        $detailResponse->assertDontSee('＊この日は一度承認されたので修正できません。');
         
-        // =========================================================
-        // Case 2: 承認待ちの申請データが存在する場合 ($application->pending = true)
-        // =========================================================
-        // Applicationモデルをインスタンス化
-        $pendingApp = new Application([
-            'id' => 1, 
-            'attendance_id' => $realAttendance->id, 
+        // ----------------------------------------------------
+        // Case 2: 承認待ちの申請データが存在する場合 (★申請履歴の「承認待ち」詳細から移動してきた場合の検証★)
+        // 詳細ページには申請データが表示されるべき
+        // ----------------------------------------------------
+        $targetDate2 = $targetDate->addDay();
+        // 新しい勤怠データを作成
+        $attendance2 = Attendance::factory()->create([
+            'user_id' => $this->user->id,
+            'checkin_date' => $targetDate2->format('Y-m-d'),
+            'clock_in_time' => '09:00:00', // 元は 09:00
+        ]);
+        
+        $pendingCheckIn = '08:00'; // 申請により 08:00 に修正
+        // 承認待ちの申請データを作成
+        Application::create([
+            'attendance_id' => $attendance2->id, 
             'user_id' => $this->user->id,
             'pending' => true, // 承認待ち
-            'checkin_date' => $testDate,
-            'clock_in_time' => '09:00:00',
-            'clock_out_time' => '18:00:00',
+            'checkin_date' => $attendance2->checkin_date,
+            'clock_in_time' => "{$pendingCheckIn}:00",
             'reason' => 'Pending test reason', 
         ]);
-        $viewData2 = array_merge($commonViewData, [
-            'application' => $pendingApp,
-            'attendance' => $realAttendance, 
-            'primaryData' => $pendingApp, // 申請データ優先
-        ]);
+        $expectedPath2 = "/attendance/detail/{$attendance2->id}?date={$attendance2->checkin_date}";
+        $detailResponse2 = $this->actingAs($this->user)->get($expectedPath2);
 
-        $response2 = $this->actingAs($this->user)->view('user_attendance_detail', $viewData2);
-
-        // 期待: 承認待ちメッセージが表示され、修正ボタンは非表示
-        // タイトルとの競合を避けるため、ボタンのHTMLタグが存在しないことをチェック
-        $response2->assertDontSee($updateButtonTag, false); 
-        $response2->assertSee('＊承認待ちのため修正はできません。');
-        $response2->assertDontSee('＊この日は一度承認されたので修正できません。');
+        // ★★★ フォームへのデータ初期値セットを検証 (申請データ 08:00 が優先されること) ★★★
+        $detailResponse2->assertStatus(200);
+        $detailResponse2->assertSee('value="' . $pendingCheckIn . '"', false); // 申請値の 08:00 が表示される
+        $detailResponse2->assertDontSee('value="' . $originalCheckIn . '"', false); // 元の値 09:00 は表示されない
         
-        // =========================================================
-        // Case 3: 承認済みの申請データが存在する場合 ($application->pending = false)
-        // =========================================================
-        // Applicationモデルをインスタンス化
-        $approvedApp = new Application([
-            'id' => 2, 
-            'attendance_id' => $realAttendance->id, 
+        // ★★★ ボタン表示ロジックの検証（Case 2: 承認待ち => 修正ボタンが非表示になり、メッセージが表示される）★★★
+        $detailResponse2->assertDontSee('修正</button>', false); 
+        $detailResponse2->assertSee('＊承認待ちのため修正はできません。');
+        $detailResponse2->assertDontSee('＊この日は一度承認されたので修正できません。');
+        
+        // ----------------------------------------------------
+        // Case 3: 承認済みの申請データが存在する場合 (★申請履歴の「承認済み」詳細から移動してきた場合の検証★)
+        // 詳細ページには申請データが表示されるべき
+        // ----------------------------------------------------
+        $targetDate3 = $targetDate->addDay();
+        // 新しい勤怠データを作成
+        $attendance3 = Attendance::factory()->create([
+            'user_id' => $this->user->id,
+            'checkin_date' => $targetDate3->format('Y-m-d'),
+            'clock_in_time' => '09:00:00', // 元は 09:00
+        ]);
+        
+        $approvedCheckIn = '07:00'; // 申請により 07:00 に修正
+        // 承認済みの申請データを作成
+        Application::create([
+            'attendance_id' => $attendance3->id, 
             'user_id' => $this->user->id,
             'pending' => false, // 承認済み
-            'checkin_date' => $testDate,
-            'clock_in_time' => '09:00:00',
-            'clock_out_time' => '18:00:00',
+            'checkin_date' => $attendance3->checkin_date,
+            'clock_in_time' => "{$approvedCheckIn}:00",
             'reason' => 'Approved test reason', 
         ]);
-        $viewData3 = array_merge($commonViewData, [
-            'application' => $approvedApp,
-            'attendance' => $realAttendance, 
-            'primaryData' => $approvedApp, // 申請データ優先
-        ]);
-
-        $response3 = $this->actingAs($this->user)->view('user_attendance_detail', $viewData3);
+        $expectedPath3 = "/attendance/detail/{$attendance3->id}?date={$attendance3->checkin_date}";
+        $detailResponse3 = $this->actingAs($this->user)->get($expectedPath3);
         
-        // 期待: 承認済みメッセージが表示され、修正ボタンは非表示
-        // タイトルとの競合を避けるため、ボタンのHTMLタグが存在しないことをチェック
-        $response3->assertDontSee($updateButtonTag, false);
-        $response3->assertDontSee('＊承認待ちのため修正はできません。');
-        $response3->assertSee('＊この日は一度承認されたので修正できません。');
+        // ★★★ フォームへのデータ初期値セットを検証 (申請データ 07:00 が優先されること) ★★★
+        $detailResponse3->assertStatus(200);
+        $detailResponse3->assertSee('value="' . $approvedCheckIn . '"', false); // 申請値の 07:00 が表示される
+        $detailResponse3->assertDontSee('value="' . $originalCheckIn . '"', false); // 元の値 09:00 は表示されない
+
+        // ★★★ ボタン表示ロジックの検証（Case 3: 承認済み => 修正ボタンが非表示になり、メッセージが表示される）★★★
+        $detailResponse3->assertDontSee('修正</button>', false);
+        $detailResponse3->assertDontSee('＊承認待ちのため修正はできません。');
+        $detailResponse3->assertSee('＊この日は一度承認されたので修正できません。');
     }
 }
