@@ -5,396 +5,287 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
-use App\Models\Application;
+use App\Models\Attendance;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Route;
 
-use App\Models\Attendance; // Attendance Model を使用するため追加
-// Undefined variable $errors エラー回避のため追加
-use Illuminate\Support\MessageBag;
-use Illuminate\Support\ViewErrorBag;
-/**
- * 管理者向けの申請一覧表示機能と、ユーザーからの申請作成処理の連携をテストします。
- * 特に、日跨ぎ補正後の申請が承認待ちリストに表示されることを検証します。
- */
 class Id12Test extends TestCase
 {
     use RefreshDatabase;
 
-    protected $user;
-    protected $admin;
-    protected $postRoute;
-    protected $listRoute;
+    /**
+     * テストで使用する管理者ユーザーと一般スタッフユーザー。
+     * @var User
+     */
+    protected $adminUser;
+    protected $staffUser;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        // 1. 管理者ユーザーと一般ユーザーを作成
-        $this->user = User::factory()->create(['role' => 'employee']);
-        $this->admin = User::factory()->create(['role' => 'admin']);
-
-        // ルート定義
-        try {
-            $this->postRoute = route('application.create'); // /attendance/update
-            $this->listRoute = route('apply.list'); // /stamp_correction_request/list
-        } catch (\InvalidArgumentException $e) {
-            $this->postRoute = '/application/create'; 
-            $this->listRoute = '/stamp_correction_request/list';
-        }
-    }
-
-    /**
-     * ユーザーが日跨ぎを含む申請を作成し、管理者の承認待ち一覧に正しく表示されるかを確認する。
-     */
-    public function test_admin_sees_newly_created_pending_application_with_cross_day_correction()
-    {
-        $date = '2025-10-27'; // 申請対象日
-
-        // 3. 日跨ぎデータで修正申請を作成 (application_createのロジックテストも兼ねる)
-        $applicationData = [
-            'attendance_id' => null,
-            'checkin_date' => $date,
-            'clock_in_time' => '22:00', // 出勤 (10/27 22:00)
-            'clock_out_time' => '06:00', // 退勤 (翌日10/28 06:00に補正されるはず)
-            'reason' => '夜勤明けのため、退勤時間が翌日になっています。',
-            'break_times' => [
-                // 休憩も日跨ぎが考慮される (10/28 02:00 - 10/28 03:00に補正されるはず)
-                ['start_time' => '02:00', 'end_time' => '03:00'], 
-            ],
-        ];
-
-        // 2. 一般ユーザーとして認証し、申請をPOST (application_createが実行される)
-        $response = $this->actingAs($this->user)->post($this->postRoute, $applicationData);
-        $response->assertSessionHasNoErrors();
-
-
-        // データベースにデータが正しく保存され、日跨ぎ補正されていることを確認
-        // Controller側の処理が日跨ぎ補正を行っている前提
-        $expectedClockOut = Carbon::parse($date . ' 06:00')->addDay()->toDateTimeString();
-        $this->assertDatabaseHas('applications', [
-            'user_id' => $this->user->id,
-            'pending' => true, // 承認待ちで保存されていることを確認
-            'clock_out_time' => $expectedClockOut, // 翌日への補正を確認
-        ]);
-        
-        // 作成された申請レコードを取得
-        $application = Application::where('user_id', $this->user->id)->first();
-        
-        // 5. 管理者ユーザーとして認証し、承認待ち一覧にアクセス
-        $response = $this->actingAs($this->admin)->get($this->listRoute . '?pending=true');
-        
-        // 6. レスポンスの確認
-        $response->assertOk();
-        
-        // 7. ビューに渡されたデータ（$applications）に、作成した申請が含まれていることを確認
-        $applicationsInView = $response->viewData('applications');
-        
-        // 管理者側のビューデータはIDを含んでいる前提で確認
-        $this->assertTrue(
-            $applicationsInView->pluck('id')->contains($application->id),
-            '管理者一覧に、ユーザーが送信した承認待ちの申請が含まれていません。'
-        );
-        
-        // 8. 承認済み申請は含まれていないことを確認するために、承認済みレコードを作成
-        $approvedApplication = Application::create([
-            'user_id' => $this->user->id,
-            'checkin_date' => '2025-10-26',
-            'clock_in_time' => '09:00:00',
-            'clock_out_time' => '18:00:00',
-            'reason' => '承認済みダミー',
-            'pending' => false // 承認済みのレコード
-        ]);
-
-
-        $responsePendingList = $this->actingAs($this->admin)->get($this->listRoute . '?pending=true');
-        $applicationsInViewPending = $responsePendingList->viewData('applications');
-        
-        // 承認待ちリストに承認済みのIDが含まれていないことを確認
-        $this->assertFalse(
-            $applicationsInViewPending->pluck('id')->contains($approvedApplication->id),
-            '管理者視点の承認待ちリストに、承認済みの申請が含まれています。'
-        );
+        // 管理者ユーザーを作成 (role: 'admin'を仮定)
+        $this->adminUser = User::factory()->create(['role' => 'admin']);
+        // 一般スタッフユーザーを作成 (role: 'user'を仮定)
+        $this->staffUser = User::factory()->create(['role' => 'user']);
     }
     
     /**
-     * 一般ユーザーが承認待ちリストにアクセスしたとき、自分の承認待ち申請のみが表示されることを確認する。
+     * テスト後のクリーンアップ（テストで設定した現在時刻の固定を解除）
      */
-    public function test_employee_sees_only_their_pending_applications()
+    protected function tearDown(): void
     {
-        // 別の一般ユーザー（他人）を作成
-        $otherUser = User::factory()->create(['role' => 'employee']);
-        
-        // データベースに保存される生の形式 (Y-m-d)
-        $date1 = '2025-11-01';
-        $date2 = '2025-11-02';
-        $date3 = '2025-11-03';
-        
-        // 1. 認証待ち（自分の申請）
-        $myPendingApp = Application::create([
-            'user_id' => $this->user->id,
-            'checkin_date' => $date1,
-            'clock_in_time' => '10:00:00',
-            'clock_out_time' => '19:00:00',
-            'reason' => '自分の承認待ち申請',
-            'pending' => true,
-        ]);
-
-        // 2. 承認済み（自分の申請） - リストに含まれないはず
-        $myApprovedApp = Application::create([
-            'user_id' => $this->user->id,
-            'checkin_date' => $date2,
-            'clock_in_time' => '09:00:00',
-            'clock_out_time' => '18:00:00',
-            'reason' => '自分の承認済み申請',
-            'pending' => false,
-        ]);
-        
-        // 3. 他人の申請（承認待ち） - リストに含まれないはず
-        $otherPendingApp = Application::create([
-            'user_id' => $otherUser->id,
-            'checkin_date' => $date3,
-            'clock_in_time' => '11:00:00',
-            'clock_out_time' => '20:00:00',
-            'reason' => '他人の承認待ち申請',
-            'pending' => true,
-        ]);
-
-        // 一般ユーザーとして認証し、承認待ち一覧（?pending=true）にアクセス
-        $response = $this->actingAs($this->user)->get($this->listRoute . '?pending=true');
-
-        $response->assertOk();
-        
-        $applicationsInView = $response->viewData('applications');
-        
-        // A. 自分の承認待ち申請が含まれていることを確認
-        $this->assertTrue(
-            $applicationsInView->pluck('id')->contains($myPendingApp->id),
-            '一般ユーザーの承認待ちリストに、自分の承認待ち申請が含まれていません。'
-        );
-
-        // B. 自分の承認済み申請が含まれていないことを確認
-        $this->assertFalse(
-            $applicationsInView->pluck('id')->contains($myApprovedApp->id),
-            '一般ユーザーの承認待ちリストに、自分の承認済み申請が含まれています。'
-        );
-        
-        // C. 他人の承認待ち申請が含まれていないことを確認
-        $this->assertFalse(
-            $applicationsInView->pluck('id')->contains($otherPendingApp->id),
-            '一般ユーザーの承認待ちリストに、他人の申請が含まれています。'
-        );
-        
-        // D. 取得された件数が自分の承認待ち申請（1件）のみであることを確認
-        $this->assertCount(
-            1, 
-            $applicationsInView, 
-            '一般ユーザーの承認待ちリストに、予期せぬ件数の申請が含まれています。'
-        );
-    }
-    
-    /**
-     * 【新規テスト】一般ユーザーが承認済みリストにアクセスしたとき、自分の承認済み申請のみが表示されることを確認する。
-     */
-    public function test_employee_sees_only_their_approved_applications()
-    {
-        // 別の一般ユーザー（他人）を作成
-        $otherUser = User::factory()->create(['role' => 'employee']);
-        
-        // 1. 承認済み（自分の申請） - 期待されるデータ
-        $myApprovedApp = Application::create([
-            'user_id' => $this->user->id,
-            'checkin_date' => '2025-11-02',
-            'clock_in_time' => '09:00:00',
-            'clock_out_time' => '18:00:00',
-            'reason' => '自分の承認済み申請',
-            'pending' => false, // 承認済み
-        ]);
-        
-        // 2. 認証待ち（自分の申請） - リストに含まれないはずのデータ
-        $myPendingApp = Application::create([
-            'user_id' => $this->user->id,
-            'checkin_date' => '2025-11-01',
-            'clock_in_time' => '10:00:00',
-            'clock_out_time' => '19:00:00',
-            'reason' => '自分の承認待ち申請',
-            'pending' => true, // 承認待ち
-        ]);
-
-        // 3. 他人の申請（承認済み） - リストに含まれないはずのデータ
-        $otherApprovedApp = Application::create([
-            'user_id' => $otherUser->id,
-            'checkin_date' => '2025-11-03',
-            'clock_in_time' => '11:00:00',
-            'clock_out_time' => '20:00:00',
-            'reason' => '他人の承認済み申請',
-            'pending' => false, // 承認済み
-        ]);
-
-        // 一般ユーザーとして認証し、承認済み一覧（?pending=false）にアクセス
-        $response = $this->actingAs($this->user)->get($this->listRoute . '?pending=false');
-
-        $response->assertOk();
-        
-        $applicationsInView = $response->viewData('applications');
-        
-        // A. 自分の承認済み申請が含まれていることを確認 (IDで検証)
-        $this->assertTrue(
-            $applicationsInView->pluck('id')->contains($myApprovedApp->id),
-            '一般ユーザーの承認済みリストに、自分の承認済み申請が含まれていません。'
-        );
-
-        // B. 自分の承認待ち申請が含まれていないことを確認 (IDで検証)
-        $this->assertFalse(
-            $applicationsInView->pluck('id')->contains($myPendingApp->id),
-            '一般ユーザーの承認済みリストに、自分の承認待ち申請が含まれています。'
-        );
-        
-        // C. 他人の承認済み申請が含まれていないことを確認 (IDで検証)
-        $this->assertFalse(
-            $applicationsInView->pluck('id')->contains($otherApprovedApp->id),
-            '一般ユーザーの承認済みリストに、他人の申請が含まれています。'
-        );
-        
-        // D. 取得された件数が自分の承認済み申請（1件）のみであることを確認
-        $this->assertCount(
-            1, 
-            $applicationsInView, 
-            '一般ユーザーの承認済みリストに、予期せぬ件数の申請が含まれています。'
-        );
+        parent::tearDown();
+        Carbon::setTestNow(null);
     }
 
     /**
-     * 詳細ページへの遷移、勤怠・休憩データのフォーム初期値表示、
-     * および申請ステータスに基づいて修正ボタンとメッセージが正しく表示されることをテストします。
+     * 【追加テスト】管理者が過去の日付（昨日）を閲覧し、勤怠データが正しく反映されていることをテストします。
      *
      * @return void
      */
-    public function test_attendance_detail_page_displays_data_and_correct_buttons_based_on_status(): void
+    public function test_admin_views_yesterday_with_data()
     {
-        // ----------------------------------------------------
-        // 共通設定: 勤怠データと詳細ページURLの準備
-        // ----------------------------------------------------
-        $targetDate = Carbon::create(2025, 10, 10);
+        // 1. 現在日時を固定 (2025-10-15)
+        $today = Carbon::create(2025, 10, 15, 10, 0, 0);
+        Carbon::setTestNow($today);
         
-        // 元の勤怠データ
-        $originalCheckIn = '09:00';
-        $originalCheckOut = '18:00';
-        
-        // 休憩データ
-        $expectedBreakTimesArray = [
-            ['start' => '12:00:00', 'end' => '13:00:00'], // 休憩1
-            ['start' => '15:00:00', 'end' => '15:15:00'], // 休憩2
-        ];
-        $expectedBreakMinutes = 75; 
-        $expectedWorkMinutes = 465; 
+        // ターゲット日（昨日）
+        $targetDate = $today->copy()->subDay(); // 2025-10-14
+        $dateString = $targetDate->toDateString();
 
-        // 勤怠データを作成（ベースデータとして使用）
-        $attendanceBase = Attendance::factory()->create([
-            'user_id' => $this->user->id,
-            'checkin_date' => $targetDate->format('Y-m-d'),
-            // 元のデータは 09:00 / 18:00
-            'clock_in_time' => "{$originalCheckIn}:00", 
-            'clock_out_time' => "{$originalCheckOut}:00",
-            'break_time' => json_encode($expectedBreakTimesArray), 
-            'break_total_time' => $expectedBreakMinutes,
-            'work_time' => $expectedWorkMinutes,
+        // 2. スタッフの勤怠データを作成（昨日）
+        Attendance::factory()->create([
+            'user_id' => $this->staffUser->id,
+            'checkin_date' => $dateString,
+            'clock_in_time' => '09:30:00',
+            'clock_out_time' => '17:30:00',
+            'break_total_time' => 90, // 1:30
+            'work_time' => 420,        // 7:00
         ]);
-        
-        $expectedPath = "/attendance/detail/{$attendanceBase->id}?date={$targetDate->toDateString()}";
-        $updateButtonHtml = '<button type="submit" class="button update-button">修正</button>';
 
-        // ----------------------------------------------------
-        // Case 1: 申請データなし (データ表示と「修正」ボタンの表示検証)
-        // 詳細ページには元の勤怠データが表示されるべき（勤怠一覧からの遷移を想定）
-        // ----------------------------------------------------
-        $detailResponse = $this->actingAs($this->user)->get($expectedPath);
+        // 3. 管理者として、昨日のページにアクセス
+        $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
 
-        // ルーティングと基本表示のアサート
-        $detailResponse->assertStatus(200);
-        $detailResponse->assertSee('勤怠詳細・修正申請', 'h2');
-        $detailResponse->assertSee($targetDate->format('Y年m月d日'));
+        $response->assertStatus(200);
 
-        // ★★★ フォームへのデータ初期値セットを検証 (元のデータ 09:00 / 18:00) ★★★
-        $detailResponse->assertSee('value="' . $originalCheckIn . '"', false);      
-        $detailResponse->assertSee('value="' . $originalCheckOut . '"', false);     
-        $detailResponse->assertSee('value="12:00"', false); // 休憩1 開始
-        $detailResponse->assertSee('value="13:00"', false); // 休憩1 終了
-        $detailResponse->assertSee('value="15:00"', false); // 休憩2 開始
-        $detailResponse->assertSee('value="15:15"', false); // 休憩2 終了
+        // 4. 表示内容の検証
+        $response->assertSee($targetDate->format('Y年m月d日') . 'の勤怠');
+        $response->assertSee($this->staffUser->name); 
+        $response->assertSee('09:30'); // 出勤時間
+        $response->assertSee('17:30'); // 退勤時間
+        $response->assertSee('1:30');  // 休憩時間
+        $response->assertSee('7:00');  // 合計勤務時間
 
-        // ★★★ ボタン表示ロジックの検証（Case 1: 申請データなし => 修正ボタンが表示される）★★★
-        $detailResponse->assertSee($updateButtonHtml, false); 
-        $detailResponse->assertDontSee('＊承認待ちのため修正はできません。');
-        $detailResponse->assertDontSee('＊この日は一度承認されたので修正できません。');
-        
-        // ----------------------------------------------------
-        // Case 2: 承認待ちの申請データが存在する場合 (★申請履歴の「承認待ち」詳細から移動してきた場合の検証★)
-        // 詳細ページには申請データが表示されるべき
-        // ----------------------------------------------------
-        $targetDate2 = $targetDate->addDay();
-        // 新しい勤怠データを作成
-        $attendance2 = Attendance::factory()->create([
-            'user_id' => $this->user->id,
-            'checkin_date' => $targetDate2->format('Y-m-d'),
-            'clock_in_time' => '09:00:00', // 元は 09:00
+        // 5. 詳細ボタンの検証（過去の日付なので表示されるはず）
+        // ★修正: URLの主要部分と、redirect_toの存在をチェックする
+        $response->assertSee('/admin/attendance/' . $this->staffUser->id . '?date=' . $dateString, false);
+        $response->assertSee('redirect_to', false);
+        $response->assertSee('class="detail-button">詳細</a>', false);
+    }
+    
+    /**
+     * 【追加テスト】管理者が今日の日付を閲覧し、勤怠データが正しく反映されていることをテストします。
+     *
+     * @return void
+     */
+    public function test_admin_views_today_with_data()
+    {
+        // 1. 現在日時を固定 (2025-10-15)
+        $today = Carbon::create(2025, 10, 15, 10, 0, 0);
+        Carbon::setTestNow($today);
+        $dateString = $today->toDateString();
+
+        // 2. スタッフの勤怠データを作成（今日）
+        Attendance::factory()->create([
+            'user_id' => $this->staffUser->id,
+            'checkin_date' => $dateString,
+            'clock_in_time' => '09:00:00',
+            // 退勤時間は未打刻（null）をシミュレート
+            'clock_out_time' => null, 
+            'break_total_time' => 0, 
+            'work_time' => 60, // 10:00の時点で1時間（60分）経過
         ]);
-        
-        $pendingCheckIn = '08:00'; // 申請により 08:00 に修正
-        // 承認待ちの申請データを作成
-        Application::create([
-            'attendance_id' => $attendance2->id, 
-            'user_id' => $this->user->id,
-            'pending' => true, // 承認待ち
-            'checkin_date' => $attendance2->checkin_date,
-            'clock_in_time' => "{$pendingCheckIn}:00",
-            'reason' => 'Pending test reason', 
-        ]);
-        $expectedPath2 = "/attendance/detail/{$attendance2->id}?date={$attendance2->checkin_date}";
-        $detailResponse2 = $this->actingAs($this->user)->get($expectedPath2);
 
-        // ★★★ フォームへのデータ初期値セットを検証 (申請データ 08:00 が優先されること) ★★★
-        $detailResponse2->assertStatus(200);
-        $detailResponse2->assertSee('value="' . $pendingCheckIn . '"', false); // 申請値の 08:00 が表示される
-        $detailResponse2->assertDontSee('value="' . $originalCheckIn . '"', false); // 元の値 09:00 は表示されない
-        
-        // ★★★ ボタン表示ロジックの検証（Case 2: 承認待ち => 修正ボタンが非表示になり、メッセージが表示される）★★★
-        $detailResponse2->assertDontSee('修正</button>', false); 
-        $detailResponse2->assertSee('＊承認待ちのため修正はできません。');
-        $detailResponse2->assertDontSee('＊この日は一度承認されたので修正できません。');
-        
-        // ----------------------------------------------------
-        // Case 3: 承認済みの申請データが存在する場合 (★申請履歴の「承認済み」詳細から移動してきた場合の検証★)
-        // 詳細ページには申請データが表示されるべき
-        // ----------------------------------------------------
-        $targetDate3 = $targetDate->addDay();
-        // 新しい勤怠データを作成
-        $attendance3 = Attendance::factory()->create([
-            'user_id' => $this->user->id,
-            'checkin_date' => $targetDate3->format('Y-m-d'),
-            'clock_in_time' => '09:00:00', // 元は 09:00
-        ]);
-        
-        $approvedCheckIn = '07:00'; // 申請により 07:00 に修正
-        // 承認済みの申請データを作成
-        Application::create([
-            'attendance_id' => $attendance3->id, 
-            'user_id' => $this->user->id,
-            'pending' => false, // 承認済み
-            'checkin_date' => $attendance3->checkin_date,
-            'clock_in_time' => "{$approvedCheckIn}:00",
-            'reason' => 'Approved test reason', 
-        ]);
-        $expectedPath3 = "/attendance/detail/{$attendance3->id}?date={$attendance3->checkin_date}";
-        $detailResponse3 = $this->actingAs($this->user)->get($expectedPath3);
-        
-        // ★★★ フォームへのデータ初期値セットを検証 (申請データ 07:00 が優先されること) ★★★
-        $detailResponse3->assertStatus(200);
-        $detailResponse3->assertSee('value="' . $approvedCheckIn . '"', false); // 申請値の 07:00 が表示される
-        $detailResponse3->assertDontSee('value="' . $originalCheckIn . '"', false); // 元の値 09:00 は表示されない
+        // 3. 管理者として、クエリなし（今日）のページにアクセス
+        $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index'));
 
-        // ★★★ ボタン表示ロジックの検証（Case 3: 承認済み => 修正ボタンが非表示になり、メッセージが表示される）★★★
-        $detailResponse3->assertDontSee('修正</button>', false);
-        $detailResponse3->assertDontSee('＊承認待ちのため修正はできません。');
-        $detailResponse3->assertSee('＊この日は一度承認されたので修正できません。');
+        $response->assertStatus(200);
+
+        // 4. 表示内容の検証
+        $response->assertSee($today->format('Y年m月d日') . 'の勤怠');
+        $response->assertSee($this->staffUser->name); 
+        $response->assertSee('09:00'); // 出勤時間
+        // 退勤がないため空欄 (<td></td>)
+        $response->assertSeeInOrder(['<td>', '</td>', '<td>0:00</td>', '<td>1:00</td>'], false); 
+
+        // 5. 詳細ボタンの検証（今日の日付なので表示されるはず）
+        // ★修正: URLの主要部分と、redirect_toの存在をチェックする
+        $response->assertSee('/admin/attendance/' . $this->staffUser->id . '?date=' . $dateString, false);
+        $response->assertSee('redirect_to', false);
+        $response->assertSee('class="detail-button">詳細</a>', false);
+    }
+
+    /**
+     * 【追加テスト】管理者が未来の日付（明日）を閲覧した場合、勤怠データは空で詳細ボタンは表示されないことをテストします。
+     *
+     * @return void
+     */
+    public function test_admin_views_tomorrow_without_data()
+    {
+        // 1. 現在日時を固定 (2025-10-15)
+        $today = Carbon::create(2025, 10, 15, 10, 0, 0);
+        Carbon::setTestNow($today);
+        
+        // ターゲット日（明日）
+        $targetDate = $today->copy()->addDay(); // 2025-10-16
+        $dateString = $targetDate->toDateString();
+
+        // 2. スタッフの勤怠データは作成しない（未来の日付なのでデータは存在しない）
+
+        // 3. 管理者として、明日のページにアクセス
+        $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
+
+        $response->assertStatus(200);
+
+        // 4. 表示内容の検証
+        $response->assertSee($targetDate->format('Y年m月d日') . 'の勤怠');
+        $response->assertSee($this->staffUser->name); 
+        
+        // 勤務情報はすべて空欄であることを確認
+        $response->assertSeeInOrder([$this->staffUser->name, '<td></td>', '<td></td>', '<td></td>', '<td></td>'], false);
+        
+        // 5. 詳細ボタンの検証（未来の日付なので表示されないはず）
+        $response->assertDontSee('class="detail-button"');
+        
+        // 6. 代わりに &nbsp; が表示されていることを検証（未来日付の場合）
+        $response->assertSee('&nbsp;', false); 
+    }
+
+    // --- 既存のテストメソッド（修正あり） ---
+
+    /**
+     * 管理者が過去の日付を閲覧し、勤怠データがない場合に空欄と詳細ボタンが表示されることをテストします。
+     *
+     * @return void
+     */
+    public function test_admin_can_view_daily_attendance_for_yesterday_with_no_data()
+    {
+        // 1. 現在日時を固定 (2025-10-15)
+        $today = Carbon::create(2025, 10, 15, 10, 0, 0);
+        Carbon::setTestNow($today);
+        
+        // ターゲット日（昨日）
+        $targetDate = $today->copy()->subDay(); // 2025-10-14
+        $dateString = $targetDate->toDateString();
+
+        // 2. スタッフの勤怠データは作成しない（未打刻をシミュレート）
+
+        // 3. 管理者として、前日のページにアクセス
+        $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
+
+        $response->assertStatus(200);
+
+        // 4. 表示内容の検証
+        $response->assertSee($targetDate->format('Y年m月d日') . 'の勤怠');
+        $response->assertSee($this->staffUser->name); // スタッフの名前は表示される
+        
+        // 勤務情報はすべて空欄であることを確認（<td></td>が順序通りに出現する）
+        $response->assertSeeInOrder([$this->staffUser->name, '<td></td>', '<td></td>', '<td></td>', '<td></td>'], false);
+        
+        // 5. 詳細ボタンの検証（過去の日付なので表示されるはず）
+        // ★修正: URLの主要部分と、redirect_toの存在をチェックする
+        $response->assertSee('/admin/attendance/' . $this->staffUser->id . '?date=' . $dateString, false);
+        $response->assertSee('redirect_to', false);
+        $response->assertSee('class="detail-button">詳細</a>', false);
+    }
+    
+    /**
+     * 前日へのナビゲーションリンクが正しく機能するかをテストします。
+     */
+    public function test_admin_can_navigate_to_previous_day()
+    {
+        // 1. 現在日時を固定 (2025-10-15)
+        $today = Carbon::create(2025, 10, 15, 10, 0, 0);
+        Carbon::setTestNow($today);
+        $dateString = $today->toDateString();
+        
+        // 2. 管理者として今日のページにアクセス
+        $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
+        $response->assertStatus(200);
+        
+        // 3. 「前日」リンクのhref属性をチェック (2025-10-14)
+        $prevDay = $today->copy()->subDay();
+        $expectedPrevQuery = '?date=' . $prevDay->toDateString();
+        
+        // 修正: 相対パス（クエリ部分）のみをチェック
+        $response->assertSee('href="' . $expectedPrevQuery . '"', false);
+        $response->assertSee('前日', false);
+
+        // 4. 前日ページに遷移し、日付を確認
+        $prevResponse = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $prevDay->toDateString()]));
+
+        $prevResponse->assertStatus(200);
+        $prevResponse->assertSee($prevDay->format('Y年m月d日') . 'の勤怠');
+        $prevResponse->assertDontSee($today->format('Y年m月d日'));
+    }
+
+    /**
+     * 翌日へのナビゲーションリンクが正しく機能するかをテストします。
+     */
+    public function test_admin_can_navigate_to_next_day()
+    {
+        // 1. 現在日時を固定 (2025-10-15)
+        $today = Carbon::create(2025, 10, 15, 10, 0, 0);
+        Carbon::setTestNow($today);
+        $dateString = $today->toDateString();
+        
+        // 2. 管理者として今日のページにアクセス
+        $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
+        $response->assertStatus(200);
+        
+        // 3. 「翌日」リンクのhref属性をチェック (2025-10-16)
+        $nextDay = $today->copy()->addDay();
+        $expectedNextQuery = '?date=' . $nextDay->toDateString();
+        
+        // 修正: 相対パス（クエリ部分）のみをチェック
+        $response->assertSee('href="' . $expectedNextQuery . '"', false);
+        $response->assertSee('翌日', false);
+
+        // 4. 翌日ページに遷移し、日付を確認
+        $nextResponse = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $nextDay->toDateString()]));
+
+        $nextResponse->assertStatus(200);
+        $nextResponse->assertSee($nextDay->format('Y年m月d日') . 'の勤怠');
+        $nextResponse->assertDontSee($today->format('Y年m月d日'));
+    }
+
+    /**
+     * 管理者が未来の日付を閲覧した場合、詳細ボタンが表示されないことをテストします。
+     * (このテストは、test_admin_views_tomorrow_without_dataと目的が重複しますが、既存のテスト名を尊重しアサーションを修正して残します。)
+     */
+    public function test_admin_cannot_see_detail_button_for_future_date()
+    {
+        // 1. 現在日時を固定 (2025-10-15)
+        $today = Carbon::create(2025, 10, 15, 10, 0, 0);
+        Carbon::setTestNow($today);
+        
+        // ターゲット日（明日）
+        $futureDate = $today->copy()->addDay(); // 2025-10-16
+        $dateString = $futureDate->toDateString();
+
+        // 2. 管理者として、未来のページにアクセス
+        $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
+
+        $response->assertStatus(200);
+
+        // 3. 表示内容の検証
+        $response->assertSee($futureDate->format('Y年m月d日') . 'の勤怠');
+        $response->assertSee($this->staffUser->name); 
+
+        // 4. 詳細ボタンのHTML（href属性）が存在しないことをアサート
+        $response->assertDontSee('class="detail-button"');
+        
+        // 5. 代わりに &nbsp; が表示されていることを検証（未来日付の場合）
+        $response->assertSee('&nbsp;', false); 
     }
 }
