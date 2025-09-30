@@ -19,14 +19,14 @@
 <div class="header1">
 <div class="navigation">
 {{-- prevMonthから年と月を取得してリンクを生成 --}}
-<a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}"><span class="arrow">←</span>前月</a>
+<a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow_left"><span class="arrow">← </span>前月</a>
 </div>
 <h2>
 📅 <span id="current-date-display">{{ $date->format('Y/m') }}</span>
 </h2>
 <div class="navigation">
 {{-- nextMonthから年と月を取得してリンクを生成 --}}
-<a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}">翌月<span class="arrow">→</span></a>
+<a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="arrow_right">翌月<span class="arrow"> →</span></a>
 </div>
 </div>
 </div>

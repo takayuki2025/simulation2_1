@@ -18,12 +18,16 @@ body {
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
+    /* box-sizing: border-box; */
 }
 
 .date-navigation-frame {
+    box-sizing: border-box;
+    width: 100%;
     height:12px;
     background-color: #fff;
-    padding: 13px 15px 28px 15px;
+    padding: 13px 20px 35px 20px;
+    /* padding: 30px; */
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 35px;
@@ -37,7 +41,7 @@ body {
 
 .header1 h2 {
     margin: 0;
-    font-size: 1.5em;
+    font-size: 1.3em;
     font-weight: 600;
     color: #333;
     display: flex;
@@ -47,18 +51,16 @@ body {
     line-height: 1.0;
 }
 
-.arrow {
-    color: #b2b2b2;
-}
-
 .header1 .navigation {
     display: flex;
     gap: 10px;
 }
 
-.header1 .navigation a {
+.arrow_left,
+.arrow_right {
     background-color: #ffffff;
     color: #737373;
+    font-size: 15px;
     font-weight: 900;
     border: none;
     /* padding: 8px 16px; */
@@ -68,8 +70,27 @@ body {
     transition: background-color 0.2s;
 }
 
-.header1 .navigation a:hover {
-    background-color: #0056b3;
+.arrow {
+    color: #b2b2b2;
+}
+
+.arrow_left:hover ,
+.arrow_right:hover  {
+    /* ホバーとフォーカスの両方で黒背景、白文字を適用 */
+        background-color: #000000;
+        color: white;
+    
+        /* これが重要！ブラウザ標準の青い枠線（アウトライン）を無効にする */
+        outline: none;
+    
+        /* 必要に応じて、クリック中の青色を防ぐために:activeも追加 */
+        box-shadow: none;
+}
+
+/* 🎨 追加：ホバー時に矢印（.arrow）の色も白にする */
+.arrow_left:hover .arrow,
+.arrow_right:hover .arrow {
+    color: white;
 }
 
 .attendance-table-frame {
@@ -91,13 +112,13 @@ body {
     padding: 10px;
     text-align: center;
     font-weight: 600;
-    border-bottom: 2px solid #e1e1e1;
+    border-bottom: 3px solid #e1e1e1;
 }
 
 .attendance-table td {
     padding: 8px;
     text-align: center;
-    border-bottom: 1px solid #e1e1e1;
+    border-bottom: 2px solid #e1e1e1;
 }
 
 .attendance-table tr:last-child td {

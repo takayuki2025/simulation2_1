@@ -1,9 +1,16 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f7f7f7;
+    background-color: #f0eff2;
     margin: 0 auto;
     /* padding: 20px; */
     max-width: 1400px;
+}
+
+.tile_1 {
+    border-left: 8px solid #000000;
+    font-size: 27px;
+    padding-left: 15px;
+    margin: 40px 0 30px;
 }
 
 .container {
@@ -13,17 +20,15 @@ body {
 }
 
 .date-navigation-frame {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-.tile_1 {
-    border-left: 8px solid #000000;
-    padding-left: 15px;
-    margin: 40px 0 30px;
+    box-sizing: border-box;
+        width: 100%;
+        height: 12px;
+        background-color: #fff;
+        padding: 13px 20px 35px 20px;
+        /* padding: 30px; */
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 35px;
 }
 
 .header1 {
@@ -34,58 +39,86 @@ body {
 
 .header1 h2 {
     margin: 0;
-    font-size: 1.5em;
-    font-weight: 600;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        line-height: 1.0;
 }
 
 .header1 .navigation {
     display: flex;
     gap: 10px;
+    
 }
 
-.header1 .navigation a {
-    background-color: #007bff;
-    color: #fff;
+.arrow_left,
+.arrow_right {
+    background-color: #ffffff;
+    color: #737373;
+    font-size: 15px;
+    font-weight: 900;
     border: none;
-    padding: 8px 16px;
+    /* padding: 8px 16px; */
     border-radius: 5px;
     cursor: pointer;
     text-decoration: none;
     transition: background-color 0.2s;
-        }
+}
 
-.header1 .navigation a:hover {
-    background-color: #0056b3;
+.arrow {
+    color: #b2b2b2;
+}
+
+.arrow_left:hover,
+.arrow_right:hover {
+    /* ホバーとフォーカスの両方で黒背景、白文字を適用 */
+        background-color: #000000;
+        color: white;
+    
+        /* これが重要！ブラウザ標準の青い枠線（アウトライン）を無効にする */
+        outline: none;
+    
+        /* 必要に応じて、クリック中の青色を防ぐために:activeも追加 */
+        box-shadow: none;
+}
+
+/* 🎨 追加：ホバー時に矢印（.arrow）の色も白にする */
+.arrow_left:hover .arrow,
+.arrow_right:hover .arrow {
+    color: white;
 }
 
 .attendance-table-frame {
     background-color: #fff;
-    padding: 20px;
+    /* padding: 20px; */
+    margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .attendance-table {
-    width: 100%;
-    border-collapse: collapse;
+    color: #737373;
+        font-weight: 600;
+        width: 100%;
+        border-collapse: collapse;
 }
 
 .attendance-table th {
     padding: 12px;
     text-align: center;
     font-weight: 600;
-    color: #555;
-    border-bottom: 2px solid #ccc;
+    /* color: #555; */
+    border-bottom: 3px solid #e1e1e1;
 }
 
 .attendance-table td {
     padding: 12px;
     text-align: center;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid #e1e1e1;
 }
 
 .attendance-table tr:last-child td {
@@ -105,8 +138,9 @@ body {
 }
 
 .detail-button {
-    background-color: #28a745;
-    color: #fff;
+    background-color: #ffffff;
+    color: #000000;
+    font-weight: 800;
     border: none;
     padding: 6px 12px;
     border-radius: 5px;
@@ -116,5 +150,6 @@ body {
 }
 
 .detail-button:hover {
-    background-color: #218838;
+    background-color: #000000;
+    color: white;
 }
