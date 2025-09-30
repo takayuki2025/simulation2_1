@@ -18,14 +18,14 @@
 <div class="date-navigation-frame">
 <div class="header1">
 <div class="navigation">
-<a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}">前月</a>
+<a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow_left"><span class="navigation_arrow">← </span>前 月</a>
 </div>
 <h2>
-📅 <span id="current-date-display">{{ $date->format('Y年m月') }}</span>
+📅 <span id="current-date-display">{{ $date->format('Y/m') }}</span>
 </h2>
 <div class="navigation">
 {{-- 次月への移動は常に許可 --}}
-<a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}">次月</a>
+<a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="arrow_right">翌 月<span class="navigation_arrow"> →</span></a>
 </div>
 </div>
 </div>
@@ -49,7 +49,9 @@
 @foreach ($monthlyAttendanceData as $dayData)
 {{-- 土日クラスはコントローラーから渡されたフラグで設定 --}}
 <tr class="{{ $dayData['isSunday'] ? 'sunday' : '' }} {{ $dayData['isSaturday'] ? 'saturday' : '' }}">
-<td class="day-column">{{ $dayData['day'] }}日 ({{ $dayData['dayOfWeek'] }})</td>
+<td class="day-column">
+    {{ str_pad($month, 2, '0', STR_PAD_LEFT) }}/{{ str_pad($dayData['day'], 2, '0', STR_PAD_LEFT) }}({{ $dayData['dayOfWeek'] }})
+</td>
 {{-- 勤怠データがある場合 --}}
 @if ($dayData['attendance'])
 {{-- 出勤時間（すでにフォーマット済み） --}}

@@ -123,7 +123,7 @@ class Id14Test extends TestCase
         $month = $targetDate->month;
         
         // Bladeテンプレートの出力がゼロパディング (09) されていると仮定
-        $expectedMonthDisplay = $targetDate->format('Y年m月'); 
+        $expectedMonthDisplay = $targetDate->format('Y/m'); 
 
         $response = $this->actingAs($this->adminUser)
                          ->get(route('admin.staff.month.index', [
@@ -139,8 +139,8 @@ class Id14Test extends TestCase
         
         // 日付ナビゲーションが表示されていること
         $response->assertSee($expectedMonthDisplay); 
-        $response->assertSee('前月');
-        $response->assertSee('次月');
+        $response->assertSee('前 月');
+        $response->assertSee('翌 月');
         
         // CSV出力ボタンのフォームが正しく設定されていること
         $response->assertSee('name="user_id" value="' . $this->staffUser1->id . '"', false);

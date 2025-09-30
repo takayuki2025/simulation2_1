@@ -10,7 +10,7 @@ body {
     background-color: #f0eff2;
     margin: 0 auto;
     max-width: 1400px;
-    /* min-height: 1000px; */
+    min-height: 1000px;
 }
 
 .container {
@@ -88,7 +88,7 @@ body {
     transition: background-color 0.2s;
 }
 
-.arrow {
+.navigation_arrow {
     color: #b2b2b2;
 }
 
@@ -106,8 +106,8 @@ body {
 }
 
 /* 🎨 追加：ホバー時に矢印（.arrow）の色も白にする */
-.arrow_left:hover .arrow,
-.arrow_right:hover .arrow {
+.arrow_left:hover .navigation_arrow,
+.arrow_right:hover .navigation_arrow {
     color: white;
 }
 
