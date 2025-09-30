@@ -18,6 +18,7 @@ color: #555;
 }
 
 /* 勤怠テーブルのラッパー */
+
 .attendance-table-frame {
 width: 100%;
 overflow-x: auto;
@@ -25,6 +26,7 @@ overflow-x: auto;
 
 /* リンクを無効化する場合のスタイル /
 / 今回の修正で「翌日」リンクの無効化（disabled-nav）は使用されなくなりますが、スタイルは残しておきます。 /
+
 .disabled-nav {
 color: #a0a0a0; / 薄い灰色 /
 opacity: 0.7;
@@ -59,14 +61,14 @@ line-height: 1;
 <div class="date-navigation-frame">
 <div class="header1">
 <div class="navigation">
-<a href="?date={{ $currentDate->copy()->subDay()->format('Y-m-d') }}" class="arrow_left"><span class="arrow">← </span>前日</a>
+<a href="?date={{ $currentDate->copy()->subDay()->format('Y-m-d') }}" class="arrow_left"><span class="arrow">← </span>前 日</a>
 </div>
 <h2>
 📅 <span id="current-date-display">{{ $currentDate->format('Y年m月d日') }}</span>
 </h2>
 <div class="navigation">
 {{-- 制限を外し、常に翌日への移動を許可します --}}
-<a href="?date={{ $currentDate->copy()->addDay()->format('Y-m-d') }}" class="arrow_right">翌日<span class="arrow"> →</span></a>
+<a href="?date={{ $currentDate->copy()->addDay()->format('Y-m-d') }}" class="arrow_right">翌 日<span class="arrow"> →</span></a>
 </div>
 </div>
 </div>
@@ -79,7 +81,7 @@ line-height: 1;
 <table class="attendance-table">
 <thead>
 <tr>
-<th>名前</th>
+<th>名 前</th>
 <th>出勤</th>
 <th>退勤</th>
 <th>休憩</th>

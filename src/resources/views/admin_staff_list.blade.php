@@ -7,15 +7,20 @@
 
 @section('content')
 
-<h2 class="page-title">スタッフ一覧</h2>
+
 
 <div class="container">
+
+    <div class="title">
+<h2 class="tile_1">スタッフ一覧</h2>
+</div>
+
     <table class="staff-table">
         <thead>
             <tr>
-                <th>名前</th>
-                <th>メールアドレス</th>
-                <th>月次勤怠</th>
+                <th>名 前</th>
+                <th>メ ー ル ア ド レ ス</th>
+                <th>月 次 勤 怠</th>
             </tr>
         </thead>
         <tbody>
@@ -26,7 +31,7 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
-                                    <a href="{{ route('admin.staff.month.index', ['id' => $user->id]) }}">
+                                    <a href="{{ route('admin.staff.month.index', ['id' => $user->id]) }}" class="detail-button">
                 詳細
             </a>
                     </td>

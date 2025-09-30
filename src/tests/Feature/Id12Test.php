@@ -219,7 +219,7 @@ class Id12Test extends TestCase
         
         // 修正: 相対パス（クエリ部分）のみをチェック
         $response->assertSee('href="' . $expectedPrevQuery . '"', false);
-        $response->assertSee('前日', false);
+        $response->assertSee('前 日', false);
 
         // 4. 前日ページに遷移し、日付を確認
         $prevResponse = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $prevDay->toDateString()]));
@@ -249,7 +249,7 @@ class Id12Test extends TestCase
         
         // 修正: 相対パス（クエリ部分）のみをチェック
         $response->assertSee('href="' . $expectedNextQuery . '"', false);
-        $response->assertSee('翌日', false);
+        $response->assertSee('翌 日', false);
 
         // 4. 翌日ページに遷移し、日付を確認
         $nextResponse = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $nextDay->toDateString()]));

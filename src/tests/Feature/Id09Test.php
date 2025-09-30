@@ -96,10 +96,10 @@ class Id09Test extends TestCase
         // ナビゲーションリンクのチェック
         // 前月: 2025年8月
         $response->assertSee('href="?year=2025&month=8"', false);
-        $response->assertSee('前月', false);
+        $response->assertSee('前 月', false);
         // 翌月: 2025年10月
         $response->assertSee('href="?year=2025&month=10"', false);
-        $response->assertSee('翌月', false);
+        $response->assertSee('翌 月', false);
     }
 
 
@@ -130,10 +130,10 @@ class Id09Test extends TestCase
         // 5. ナビゲーションリンクのチェック
         // 前月: ?year=2025&month=8
         $response->assertSee('href="?year=2025&month=8"', false);
-        $response->assertSee('前月', false);
+        $response->assertSee('前 月', false);
         // 翌月: ?year=2025&month=10
         $response->assertSee('href="?year=2025&month=10"', false);
-        $response->assertSee('翌月', false);
+        $response->assertSee('翌 月', false);
     }
     
     /**
