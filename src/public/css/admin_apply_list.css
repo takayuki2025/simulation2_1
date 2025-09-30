@@ -1,14 +1,22 @@
-/* 基本スタイル */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    /* 👈 全ての要素に適用 */
+}
+
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f7f7f7;
+    background-color: #f0eff2;
     margin: 0 auto;
     /* padding: 20px; */
     max-width: 1400px;
+    min-height: 1000px;
 }
 
 /* ページタイトル */
-.page-title {
+/* .page-title {
     width: 900px;
     margin: 70px auto 70px 230px;
     font-size: 1.5em;
@@ -16,22 +24,25 @@ body {
     color: #333;
     border-left: 8px solid #000000;
     padding-left: 15px;
-}
+} */
 
 /* コンテナ */
 .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 950px;
+        margin: 0 auto;
+}
+
+.tile_1 {
+    border-left: 8px solid #000000;
+    font-size: 28px;
+    padding-left: 20px;
+    margin: 50px 0 40px 0;
 }
 
 /* タブのコンテナ */
 .tab-container {
-    width: 940px;
-    margin: 70px auto 70px 230px ;
+    width: 100%;
+    padding: 10px 10px 10px 10px;
     display: flex;
     justify-content: flex-start;
     margin-bottom: 50px;
@@ -54,46 +65,71 @@ body {
 }
 
 .tab-link.active {
-    color: #007bff;
-    border-bottom-color: #007bff;
+    color: #000000;
+    font-weight: 900;
+    /* color: #007bff;
+    border-bottom-color: #007bff; */
 }
 
 /* 申請テーブル */
 .apply-table {
     width: 100%;
+    color: #737373;
+    font-weight: 600;
+    background-color: white;
     border-collapse: collapse;
+        margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.apply-table th {
-    padding: 12px;
-    text-align: left;
-    font-weight: 600;
-    color: #555;
-    border-bottom: 2px solid #ccc;
+.apply-table th  {
+    padding: 10px;
+        text-align: left;
+        padding-left: 50px;
+        border-bottom: 3px solid #e1e1e1;
 }
 
 .apply-table td {
-    padding: 12px;
+    padding: 10px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    padding-left: 50px;
+    border-bottom: 2px solid #e1e1e1;
 }
 
 .apply-table tr:last-child td {
     border-bottom: none;
 }
 
-/* 詳細リンク */
-.detail-link {
-    background-color: #28a745;
-    color: #fff;
+.user_apply_reason {
+    /* 1. 要素を1行に強制し、はみ出しを隠す */
+        white-space: nowrap;
+        overflow: hidden;
+    
+        /* 2. はみ出した部分を「...」で表示する */
+        text-overflow: ellipsis;
+    
+        /* 3. 要素の最大幅を制限する (これがないと省略されない) */
+        /* 15文字分に相当する幅を px、rem、またはvwで設定します */
+        max-width: 255px;
+        /* 例: 15文字が約200pxの場合 */
+}
+
+.detail-button {
+    background-color: #ffffff;
+    color: #000000;
+    font-weight: 800;
     border: none;
-    padding: 6px 12px;
+    padding: 10px 15px;
+    position: relative;
+    right: 14px;
     border-radius: 5px;
     cursor: pointer;
     text-decoration: none;
     transition: background-color 0.2s;
 }
 
-.detail-link:hover {
-    background-color: #218838;
+.detail-button:hover {
+    background-color: #000000;
+    color: white;
 }

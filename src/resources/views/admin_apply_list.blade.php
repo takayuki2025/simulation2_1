@@ -6,14 +6,20 @@
 
 @section('content')
 
-<h2 class="page-title">申請一覧</h2>
+
+
+<div class="container">
+
+    <div class="title">
+<h2 class="tile_1">申請一覧</h2>
+</div>
+
     <div class="tab-container">
         <!-- 承認待ち: pending=true -->
         <a href="?pending=true" class="tab-link {{ request('pending', 'true') == 'true' ? 'active' : '' }}">承認待ち</a>
         <!-- 承認済み: pending=false -->
         <a href="?pending=false" class="tab-link {{ request('pending') == 'false' ? 'active' : '' }}">承認済み</a>
     </div>
-<div class="container">
 
 
     <table class="apply-table">
@@ -45,10 +51,10 @@
                         -
                     @endif
                 </td>
-                <td>{{ $application->reason }}</td>
+                <td class="user_apply_reason">{{ $application->reason }}</td>
                 <td>{{ $application->created_at->format('Y/m/d') }}</td>
                 <td>
-                    <a href="{{ route('admin.apply.judgement.index', ['attendance_correct_request_id' => $application->id]) }}" class="detail-link">詳細へ</a>
+                    <a href="{{ route('admin.apply.judgement.index', ['attendance_correct_request_id' => $application->id]) }}" class="detail-button">詳細</a>
                 </td>
             </tr>
             @endforeach
