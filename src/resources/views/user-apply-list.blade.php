@@ -1,9 +1,9 @@
-@extends('layouts.user_and_admin')
+@extends('layouts.user-and-admin')
 
 @section('css')
 {{-- スタイルはadmin_apply_list.cssを流用することを想定 --}}
 
-<link rel="stylesheet" href="{{ asset('css/user_apply_list.css') }}">
+<link rel="stylesheet" href="{{ asset('css/user-apply-list.css') }}">
 @endsection
 
 @section('content')

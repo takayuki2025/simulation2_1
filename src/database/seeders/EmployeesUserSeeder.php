@@ -17,21 +17,28 @@ class EmployeesUserSeeder extends Seeder
     {
         User::create([
             'name' => '山田　太郎',
-            'email' => 'test@22',
-            'password' => Hash::make('testtest2'),
+            'email' => 'taro.y@coachtech.com',
+            'password' => Hash::make('testtest1'),
             'role' => 'employee',
             'email_verified_at' => Carbon::now(),
         ]);
         User::create([
             'name' => '西　怜奈',
-            'email' => 'test@33',
+            'email' => 'reina.n@coachtech.com',
+            'password' => Hash::make('testtest2'),
+            'role' => 'employee',
+            'email_verified_at' => Carbon::now(),
+        ]);
+        User::create([
+            'name' => '秋田　朋美',
+            'email' => 'tomomi.a@coachtech.com',
             'password' => Hash::make('testtest3'),
             'role' => 'employee',
             'email_verified_at' => Carbon::now(),
         ]);
         User::create([
             'name' => '中西　教夫',
-            'email' => 'test@44',
+            'email' => 'norio.n@coachtech.com',
             'password' => Hash::make('testtest4'),
             'role' => 'employee',
             'email_verified_at' => Carbon::now(),

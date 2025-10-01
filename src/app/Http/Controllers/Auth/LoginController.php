@@ -59,7 +59,7 @@ class LoginController extends Controller
             // 管理者ログインページからのリクエストの場合
             if ($user->role !== 'admin') {
                 return redirect()->route('admin.login')
-                    ->withErrors(['email' => 'ユーザー専用のログインページからログインしてください。'])
+                    ->withErrors(['email' => 'ログイン情報が登録されていません。'])
                     ->onlyInput('email');
             }
             // 管理者として認証
@@ -70,7 +70,7 @@ class LoginController extends Controller
             // 通常ユーザーログインページからのリクエストの場合
             if ($user->role === 'admin') {
                 return redirect()->route('login')
-                    ->withErrors(['email' => '管理者ユーザーは管理者用ログインページからログインしてください。'])
+                    ->withErrors(['email' => 'ログイン情報が登録されていません。'])
                     ->onlyInput('email');
             }
             // 一般ユーザーとして認証

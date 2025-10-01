@@ -120,7 +120,7 @@ class Id03Test extends TestCase
         $response->assertRedirect('/admin/login');
         // コントローラで設定されたロール不一致時のエラーメッセージを確認
         $response->assertSessionHasErrors([
-            'email' => 'ユーザー専用のログインページからログインしてください。',
+            'email' => 'ログイン情報が登録されていません。',
         ]);
     }
 

@@ -15,12 +15,12 @@ class AttendancesTableSeeder extends Seeder
     public function run(): void
     {
         // シードするユーザーIDの配列
-        $userIds = [2, 3, 4];
-        // 過去14日間のデータを生成（今日の分は含めない）
-        $daysToSeed = 14;
+        $userIds = [2, 3, 4, 5];
+        // 過去31日間のデータを生成（今日の分は含めない）
+        $daysToSeed = 31;
 
         foreach ($userIds as $userId) {
-            // 各ユーザーに対して、昨日から過去14日分のデータを生成
+            // 各ユーザーに対して、昨日から過去31日分のデータを生成
             for ($i = 1; $i <= $daysToSeed; $i++) {
                 // 日付を過去にずらす
                 $date = Carbon::today()->subDays($i);

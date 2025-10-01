@@ -158,7 +158,7 @@ class Id02Test extends TestCase
         $response->assertStatus(302);
         $this->assertGuest();
         $response->assertSessionHasErrors([
-            'email' => '管理者ユーザーは管理者用ログインページからログインしてください。',
+            'email' => 'ログイン情報が登録されていません。',
         ]);
     }
 }

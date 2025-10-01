@@ -108,7 +108,8 @@ textarea {
     height: 60px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 800;
 }
 
 .detail-table tr:last-child td,

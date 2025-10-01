@@ -1,4 +1,4 @@
-@extends('layouts.user_and_admin')
+@extends('layouts.user-and-admin')
 
 @section('css')
 
@@ -9,8 +9,17 @@
 
 <body>
 <div class="container">
+
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
 <div class="title">
+
 <h2 class="title-1">勤怠一覧</h2>
+
 </div>
 
 <!-- 日付ナビゲーション -->

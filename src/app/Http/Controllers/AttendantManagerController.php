@@ -69,7 +69,7 @@ class AttendantManagerController extends Controller
         }
 
         // 5. 必要なデータをすべてビューに渡す
-        return view('user_stamping', compact(
+        return view('user-stamping', compact(
             'attendance',
             'greeting',
             'isClockedIn',
@@ -180,7 +180,7 @@ class AttendantManagerController extends Controller
         ];
 
         // 勤怠データをビューに渡して表示
-        return view('user_month_attendance', $viewData);
+        return view('user-month-attendance', $viewData);
     }
 
 
@@ -287,7 +287,7 @@ class AttendantManagerController extends Controller
             'primaryData' => $sourceData, 
         ];
 
-        return view('user_attendance_detail', $viewData);
+        return view('user-attendance-detail', $viewData);
     }
 
 
@@ -354,7 +354,7 @@ class AttendantManagerController extends Controller
             ];
         });
 
-        return view('user_apply_list', [
+        return view('user-apply-list', [
             // 整形済みのデータをビューに渡す
             'applications' => $formattedApplications, 
         ]);
@@ -455,7 +455,7 @@ class AttendantManagerController extends Controller
             'today' => $today, // 今日（システムの日付）をビューに渡す
         ];
 
-        return view('admin_staff_daily_attendance', $viewData);
+        return view('admin-staff-daily-attendance', $viewData);
     }
 
 
@@ -544,7 +544,7 @@ class AttendantManagerController extends Controller
         ];
 
         // 勤怠詳細データをビューに渡して表示
-        return view('admin_attendance_detail', $viewData);
+        return view('admin-attendance-detail', $viewData);
     }
 
 
@@ -552,7 +552,7 @@ class AttendantManagerController extends Controller
     {
         $users = User::all();
 
-        return view('admin_staff_list', [
+        return view('admin-staff-list', [
             'users' => $users,
         ]);
     }
@@ -673,7 +673,7 @@ class AttendantManagerController extends Controller
             'today' => $today, // 今日（システムの日付）をビューに渡す
         ];
 
-        return view('admin_staff_month_attendance', $viewData);
+        return view('admin-staff-month-attendance', $viewData);
     }
 
 
@@ -697,7 +697,7 @@ class AttendantManagerController extends Controller
         // フィルタリングされた結果を取得
         $applications = $query->get();
 
-        return view('admin_apply_list', [
+        return view('admin-apply-list', [
             'applications' => $applications,
         ]);
     }
@@ -753,7 +753,7 @@ class AttendantManagerController extends Controller
         ];
 
         // 整理したデータをadmin_apply_judgement.blade.phpに渡して表示
-        return view('admin_apply_judgement', compact('data'));
+        return view('admin-apply-judgement', compact('data'));
     }
 
 
@@ -1032,7 +1032,15 @@ class AttendantManagerController extends Controller
 
         $application->save();
 
-        return redirect()->route('user.attendance.detail.index', ['date' => $date])->with('success', '勤怠修正の申請を送信しました。');
+        // ----------------------------------------------------------------------
+        // ★修正箇所: セッションメッセージを動的に生成
+        // ----------------------------------------------------------------------
+        // 日付を「〇月〇日」形式に整形
+        $displayDate = Carbon::parse($date)->isoFormat('M月D日');
+        
+        $successMessage = "{$user->name}さん、{$displayDate}の修正申請を受け付けました。";
+
+        return redirect()->route('user.month.index', ['date' => $date])->with('success', $successMessage);
     }
 
 
