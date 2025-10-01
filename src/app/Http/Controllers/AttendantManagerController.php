@@ -739,7 +739,8 @@ class AttendantManagerController extends Controller
         // ビューに渡すデータを整理
         $data = [
             'name' => $application->user->name,
-            'date' => Carbon::parse($application->checkin_date)->format('Y年m月d日'),
+            // 修正箇所: 'Y年' の後に半角スペースを追加 -> 'Y年 m月d日'
+            'date' => Carbon::parse($application->checkin_date)->format('Y年　　　　　　　 n月j日'),
             'clock_in_time' => $application->clock_in_time ? Carbon::parse($application->clock_in_time)->format('H:i') : '-',
             'clock_out_time' => $application->clock_out_time ? Carbon::parse($application->clock_out_time)->format('H:i') : '-',
             'break_times' => $breakTimes, // JSONから整形された休憩データ

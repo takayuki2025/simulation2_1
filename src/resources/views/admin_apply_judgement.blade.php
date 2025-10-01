@@ -30,10 +30,10 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>出勤・退勤時間</th>
+                    <th>出勤・退勤</th>
                     <td class="time-inputs">
                         <span>{{ $data['clock_in_time'] }}</span>
-                        <span>〜</span>
+                        <span>　〜</span>
                         <span>{{ $data['clock_out_time'] }}</span>
                     </td>
                 </tr>
@@ -45,7 +45,7 @@
                     <td class="time-inputs">
                         {{-- null合体演算子 (??) で未定義の場合に備える --}}
                         <span>{{ $break['start_time'] ?? '-' }}</span>
-                        <span>〜</span>
+                        <span>　〜</span>
                         <span>{{ $break['end_time'] ?? '-' }}</span>
                     </td>
                 </tr>
@@ -75,7 +75,7 @@
     <form action="{{ route('admin.apply.attendance.approve') }}" method="post">
         @csrf
         <input type="hidden" name="id" value="{{ $data['application_id'] }}">
-        <button type="submit" class="button update-button">承認</button>
+        <button type="submit" class="button update-button">承 認</button>
     </form>
     @else
         <button type="button" class="button no_update-button" disabled>承認済み</button>
