@@ -595,10 +595,10 @@ class AttendantManagerController extends Controller
 
         // 時間フォーマット用のヘルパー関数（例: 480分 -> 8:00, 0分 -> 0:00）
         $formatTime = function (?int $minutes): string {
-            // ★修正点: nullの場合は空文字列 '' を返す（未打刻対応）
+            // nullの場合は空文字列 '' を返す（未打刻対応）
             if ($minutes === null) return '';
 
-            // ★修正点: 0分以下の場合、'0:00' を返す（打刻済みで0分対応）
+            // 0分以下の場合、'0:00' を返す（出勤直後の休憩0分対応、および0分対応）
             if ($minutes <= 0) {
                 return '0:00';
             }
@@ -622,33 +622,35 @@ class AttendantManagerController extends Controller
                 'isSunday' => $currentDay->dayOfWeek === 0,
                 'isSaturday' => $currentDay->dayOfWeek === 6,
                 'dateString' => $dateString,
-                'attendance' => $attendance, // 生の勤怠データ
-                'clockInTime' => '', // 修正: 初期値を空欄に
-                'clockOutTime' => '', // 修正: 初期値を空欄に
-                'breakTimeDisplay' => '', // 修正: 初期値を空欄に
-                'workTimeDisplay' => '', // 修正: 初期値を空欄に
+                'attendance' => $attendance,
+                'clockInTime' => '',
+                'clockOutTime' => '',
+                'breakTimeDisplay' => '',
+                'workTimeDisplay' => '',
             ];
 
             if ($attendance) {
+                // 出勤時間のフォーマット
+                $dayData['clockInTime'] = Carbon::parse($attendance->clock_in_time)->format('H:i');
+
+                // 休憩時間表示のロジックを修正:
+                // ★修正点1: 出勤打刻があれば、退勤打刻の有無にかかわらず、現在の休憩合計時間を表示する。
+                // break_total_time が null の場合は 0 として扱い、'0:00' が表示されるようにする。
+                $totalBreakMinutes = $attendance->break_total_time ?? 0;
+                $dayData['breakTimeDisplay'] = $formatTime($totalBreakMinutes);
+                
                 // 退勤時間が記録されているか、かつ出勤時間と同じ値ではないかチェック
                 $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time;
                 
-                // 出勤時間のフォーマット
-                $dayData['clockInTime'] = Carbon::parse($attendance->clock_in_time)->format('H:i');
-                
-                // 退勤打刻がない場合は空欄のまま
                 if ($hasClockedOut) {
                     // 退勤時間のフォーマット
                     $dayData['clockOutTime'] = Carbon::parse($attendance->clock_out_time)->format('H:i');
                     
-                    // 休憩時間 (0分の場合 0:00 が表示される)
-                    $dayData['breakTimeDisplay'] = $formatTime($attendance->break_total_time);
-                    
-                    // 合計勤務時間 (0分の場合 0:00 が表示される)
+                    // 合計勤務時間 (退勤打刻があれば表示)
                     $dayData['workTimeDisplay'] = $formatTime($attendance->work_time);
                 } else {
-                    // 出勤はあるが退勤がない場合、休憩・合計は空欄のまま（初期値を使用）
-                    $dayData['breakTimeDisplay'] = '';
+                    // 退勤がない場合は、退勤時間と合計勤務時間を空欄にする
+                    $dayData['clockOutTime'] = '';
                     $dayData['workTimeDisplay'] = '';
                 }
             }
@@ -656,7 +658,7 @@ class AttendantManagerController extends Controller
             $monthlyAttendanceData[] = $dayData;
         }
 
-        // ★追加: 今日の日付を取得 (比較に使用)
+        // 今日の日付を取得 (比較に使用)
         $today = Carbon::now()->startOfDay();
 
         $viewData = [
@@ -668,7 +670,7 @@ class AttendantManagerController extends Controller
             'month' => $month,
             // 新しい準備済みデータ配列
             'monthlyAttendanceData' => $monthlyAttendanceData,
-            'today' => $today, // ★追加: 今日（システムの日付）をビューに渡す
+            'today' => $today, // 今日（システムの日付）をビューに渡す
         ];
 
         return view('admin_staff_month_attendance', $viewData);
