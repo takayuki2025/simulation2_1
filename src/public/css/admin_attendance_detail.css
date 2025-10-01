@@ -1,58 +1,79 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    /* 👈 全ての要素に適用 */
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f7f7f7;
-    margin: 0 auto;
-    padding: 0;
-    max-width: 1400px;
-    /* min-height: 1000px; */
+        background-color: #f0eff2;
+        margin: 0 auto;
+        /* padding: 20px; */
+        max-width: 1400px;
+        min-height: 1000px;
 }
 
 .container {
-    max-width: 900px;
+    max-width: 950px;
     margin: 0 auto;
-    padding: 20px;
 }
 
 .tile_1 {
     border-left: 8px solid #000000;
-    padding-left: 15px;
-    margin: 40px 0 30px;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 28px;
+    padding-left: 20px;
+    margin: 50px 0 40px 0;
 }
 
 .attendance-detail-frame {
+    /* box-sizing: border-box; */
     background-color: #fff;
-    padding: 20px;
+    /* padding: 0 0; */
+    margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .detail-table {
+    color: #737373;
+    font-weight: 800;
     width: 100%;
-    /* セルの境界線を結合して単一の線にします */
+    font-size: 16px;
     border-collapse: collapse;
 }
 
-/* 各セル（th, td）から個別の下線を削除 */
-.detail-table th,
-.detail-table td {
-    padding: 15px 10px;
+/* 最後の行（.last-row）を除く、全てのセル（th, td）にスタイルを適用 */
+.detail-table tr:not(.last-row) th,
+.detail-table tr:not(.last-row) td {
+    padding: 25px 80px;
     text-align: left;
-    font-size: 16px;
+    /* height: 50px; */
+    /* font-size: 16px; */
+    /* font-weight: 800; */
     border-bottom: none;
+    /* letter-spacing: 1px; */
 }
 
 /* テーブルの行（tr）全体に下線を追加 */
 .detail-table tr {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid #ddd;
 }
 
 /* ヘッダーのスタイル */
 .detail-table th {
-    background-color: #ffffff;
-    font-weight: 600;
+    /* background-color: #ffffff;
+    font-weight: 600; */
     width: 30%;
+    letter-spacing: 2px;
+}
+
+.detail-table td {
+    color: #000000;
+    letter-spacing: 2px;
+    /* font-size: 20px !important; */
+    /* letter-spacing: 2px; */
+
 }
 
 /* 最後の行の下線を削除し、パディングも調整します */
@@ -60,11 +81,11 @@ body {
     border-bottom: none;
 }
 
-.detail-table .last-row td,
+/* .detail-table .last-row td,
 .detail-table .last-row th {
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
+    padding-top: 20px;
+    padding-bottom: 20px;
+} */
 
 .time-inputs {
     white-space: nowrap;
@@ -72,37 +93,62 @@ body {
     align-items: center;
 }
 
+.detail-user_name {
+    position: relative;
+    left: 20px;
+}
+
 /* input[type="text"] の基本スタイル */
 .time-inputs input[type="text"] {
-    width: 80px;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: 2px;
+    /* width: 80px; */
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 16px;
 }
 
-.time-inputs span {
+/* .time-inputs span {
     margin: 0 5px;
     color: #555;
-}
+} */
 
 textarea {
-    width: 50%;
+    width: 54%;
     height: 60px;
-    margin-top: 15px;
+    /* margin: 0 auto; */
+    /* padding: 20px; */
+    /* font-weight: 800; */
+    /* margin-top: 5px; */
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
+}
+
+.detail-table tr:last-child td,
+.detail-table tr:last-child th {
+    padding: 15px 80px;
+    text-align: left;
+        /* height: 50px; */
+        /* font-size: 16px; */
+        /* font-weight: 800; */
+        border-bottom: none;
+        /* letter-spacing: 1px; */
 }
 
 .button-container {
     text-align: right;
-    margin-top: 20px;
+    margin-top: 45px;
 }
 
 .button {
     padding: 10px 20px;
+    width: 120px;
+    height: 50px;
+    font-weight: 800;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -119,17 +165,19 @@ textarea {
 }
 
 .update-button {
-    background-color: #28a745;
+    background-color: #000000;
+    color: white;
 }
 
 .update-button:hover {
-    background-color: #218838;
+    background-color: #ffffff;
+    color: #000000;
 }
 
-.back-button {
+/* .back-button {
     background-color: #f44336;
     margin-left: 10px;
-}
+} */
 
 .message-approved,
 .message-pending {
@@ -204,7 +252,7 @@ textarea.is-invalid {
     /* 拡大を禁止 */
     flex-shrink: 0;
     /* 縮小を禁止 */
-    width: 120px;
+    width: 110px;
     /* 幅を固定 (既存のデザインに合わせて調整) */
 }
 

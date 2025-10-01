@@ -81,7 +81,9 @@ class Id13Test extends TestCase
 
         // フォーム内容が申請データと一致していることの検証 (属性を分割してチェック)
         $response->assertSee($staffUser->name); // スタッフ名
-        $response->assertSee(Carbon::parse($testDate)->format('Y年m月d日')); // 日付
+        
+        // 【修正】日付の表示形式をビューの形式 '　 Y年　　　　 n月j日' に合わせる
+        $response->assertSee(Carbon::parse($testDate)->format('　 Y年　　　　 n月j日'));
         
         // 出勤時刻
         $response->assertSee('name="clock_in_time"', false);
@@ -101,9 +103,9 @@ class Id13Test extends TestCase
         
         $response->assertSee($application->reason);
         
-        // 修正: redirect_toも分割してチェック
+        // redirect_to
         $response->assertSee('name="redirect_to"', false); 
-        $response->assertSee('value="' . $redirectUrl . '"', false); // &がないためエンコードは不要
+        $response->assertSee('value="' . $redirectUrl . '"', false);
     }
 
 
@@ -143,6 +145,9 @@ class Id13Test extends TestCase
 
         $response->assertStatus(200);
 
+        // 【修正】日付の表示形式をビューの形式 '　 Y年　　　　 n月j日' に合わせる
+        $response->assertSee(Carbon::parse($testDate)->format('　 Y年　　　　 n月j日'));
+
         // フォーム内容が勤怠データと一致していることの検証 (属性を分割してチェック)
         $response->assertSee('name="clock_in_time"', false);
         $response->assertSee('value="10:00"', false);
@@ -160,7 +165,7 @@ class Id13Test extends TestCase
         $response->assertSee('name="attendance_id" value="' . $attendance->id . '"', false); // 勤怠IDの存在
         $response->assertSee('name="user_id" value="' . $staffUser->id . '"', false);
         
-        // 修正: HTMLエンコードされた値をチェック
+        // HTMLエンコードされた値をチェック
         $response->assertSee('name="redirect_to"', false);
         $response->assertSee('value="' . $expectedEncodedRedirectValue . '"', false);
     }

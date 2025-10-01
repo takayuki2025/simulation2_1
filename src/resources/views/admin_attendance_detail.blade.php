@@ -35,7 +35,7 @@
     <tbody>
         <tr>
             <th>名前</th>
-            <td>
+            <td class="detail-user_name">
                 <!-- 勤怠データが存在しない場合でも、ユーザー名は表示されるように修正 -->
                 {{ $attendance ? $attendance->user->name : $user->name }}
             </td>
@@ -43,16 +43,17 @@
         <tr>
             <th>日付</th>
             <td>
-                {{ \Carbon\Carbon::parse($date)->format('Y年m月d日') }}
+                {{ \Carbon\Carbon::parse($date)->format('　 Y年　　　　 n月j日') }}
             </td>
         </tr>
         <tr>
-            <th>出勤・退勤時間</th>
+            <th>出勤・退勤</th>
             <td class="time-inputs">
                 {{-- 1. 出勤時刻ブロック --}}
                 <div class="input-block">
+                    {{-- 修正: old()を最優先し、次に既存データを使用 --}}
                     <input type="text" name="clock_in_time" 
-                           value="{{ $primaryData && $primaryData->clock_in_time ? \Carbon\Carbon::parse($primaryData->clock_in_time)->format('H:i') : '' }}"
+                           value="{{ old('clock_in_time', $primaryData && $primaryData->clock_in_time ? \Carbon\Carbon::parse($primaryData->clock_in_time)->format('H:i') : '') }}"
                            class="@error('clock_in_time') is-invalid @enderror">
                     {{-- 出勤時刻のエラーメッセージ --}}
                     @error('clock_in_time')
@@ -64,8 +65,9 @@
 
                 {{-- 2. 退勤時刻ブロック --}}
                 <div class="input-block">
+                    {{-- 修正: old()を最優先し、次に既存データを使用 --}}
                     <input type="text" name="clock_out_time" 
-                           value="{{ $primaryData && $primaryData->clock_out_time ? \Carbon\Carbon::parse($primaryData->clock_out_time)->format('H:i') : '' }}"
+                           value="{{ old('clock_out_time', $primaryData && $primaryData->clock_out_time ? \Carbon\Carbon::parse($primaryData->clock_out_time)->format('H:i') : '') }}"
                            class="@error('clock_out_time') is-invalid @enderror">
                     {{-- 退勤時刻のエラーメッセージ --}}
                     @error('clock_out_time')
@@ -81,9 +83,10 @@
             <td class="time-inputs">
                 {{-- 休憩開始時刻ブロック --}}
                 <div class="input-block">
+                    {{-- 修正: old()を最優先し、次に既存データを使用 --}}
                     {{-- name属性を配列形式 [index][key] にすることで、連想配列としてPOSTされます --}}
                     <input type="text" name="break_times[{{ $index }}][start_time]" 
-                           value="{{ $breakTime['start_time'] ?? '' }}"
+                           value="{{ old('break_times.' . $index . '.start_time', $breakTime['start_time'] ?? '') }}"
                            class="@error('break_times.' . $index . '.start_time') is-invalid @enderror">
                     {{-- 休憩開始時刻のエラーメッセージ --}}
                     @error('break_times.' . $index . '.start_time')
@@ -95,8 +98,9 @@
 
                 {{-- 休憩終了時刻ブロック --}}
                 <div class="input-block">
+                    {{-- 修正: old()を最優先し、次に既存データを使用 --}}
                     <input type="text" name="break_times[{{ $index }}][end_time]" 
-                           value="{{ $breakTime['end_time'] ?? '' }}"
+                           value="{{ old('break_times.' . $index . '.end_time', $breakTime['end_time'] ?? '') }}"
                            class="@error('break_times.' . $index . '.end_time') is-invalid @enderror">
                     {{-- 休憩終了時刻のエラーメッセージ --}}
                     @error('break_times.' . $index . '.end_time')
@@ -109,8 +113,8 @@
         <tr class="last-row">
             <th>備考</th>
             <td>
-                {{-- 備考欄も $primaryData を参照するように修正 --}}
-                <textarea name="reason" class="@error('reason') is-invalid @enderror">{{ $primaryData ? $primaryData->reason : '' }}</textarea>
+                {{-- 修正: old()を最優先し、次に既存データを使用 --}}
+                <textarea name="reason" class="@error('reason') is-invalid @enderror">{{ old('reason', $primaryData ? $primaryData->reason : '') }}</textarea>
 
                 {{-- 備考のエラーメッセージ --}}
                 @error('reason')
@@ -125,14 +129,14 @@
 
 <div class="button-container">
 
-    <button type="submit" class="button update-button">修正</button>
+    <button type="submit" class="button update-button">修 正</button>
 
 </div>
 
 </form>
 
-{{-- 元のページに戻るためのリンク --}}
-<a href="{{ request()->input('redirect_to') }}" class="button back-button">戻る</a>
+<!-- {{-- 元のページに戻るためのリンク --}}
+<a href="{{ request()->input('redirect_to') }}" class="button back-button">戻る</a> -->
 
 </div>
 @endsection
