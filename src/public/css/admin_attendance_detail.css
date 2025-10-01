@@ -7,11 +7,11 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        background-color: #f0eff2;
-        margin: 0 auto;
-        /* padding: 20px; */
-        max-width: 1400px;
-        min-height: 1000px;
+    background-color: #f0eff2;
+    margin: 0 auto;
+    /* padding: 20px; */
+    max-width: 1400px;
+    min-height: 1000px;
 }
 
 .container {
@@ -73,10 +73,9 @@ body {
     letter-spacing: 2px;
     /* font-size: 20px !important; */
     /* letter-spacing: 2px; */
-
 }
 
-/* 最後の行の下線を削除し、パディングも調整します */
+/* 最後の行の下線を削除します */
 .detail-table .last-row {
     border-bottom: none;
 }
@@ -132,11 +131,11 @@ textarea {
 .detail-table tr:last-child th {
     padding: 15px 80px;
     text-align: left;
-        /* height: 50px; */
-        /* font-size: 16px; */
-        /* font-weight: 800; */
-        border-bottom: none;
-        /* letter-spacing: 1px; */
+    /* height: 50px; */
+    /* font-size: 16px; */
+    /* font-weight: 800; */
+    border-bottom: none;
+    /* letter-spacing: 1px; */
 }
 
 .button-container {
@@ -174,24 +173,25 @@ textarea {
     color: #000000;
 }
 
-/* .back-button {
+/* ---------------------------------------------------- */
+/* 以下のセレクタは、提供されたHTML/Bladeテンプレート内に対応する要素がないため、現在未使用です。 */
+
+/* .back-button はHTMLでコメントアウトされています */
+/*
+.back-button {
     background-color: #f44336;
     margin-left: 10px;
-} */
+}
+*/
 
+/* .message-approved, .message-pending はHTMLに存在しません */
+/*
 .message-approved,
 .message-pending {
     color: #f44336;
 }
-
-
-
-
-
-
-
-
-
+*/
+/* ---------------------------------------------------- */
 
 
 /* --- バリデーションエラー表示用スタイル --- */
@@ -220,7 +220,11 @@ textarea.is-invalid {
     white-space: normal;
 }
 
+/* ---------------------------------------------------- */
+/* 以下のセレクタは、提供されたHTML/Bladeテンプレート内に対応する要素がないため、現在未使用です。 */
+
 /* 隠しフィールドのエラーを、フォーム上部に目立たせるためのスタイル */
+/*
 .date-error {
     text-align: center;
     margin-bottom: 10px;
@@ -229,6 +233,9 @@ textarea.is-invalid {
     background-color: #fcebeb;
     border-radius: 5px;
 }
+*/
+/* ---------------------------------------------------- */
+
 
 /* 3. テーブルセルのレイアウト調整（time-inputs） */
 .detail-table td.time-inputs {
@@ -251,7 +258,6 @@ textarea.is-invalid {
     flex-grow: 0;
     /* 拡大を禁止 */
     flex-shrink: 0;
-    /* 縮小を禁止 */
     width: 110px;
     /* 幅を固定 (既存のデザインに合わせて調整) */
 }

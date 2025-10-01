@@ -65,7 +65,7 @@ laravel環境構築
 <br>
 
 # ER図<br>
-
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/5a23e7bd-f449-4065-b39b-1955fdf46d1f" />
 <br>
 
 # 使用技術<br>
