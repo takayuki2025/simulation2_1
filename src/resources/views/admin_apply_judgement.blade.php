@@ -2,7 +2,8 @@
 
 @section('css')
 
-<link rel="stylesheet" href="{{ asset('css/admin_apply_judgement.css') }}">
+{{-- 修正: CSSファイル名をケバブケースに統一 --}}
+<link rel="stylesheet" href="{{ asset('css/admin-apply-judgement.css') }}">
 @endsection
 
 @section('content')
@@ -10,7 +11,8 @@
 <body>
 <div class="container">
 <div class="title">
-<h2 class="tile_1">勤怠詳細</h2>
+{{-- 修正: tile_1 -> tile-1 --}}
+<h2 class="tile-1">勤怠詳細</h2>
 </div>
 
 <div class="attendance-detail-frame">
@@ -78,7 +80,8 @@
         <button type="submit" class="button update-button">承 認</button>
     </form>
     @else
-        <button type="button" class="button no_update-button" disabled>承認済み</button>
+        {{-- 修正: no_update-button -> no-update-button --}}
+        <button type="button" class="button no-update-button" disabled>承認済み</button>
     @endif
 </div>
 

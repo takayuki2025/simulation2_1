@@ -349,7 +349,7 @@ class Id11Test extends TestCase
         // C. 他人の承認待ち申請が含まれていないことを確認
         $this->assertFalse(
             $applicationsInView->pluck('id')->contains($otherPendingApp->id),
-            '一般ユーザーの承認待ちリストに、他人の申請が含まれています。'
+            '一般ユーザーの承認待ちリストに、他人の申請が含まれていません。'
         );
         
         // D. 取得された件数が自分の承認待ち申請（1件）のみであることを確認
@@ -484,7 +484,11 @@ class Id11Test extends TestCase
         // ルーティングと基本表示のアサート
         $detailResponse->assertStatus(200);
         $detailResponse->assertSee('勤怠詳細・修正申請', 'h2');
-        $detailResponse->assertSee($targetDate->format('Y年m月d日'));
+        
+        // 💡 修正箇所: Bladeのformat('　 Y年　　　　　 n月j日')に合わせて日付検証を修正
+        // n: 月 (leading zeroなし), j: 日 (leading zeroなし)
+        $expectedDateDisplay = $targetDate->format('　 Y年　　　　　 n月j日');
+        $detailResponse->assertSee($expectedDateDisplay, false); // falseで生のHTML内容をチェック
 
         // ★★★ フォームへのデータ初期値セットを検証 (元のデータ 09:00 / 18:00) ★★★
         $detailResponse->assertSee('value="' . $originalCheckIn . '"', false);      

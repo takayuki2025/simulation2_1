@@ -1,25 +1,25 @@
-.register_page {
+.register-page {
     text-align: center;
     margin: 0 auto;
     max-width: 1400px;
 }
 
-.register_box {
+.register-box {
     position: relative;
     top: 70px;
 }
 
-.name_form {
+.name-form {
     width: 500px;
     height: 30px;
 }
 
-.email_form {
+.email-form {
     width: 500px;
     height: 30px;
 }
 
-.password_form {
+.password-form {
     width: 500px;
     height: 30px;
 }
@@ -29,7 +29,7 @@
     display: block;
 }
 
-.submit_form {
+.submit-form {
     position: relative;
     top: 20px;
     width: 500px;
@@ -42,7 +42,7 @@
     color: white;
 }
 
-.to_login {
+.to-login {
     position: relative;
     top: 5px;
     color: #0173cc;
@@ -50,14 +50,14 @@
     display: block;
 }
 
-.label_form_1 {
+.label-form-1 {
     font-weight: 700;
     display: block;
     position: relative;
     right: 238px;
 }
 
-.label_form_2 {
+.label-form-2 {
     font-weight: 700;
     margin-top: 30px;
     display: block;
@@ -65,7 +65,7 @@
     right: 200px;
 }
 
-.label_form_3 {
+.label-form-3 {
     font-weight: 700;
     margin-top: 30px;
     display: block;
@@ -73,7 +73,7 @@
     right: 215px;
 }
 
-.label_form_4 {
+.label-form-4 {
     font-weight: 700;
     margin-top: 30px;
     display: block;

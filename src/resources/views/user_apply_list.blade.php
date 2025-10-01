@@ -10,7 +10,7 @@
 
 {{-- ページタイトルとタブを中央揃えするためのラッパー --}}
 
-<div class="content-area">
+<div class="container">
 <h2 class="page-title">申請履歴</h2>
 <div class="tab-container">
 <!-- 承認待ち: pending=true -->
@@ -18,12 +18,12 @@
 <!-- 承認済み: pending=false -->
 <a href="?pending=false" class="tab-link {{ request('pending') == 'false' ? 'active' : '' }}">承認済み</a>
 </div>
-</div>
+
 {{-- /content-area --}}
 
 {{-- テーブルのコンテナ --}}
 
-<div class="container">
+
 <table class="apply-table">
 <thead>
 <tr>
@@ -39,19 +39,19 @@
 @foreach ($applications as $application)
 <tr class="application-row" data-pending="{{ $application['pending'] ? 'true' : 'false' }}">
 <td>
-<span style="color: {{ $application['status_color'] }}; font-weight: bold;">{{ $application['status_text'] }}</span>
+<span style="font-weight: bold;">{{ $application['status_text'] }}</span>
 </td>
 <td>{{ $application['user_name'] }}</td>
 <td>
 {{-- コントローラで整形済みの表示用日付を使用 --}}
 {{ $application['target_date_display'] }}
 </td>
-<td>{{ $application['reason'] }}</td>
+<td class="user-apply-reason">{{ $application['reason'] }}</td>
 <td>{{ $application['created_at_display'] }}</td>
 <td>
 {{-- 日付が有効な場合のみリンクを表示 --}}
 @if ($application['has_target_date'])
-<a href="{{ $application['detail_url'] }}" class="detail-link">詳細</a>
+<a href="{{ $application['detail_url'] }}" class="detail-button">詳細</a>
 @else
 <span style="color: #777; font-size: 0.8em;">日付不明</span>
 @endif

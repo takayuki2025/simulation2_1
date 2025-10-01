@@ -21,7 +21,8 @@ body {
     /* box-sizing: border-box; */
 }
 
-.tile_1 {
+/* クラス名変更: tile_1 -> tile-1 */
+.tile-1 {
     border-left: 8px solid #000000;
     font-size: 28px;
     padding-left: 20px;
@@ -30,17 +31,17 @@ body {
 
 .staff-table {
     /* box-sizing: border-box; */
-        width: 100%;
-        color: #737373;
-        font-weight: 600;
-        border-collapse: collapse;
-        /* height:12px; */
-        background-color: #fff;
-        /* padding: 10px 10px 10px 10px; */
-        /* padding: 30px; */
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
+    width: 100%;
+    color: #737373;
+    font-weight: 600;
+    border-collapse: collapse;
+    /* height:12px; */
+    background-color: #fff;
+    /* padding: 10px 10px 10px 10px; */
+    /* padding: 30px; */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
 .staff-table th {
@@ -51,10 +52,15 @@ body {
     border-bottom: 3px solid #e1e1e1;
 }
 
-/* .staff-table th:first-child {
+/* ------------------------------------------------------------------ */
+/* 以下のセレクタは、HTML内に存在しないため、コメントアウトして整理しました。 */
+/*
+.staff-table th:first-child {
     text-align: right;
     padding-right: 60px;
-} */
+}
+*/
+/* ------------------------------------------------------------------ */
 
 .staff-table td {
     padding: 10px;

@@ -7,11 +7,10 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        background-color: #f0eff2;
-        margin: 0 auto;
-        /* padding: 20px; */
-        max-width: 1400px;
-        min-height: 1000px;
+    background-color: #f0eff2;
+    margin: 0 auto;
+    max-width: 1400px;
+    min-height: 1000px;
 }
 
 .container {
@@ -19,38 +18,35 @@ body {
     margin: 0 auto;
 }
 
-.tile_1 {
+/* クラス名変更: tile_1 -> tile-1 */
+.tile-1 {
     border-left: 8px solid #000000;
-        font-size: 28px;
-        padding-left: 20px;
-        margin: 50px 0 40px 0;
+    font-size: 28px;
+    padding-left: 20px;
+    margin: 50px 0 40px 0;
 }
 
 .attendance-detail-frame {
-    /* box-sizing: border-box; */
-        background-color: #fff;
-        /* padding: 0 0; */
-        margin-bottom: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .detail-table {
     color: #737373;
-        font-weight: 800;
-        width: 100%;
-        font-size: 16px;
-        border-collapse: collapse;
+    font-weight: 800;
+    width: 100%;
+    font-size: 16px;
+    border-collapse: collapse;
 }
 
 /* 各セル（th, td）から個別の下線を削除 */
 .detail-table th,
 .detail-table td {
     padding: 20px 80px;
-        text-align: left;
-        /* font-size: 16px; */
-        /* font-weight: 800; */
-        border-bottom: none;
+    text-align: left;
+    border-bottom: none;
 }
 
 /* テーブルの行（tr）全体に下線を追加 */
@@ -60,16 +56,12 @@ body {
 
 /* ヘッダーのスタイル */
 .detail-table th {
-    /* background-color: #ffffff; */
-    /* font-weight: 600; */
     width: 30%;
 }
 
 .detail-table td {
     color: #000000;
-    /* font-size: 20px !important; */
     letter-spacing: 2px;
-
 }
 
 /* 最後の行の下線を削除し、パディングも調整します */
@@ -113,22 +105,16 @@ textarea,
 td>span {
     width: 50%;
     height: auto;
-    /* 高さを自動調整 */
     margin-top: 15px;
     border: 1px solid #ccc;
-    /* border-radius: 4px; */
     font-size: 14px;
-    /* box-sizing: border-box; */
     padding: 5px;
-    /* 表示用spanにパディングを追加 */
     display: inline-block;
-    /* spanにwidthを適用するため */
 }
 
 /* textarea のみを対象にする場合は、こちらを使用 */
 textarea {
     height: 60px;
-    /* 元の高さに戻す */
 }
 
 /* 備考欄のspanのスタイルを調整 */
@@ -179,7 +165,8 @@ td>span:last-child {
     color: #000000;
 }
 
-.no_update-button {
+/* クラス名変更: no_update-button -> no-update-button */
+.no-update-button {
     background-color: #99cea5;
 }
 

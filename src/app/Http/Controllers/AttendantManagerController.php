@@ -340,13 +340,14 @@ class AttendantManagerController extends Controller
             }
             
             return [
-                'id' => $application->id, // ★ 修正箇所: IDを追加
+                'id' => $application->id, // ★ IDを追加
                 'status_text' => $application->pending ? '承認待ち' : '承認済み',
-                'status_color' => $application->pending ? 'orange' : 'green',
+                // 'status_color' => $application->pending ? 'orange' : 'green',
                 'user_name' => $application->user->name,
                 'target_date_display' => $targetDateDisplay, // 整形済み日付
                 'reason' => $application->reason,
-                'created_at_display' => $application->created_at->format('Y/m/d H:i'),
+                // 💡 修正箇所: 申請日時から時間情報を削除し、Y/m/d のみを使用
+                'created_at_display' => $application->created_at->format('Y/m/d'),
                 'detail_url' => $detailUrl,
                 'has_target_date' => (bool)$targetDate, // 日付が有効かどうかのフラグ
                 'pending' => $application->pending,

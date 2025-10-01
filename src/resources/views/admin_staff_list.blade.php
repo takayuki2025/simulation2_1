@@ -2,17 +2,17 @@
 
 @section('css')
 
-<link rel="stylesheet" href="{{ asset('css/admin_staff_list.css') }}">
+{{-- 修正: CSSファイル名をケバブケースに統一 --}}
+<link rel="stylesheet" href="{{ asset('css/admin-staff-list.css') }}">
 @endsection
 
 @section('content')
 
-
-
 <div class="container">
 
     <div class="title">
-<h2 class="tile_1">スタッフ一覧</h2>
+{{-- 修正: tile_1 -> tile-1 --}}
+<h2 class="tile-1">スタッフ一覧</h2>
 </div>
 
     <table class="staff-table">

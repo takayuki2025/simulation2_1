@@ -2,7 +2,8 @@
 
 @section('css')
 
-<link rel="stylesheet" href="{{ asset('css/admin_attendance_detail.css') }}">
+{{-- 修正: CSSファイル名をケバブケースに統一 --}}
+<link rel="stylesheet" href="{{ asset('css/admin-attendance-detail.css') }}">
 @endsection
 
 @section('content')
@@ -11,7 +12,8 @@
 <div class="container">
 
 <div class="title">
-<h2 class="tile_1">勤怠詳細</h2>
+{{-- 修正: tile_1 -> tile-1 --}}
+<h2 class="tile-1">勤怠詳細</h2>
 </div>
 
 <div class="attendance-detail-frame">
@@ -35,7 +37,8 @@
     <tbody>
         <tr>
             <th>名前</th>
-            <td class="detail-user_name">
+            {{-- 修正: detail-user_name -> detail-user-name --}}
+            <td class="detail-user-name">
                 <!-- 勤怠データが存在しない場合でも、ユーザー名は表示されるように修正 -->
                 {{ $attendance ? $attendance->user->name : $user->name }}
             </td>
@@ -56,9 +59,7 @@
                            value="{{ old('clock_in_time', $primaryData && $primaryData->clock_in_time ? \Carbon\Carbon::parse($primaryData->clock_in_time)->format('H:i') : '') }}"
                            class="@error('clock_in_time') is-invalid @enderror">
                     {{-- 出勤時刻のエラーメッセージ --}}
-                    @error('clock_in_time')
-                        <span class="error-message">{{ $message }}</span>
-                    @enderror
+                    <span class="error-message">@error('clock_in_time') {{ $message }} @enderror</span>
                 </div>
                 
                 <span>〜</span>
@@ -70,9 +71,7 @@
                            value="{{ old('clock_out_time', $primaryData && $primaryData->clock_out_time ? \Carbon\Carbon::parse($primaryData->clock_out_time)->format('H:i') : '') }}"
                            class="@error('clock_out_time') is-invalid @enderror">
                     {{-- 退勤時刻のエラーメッセージ --}}
-                    @error('clock_out_time')
-                        <span class="error-message">{{ $message }}</span>
-                    @enderror
+                    <span class="error-message">@error('clock_out_time') {{ $message }} @enderror</span>
                 </div>
             </td>
         </tr>
@@ -89,9 +88,7 @@
                            value="{{ old('break_times.' . $index . '.start_time', $breakTime['start_time'] ?? '') }}"
                            class="@error('break_times.' . $index . '.start_time') is-invalid @enderror">
                     {{-- 休憩開始時刻のエラーメッセージ --}}
-                    @error('break_times.' . $index . '.start_time')
-                        <span class="error-message">{{ $message }}</span>
-                    @enderror
+                    <span class="error-message">@error('break_times.' . $index . '.start_time') {{ $message }} @enderror</span>
                 </div>
                 
                 <span>〜</span>
@@ -103,9 +100,7 @@
                            value="{{ old('break_times.' . $index . '.end_time', $breakTime['end_time'] ?? '') }}"
                            class="@error('break_times.' . $index . '.end_time') is-invalid @enderror">
                     {{-- 休憩終了時刻のエラーメッセージ --}}
-                    @error('break_times.' . $index . '.end_time')
-                        <span class="error-message">{{ $message }}</span>
-                    @enderror
+                    <span class="error-message">@error('break_times.' . $index . '.end_time') {{ $message }} @enderror</span>
                 </div>
             </td>
         </tr>
@@ -117,9 +112,7 @@
                 <textarea name="reason" class="@error('reason') is-invalid @enderror">{{ old('reason', $primaryData ? $primaryData->reason : '') }}</textarea>
 
                 {{-- 備考のエラーメッセージ --}}
-                @error('reason')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
+                <span class="error-message">@error('reason') {{ $message }} @enderror</span>
             </td>
         </tr>
     </tbody>

@@ -2,52 +2,9 @@
 
 @section('css')
 
-<link rel="stylesheet" href="{{ asset('css/admin_staff_daily_attendance.css') }}">
-<style>
-/* データがない場合のメッセージのスタイル */
+{{-- 修正: CSSファイル名をケバブケースに統一 --}}
+<link rel="stylesheet" href="{{ asset('css/admin-staff-daily-attendance.css') }}">
 
-.no-attendance-message {
-text-align: center;
-padding: 40px 0;
-margin-top: 20px;
-background-color: #f7f7f7;
-border: 1px solid #ddd;
-border-radius: 8px;
-font-size: 1.1em;
-color: #555;
-}
-
-/* 勤怠テーブルのラッパー */
-
-.attendance-table-frame {
-width: 100%;
-overflow-x: auto;
-}
-
-/* リンクを無効化する場合のスタイル /
-/ 今回の修正で「翌日」リンクの無効化（disabled-nav）は使用されなくなりますが、スタイルは残しておきます。 /
-
-.disabled-nav {
-color: #a0a0a0; / 薄い灰色 /
-opacity: 0.7;
-pointer-events: none; / クリックを無効化 */
-cursor: default;
-}
-
-/* 詳細ボタンが無効な場合のスタイル */
-.disabled-detail-button {
-display: inline-block;
-padding: 8px 12px;
-border-radius: 4px;
-background-color: #e0e0e0;
-color: #888;
-text-align: center;
-cursor: default;
-text-decoration: none;
-line-height: 1;
-}
-
-</style>
 @endsection
 
 @section('content')
@@ -55,20 +12,24 @@ line-height: 1;
 <div class="container">
 <div class="title">
 <!-- タイトルを動的に表示 -->
-<h2 class="tile_1">{{ $currentDate->format('Y年m月d日') }}の勤怠</h2>
+{{-- 修正: tile_1 -> tile-1 --}}
+<h2 class="tile-1">{{ $currentDate->format('Y年m月d日') }}の勤怠</h2>
 </div>
 <!-- 日付ナビゲーション -->
 <div class="date-navigation-frame">
-<div class="header1">
+{{-- 修正: header1 -> header-1 --}}
+<div class="header-1">
 <div class="navigation">
-<a href="?date={{ $currentDate->copy()->subDay()->format('Y-m-d') }}" class="arrow_left"><span class="navigation_arrow">← </span>前 日</a>
+{{-- 修正: arrow_left -> arrow-left, navigation_arrow -> navigation-arrow --}}
+<a href="?date={{ $currentDate->copy()->subDay()->format('Y-m-d') }}" class="arrow-left"><span class="navigation-arrow">← </span>前 日</a>
 </div>
 <h2>
 📅 <span id="current-date-display">{{ $currentDate->format('Y年m月d日') }}</span>
 </h2>
 <div class="navigation">
+{{-- 修正: arrow_right -> arrow-right, navigation_arrow -> navigation-arrow --}}
 {{-- 制限を外し、常に翌日への移動を許可します --}}
-<a href="?date={{ $currentDate->copy()->addDay()->format('Y-m-d') }}" class="arrow_right">翌 日<span class="navigation_arrow"> →</span></a>
+<a href="?date={{ $currentDate->copy()->addDay()->format('Y-m-d') }}" class="arrow-right">翌 日<span class="navigation-arrow"> →</span></a>
 </div>
 </div>
 </div>

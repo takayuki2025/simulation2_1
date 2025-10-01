@@ -2,7 +2,8 @@
 
 @section('css')
 
-<link rel="stylesheet" href="{{ asset('css/admin_staff_month_attendance.css') }}">
+{{-- 修正: CSSファイル名をケバブケースに統一 --}}
+<link rel="stylesheet" href="{{ asset('css/admin-staff-month-attendance.css') }}">
 @endsection
 
 @section('content')
@@ -12,20 +13,24 @@
 <div class="container">
 <div class="title">
 {{-- スタッフの名前を表示 --}}
-<h2 class="tile_1">{{$staffUser->name}}さんの勤怠一覧</h2>
+{{-- 修正: tile_1 -> tile-1 --}}
+<h2 class="tile-1">{{$staffUser->name}}さんの勤怠一覧</h2>
 </div>
 <!-- 日付ナビゲーション -->
 <div class="date-navigation-frame">
-<div class="header1">
+{{-- 修正: header1 -> header-1 --}}
+<div class="header-1">
 <div class="navigation">
-<a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow_left"><span class="navigation_arrow">← </span>前 月</a>
+{{-- 修正: arrow_left -> arrow-left, navigation_arrow -> navigation-arrow --}}
+<a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow-left"><span class="navigation-arrow">← </span>前 月</a>
 </div>
 <h2>
 📅 <span id="current-date-display">{{ $date->format('Y/m') }}</span>
 </h2>
 <div class="navigation">
+{{-- 修正: arrow_right -> arrow-right, navigation_arrow -> navigation-arrow --}}
 {{-- 次月への移動は常に許可 --}}
-<a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="arrow_right">翌 月<span class="navigation_arrow"> →</span></a>
+<a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="arrow-right">翌 月<span class="navigation-arrow"> →</span></a>
 </div>
 </div>
 </div>
@@ -94,7 +99,7 @@
 </div>
 
 <div class="csv-area">
-{{-- CSV出力用のフォーム --}}
+{{-- CSV出力用のフォーム (クラス名 csv-submit から csv-button に変更) --}}
 <form action="{{ route('admin.staff.attendance.export') }}" method="POST" class="csv-button">
 @csrf
 
@@ -103,7 +108,8 @@
 <input type="hidden" name="year" value="{{ $year }}">
 <input type="hidden" name="month" value="{{ $month }}">
 
-<button type="submit" class="csv-submit">CSV出力</button>
+{{-- ボタン自体にはクラス名を付与せず、フォーム（.csv-button）の子要素としてCSSを適用 --}}
+<button type="submit">CSV出力</button>
 
 </form>
 

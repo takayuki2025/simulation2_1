@@ -9,7 +9,6 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f0eff2;
     margin: 0 auto;
-    /* padding: 20px; */
     max-width: 1400px;
     min-height: 1000px;
 }
@@ -19,7 +18,8 @@ body {
     margin: 0 auto;
 }
 
-.tile_1 {
+/* クラス名変更: tile_1 -> tile-1 */
+.tile-1 {
     border-left: 8px solid #000000;
     font-size: 28px;
     padding-left: 20px;
@@ -27,9 +27,7 @@ body {
 }
 
 .attendance-detail-frame {
-    /* box-sizing: border-box; */
     background-color: #fff;
-    /* padding: 0 0; */
     margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -48,11 +46,7 @@ body {
 .detail-table tr:not(.last-row) td {
     padding: 25px 80px;
     text-align: left;
-    /* height: 50px; */
-    /* font-size: 16px; */
-    /* font-weight: 800; */
     border-bottom: none;
-    /* letter-spacing: 1px; */
 }
 
 /* テーブルの行（tr）全体に下線を追加 */
@@ -62,8 +56,6 @@ body {
 
 /* ヘッダーのスタイル */
 .detail-table th {
-    /* background-color: #ffffff;
-    font-weight: 600; */
     width: 30%;
     letter-spacing: 2px;
 }
@@ -71,8 +63,6 @@ body {
 .detail-table td {
     color: #000000;
     letter-spacing: 2px;
-    /* font-size: 20px !important; */
-    /* letter-spacing: 2px; */
 }
 
 /* 最後の行の下線を削除します */
@@ -80,19 +70,14 @@ body {
     border-bottom: none;
 }
 
-/* .detail-table .last-row td,
-.detail-table .last-row th {
-    padding-top: 20px;
-    padding-bottom: 20px;
-} */
-
 .time-inputs {
     white-space: nowrap;
     display: flex;
     align-items: center;
 }
 
-.detail-user_name {
+/* クラス名変更: detail-user_name -> detail-user-name */
+.detail-user-name {
     position: relative;
     left: 20px;
 }
@@ -102,40 +87,25 @@ body {
     font-weight: 800;
     text-align: center;
     letter-spacing: 2px;
-    /* width: 80px; */
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
 }
 
-/* .time-inputs span {
-    margin: 0 5px;
-    color: #555;
-} */
-
 textarea {
     width: 54%;
     height: 60px;
-    /* margin: 0 auto; */
-    /* padding: 20px; */
-    /* font-weight: 800; */
-    /* margin-top: 5px; */
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
-    /* box-sizing: border-box; */
 }
 
 .detail-table tr:last-child td,
 .detail-table tr:last-child th {
     padding: 15px 80px;
     text-align: left;
-    /* height: 50px; */
-    /* font-size: 16px; */
-    /* font-weight: 800; */
     border-bottom: none;
-    /* letter-spacing: 1px; */
 }
 
 .button-container {
@@ -173,35 +143,12 @@ textarea {
     color: #000000;
 }
 
-/* ---------------------------------------------------- */
-/* 以下のセレクタは、提供されたHTML/Bladeテンプレート内に対応する要素がないため、現在未使用です。 */
-
-/* .back-button はHTMLでコメントアウトされています */
-/*
-.back-button {
-    background-color: #f44336;
-    margin-left: 10px;
-}
-*/
-
-/* .message-approved, .message-pending はHTMLに存在しません */
-/*
-.message-approved,
-.message-pending {
-    color: #f44336;
-}
-*/
-/* ---------------------------------------------------- */
-
-
 /* --- バリデーションエラー表示用スタイル --- */
 
 /* 1. エラーのある入力フィールドのスタイル */
-/* セレクタの優先度を上げて、input[type="text"]にも確実に赤い枠線を適用 */
 .is-invalid,
 input[type="text"].is-invalid,
 textarea.is-invalid {
-    /* 目立つ赤い境界線とシャドウ */
     border: 1px solid #e3342f !important;
     box-shadow: 0 0 0 0.1rem rgba(227, 52, 47, 0.4);
 }
@@ -209,63 +156,33 @@ textarea.is-invalid {
 /* 4. エラーメッセージのスタイル調整 (小さく、下部に表示) */
 .error-message {
     color: #e3342f !important;
-    /* 赤いテキスト */
     font-size: 0.60rem;
-    /* より小さく */
     margin-top: 2px;
-    /* 入力とメッセージの間のスペース */
     font-weight: 500;
-    /* .input-blockの幅いっぱいを使って、その範囲で改行 */
     width: 100%;
     white-space: normal;
 }
 
-/* ---------------------------------------------------- */
-/* 以下のセレクタは、提供されたHTML/Bladeテンプレート内に対応する要素がないため、現在未使用です。 */
-
-/* 隠しフィールドのエラーを、フォーム上部に目立たせるためのスタイル */
-/*
-.date-error {
-    text-align: center;
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #e3342f;
-    background-color: #fcebeb;
-    border-radius: 5px;
-}
-*/
-/* ---------------------------------------------------- */
-
-
 /* 3. テーブルセルのレイアウト調整（time-inputs） */
 .detail-table td.time-inputs {
-    /* Flexboxを有効にし、要素を横に並べる */
     display: flex;
     align-items: flex-start;
-    /* 要素を上揃え */
     flex-wrap: nowrap;
-    /* 意図しない改行を避ける */
     gap: 10px;
-    /* input-block間のスペースを調整 */
 }
 
 /* Inputとそのエラーメッセージをセットで縦に並べるためのコンテナ */
 .input-block {
     display: flex;
     flex-direction: column;
-    /* 要素を縦に積み重ねる (Inputの上にError) */
-    /* *** フォームサイズ固定のための修正 *** */
     flex-grow: 0;
-    /* 拡大を禁止 */
     flex-shrink: 0;
     width: 110px;
-    /* 幅を固定 (既存のデザインに合わせて調整) */
 }
 
 /* time-inputs内の入力フィールドの幅調整 */
 .detail-table td.time-inputs input[type="text"] {
     width: 100%;
-    /* input-blockの幅いっぱい（固定幅120pxに収まる） */
     flex-shrink: 0;
 }
 
@@ -279,7 +196,6 @@ textarea.is-invalid {
 /* 備考欄のtextareaのエラーメッセージ */
 .detail-table tr.last-row td>.error-message {
     display: block;
-    /* spanをブロック要素として扱い、textareaの下に表示 */
     width: 100%;
     margin-top: 5px;
 }

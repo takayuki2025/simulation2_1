@@ -11,7 +11,7 @@
 <div class="container">
 
 <div class="title">
-<h2 class="tile_1">勤怠詳細・修正申請</h2>
+<h2 class="tile-1">勤怠詳細・修正申請</h2>
 </div>
 
 <div class="attendance-detail-frame">
@@ -35,18 +35,18 @@
 <tbody>
 <tr>
 <th>名前</th>
-<td>
+<td class="detail-user-name">
 {{ $user->name }}
 </td>
 </tr>
 <tr>
 <th>日付</th>
 <td>
-{{ \Carbon\Carbon::parse($date)->format('Y年m月d日') }}
+{{ \Carbon\Carbon::parse($date)->format('　 Y年　　　　　 n月j日') }}
 </td>
 </tr>
 <tr>
-<th>出勤・退勤時間</th>
+<th>出勤・退勤</th>
 <td class="time-inputs">
 {{-- 1. 出勤時刻ブロック --}}
 <div class="input-block">
@@ -146,8 +146,8 @@
 
 </form>
 
-{{-- 元のページに戻るためのリンク --}}
-<a href="{{ request()->input('redirect_to') }}" class="button back-button">戻る</a>
+<!-- {{-- 元のページに戻るためのリンク --}}
+<a href="{{ request()->input('redirect_to') }}" class="button back-button">戻る</a> -->
 
 </div>
 @endsection
