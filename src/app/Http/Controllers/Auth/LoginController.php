@@ -21,7 +21,7 @@ class LoginController extends Controller
     {
         // ログインフォームが管理者用か一般ユーザー用か、ルート名で判断する
         if ($request->routeIs('admin.login')) {
-            return view('auth.admin_login');
+            return view('auth.admin-login');
         }
 
         return view('auth.login');

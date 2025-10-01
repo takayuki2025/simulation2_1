@@ -39,8 +39,8 @@ laravel環境構築
 　7\. テスト用のデーターベース作成からPHPUnitテスト実行まで。<br>
 　（exitでターミナルに戻ってから）docker-compose exec mysql bash　を実行<br>
 　（mysqlコンテナー）mysql -u root -p   の実行後パスワード　root　と入力して実行<br>
-　（mysql接続後）CREATE DATABASE coachtech1_test;　を実行 (実行後exitコマンドでターミナルまで戻る)<br>
-（ターミナルで　docker-compose exec php bash を実行した後のPHPコンテナーで）php artisan test　を実行してテストをしてください。<br>
+　（mysql接続後）CREATE DATABASE coachtech2_test;　を実行 (実行後exitコマンドでターミナルまで戻る)<br>
+（ターミナルで　docker-compose exec php bash を実行した後のPHPコンテナーで）vendor/bin/phpunit　を実行してテストをしてください。<br>
 
 <br>
 

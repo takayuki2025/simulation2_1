@@ -19,7 +19,7 @@ body {
 }
 
 /* クラス名変更: tile_1 -> tile-1 */
-.tile-1 {
+.page-title {
     border-left: 8px solid #000000;
     font-size: 28px;
     padding-left: 20px;
@@ -70,16 +70,19 @@ body {
     border-bottom: none;
 }
 
-.time-inputs {
+/* .time-inputs {
     white-space: nowrap;
     display: flex;
     align-items: center;
-}
+} */
 
 /* クラス名変更: detail-user_name -> detail-user-name */
 .detail-user-name {
     position: relative;
     left: 20px;
+    white-space: normal;
+    max-width: 420px;
+    display: inline-block;
 }
 
 /* input[type="text"] の基本スタイル */

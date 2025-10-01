@@ -10,10 +10,10 @@
 
 <div class="container">
 
-    <div class="title">
+
 {{-- 修正: tile_1 -> tile-1 --}}
-<h2 class="tile-1">スタッフ一覧</h2>
-</div>
+<h2 class="page-title">スタッフ一覧</h2>
+
 
     <table class="staff-table">
         <thead>
@@ -28,7 +28,7 @@
                 {{-- 修正: ハードコードされたID(1)ではなく、ロールで管理者をフィルタリングする --}}
                 @if ($user->role !== 'admin')
                 <tr>
-                    <td>{{ $user->name }}</td>
+                    <td class="list-user-name">{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
                                     <a href="{{ route('admin.staff.month.index', ['id' => $user->id]) }}" class="detail-button">

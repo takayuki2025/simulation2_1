@@ -246,6 +246,7 @@ class AttendantManagerController extends Controller
         $formBreakTimes = [];
 
         if ($sourceData && isset($sourceData->break_time)) {
+            // break_timeがJSON文字列であればデコードを試みる
             $breakTimes = is_array($sourceData->break_time) ? $sourceData->break_time : json_decode($sourceData->break_time, true);
 
             if (is_array($breakTimes)) {
@@ -263,17 +264,25 @@ class AttendantManagerController extends Controller
             }
         }
         
-        // 常に最低2つの空欄を確保
-        $minBreaks = 2;
-        $existingBreakCount = count($formBreakTimes);
-        if ($existingBreakCount < $minBreaks) {
-            for ($i = $existingBreakCount; $i < $minBreaks; $i++) {
-                $formBreakTimes[] = [
-                    'start_time' => '',
-                    'end_time' => ''
-                ];
-            }
-        }
+        // ----------------------------------------------------
+        // ★ 修正箇所: 常に1つの空の休憩フォームを無条件に追加する
+        // ----------------------------------------------------
+        $formBreakTimes[] = [
+            'start_time' => '',
+            'end_time' => ''
+        ];
+
+        // 以前の最低空欄確保ロジックは削除またはコメントアウト
+        // $minBreaks = 2;
+        // $existingBreakCount = count($formBreakTimes);
+        // if ($existingBreakCount < $minBreaks) {
+        //     for ($i = $existingBreakCount; $i < $minBreaks; $i++) {
+        //         $formBreakTimes[] = [
+        //             'start_time' => '',
+        //             'end_time' => ''
+        //         ];
+        //     }
+        // }
         
         // ----------------------------------------------------
         // 5. ビューに渡すデータをまとめる
@@ -490,7 +499,6 @@ class AttendantManagerController extends Controller
         // 休憩時間のフォーム入力欄の準備 (JSON配列から作成)
         // ----------------------------------------------------
         $formBreakTimes = [];
-        $existingBreakCount = 0;
         $breakTimeData = [];
 
         // ★最終修正: 以下の条件をすべて満たす場合のみ、休憩データを採用する
@@ -500,11 +508,10 @@ class AttendantManagerController extends Controller
 
         if ($hasClockTime) {
             // 出勤・退勤時刻が存在する場合のみ、break_timeのデータを取得
-            $breakTimeData = $sourceData->break_time ?? [];
+            // break_timeがJSON文字列であればデコードを試みる
+            $breakTimeData = is_array($sourceData->break_time) ? $sourceData->break_time : json_decode($sourceData->break_time, true);
         } 
-        // hasClockTimeがfalseの場合、$breakTimeDataは空のまま（[]）となります。
-
-
+        
         // 既存の休憩データをフォーム形式に整形
         if (is_array($breakTimeData) && !empty($breakTimeData)) {
             foreach ($breakTimeData as $break) {
@@ -517,13 +524,22 @@ class AttendantManagerController extends Controller
                         'start_time' => $start ? Carbon::parse($start)->format('H:i') : '',
                         'end_time' => $end ? Carbon::parse($end)->format('H:i') : ''
                     ];
-                    $existingBreakCount++;
                 }
             }
         }
         
-        // 常に最低2つの空欄を確保するため、不足分を追加
+        // ----------------------------------------------------
+        // ★ 修正箇所: 常に1つの空の休憩フォームを無条件に追加する
+        // ----------------------------------------------------
+        $formBreakTimes[] = [
+            'start_time' => '',
+            'end_time' => ''
+        ];
+
+        // 以前の最低2つ空欄確保のロジックは不要になったため削除
+        /*
         $minBreaks = 2;
+        $existingBreakCount = count($formBreakTimes);
         if ($existingBreakCount < $minBreaks) {
             for ($i = $existingBreakCount; $i < $minBreaks; $i++) {
                 $formBreakTimes[] = [
@@ -532,6 +548,7 @@ class AttendantManagerController extends Controller
                 ];
             }
         }
+        */
 
         // ビューに渡すデータをまとめる
         $viewData = [

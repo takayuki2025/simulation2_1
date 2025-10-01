@@ -7,39 +7,80 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    
     background-color: black;
     height: 60px;
 }
 
 .company {
-    width: auto;
-    height: 50%;
-    margin-left: 15px;
+    /* 修正: width を固定値に設定（ロゴの実際のサイズに合わせて調整） */
+        width: 320px;
+        height: 57%;
+        margin-left: 15px;
+        flex-shrink: 0;
+        /* フレックスアイテムとして縮まないようにする */
 }
+
+
+
 
 .a-tags {
     display: flex;
-    gap: 20px;
+        align-items: center;
+        /* ログアウトボタンとリンクを垂直方向に揃える */
+        gap: 45px;
+        font-weight: 600;
+        font-size: 18px;
+        /* 💡 padding-right を設定し、右端の余白を固定する */
+        padding-right: 40px;
 }
 
-.word-1 {
+.model-1-button {
     color: white;
     text-decoration: none;
+    margin: 0;
 }
 
-.word-2 {
+.model-2-button {
     color: white;
     text-decoration: none;
+    margin: 0;
+
 }
 
-.word-3 {
+.apply-list-button {
     color: white;
     text-decoration: none;
+    margin: 0;
 }
 
-.word-4 {
+.logout-button {
     color: white;
-    background-color: black;
-    border: none;
-    text-decoration: none;
+        background-color: black;
+        border: none;
+        text-decoration: none;
+        /* 修正: 右の margin を 0 に統一 */
+        margin: 0;
+        font-weight: 800;
+        font-size: 18px;
+        /* ボタンのクリック領域を確保するため、paddingを追加しても良い */
+        padding: 10px 0;
 }
+
+.model-1-button:hover {
+    color: rgb(66, 30, 186);
+}
+
+.model-2-button:hover {
+
+}
+
+.apply-list-button:hover {
+
+}
+
+.logout-button:hover {
+
+}
+
+

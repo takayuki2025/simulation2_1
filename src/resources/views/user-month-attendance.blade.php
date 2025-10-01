@@ -16,11 +16,11 @@
     </div>
 @endif
 
-<div class="title">
 
-<h2 class="title-1">勤怠一覧</h2>
 
-</div>
+<h2 class="page-title">勤怠一覧</h2>
+
+
 
 <!-- 日付ナビゲーション -->
 

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->json('break_time')->nullable();
             $table->integer('break_total_time')->default(0)->nullable();
             $table->integer('work_time')->nullable();
-            $table->string('reason')->nullable();
+            $table->string('reason', 191)->nullable();
             $table->boolean('pending')->default(true);
             $table->timestamps();
         });

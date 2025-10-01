@@ -11,11 +11,11 @@
 <body>
 
 <div class="container">
-<div class="title">
+
 {{-- スタッフの名前を表示 --}}
 {{-- 修正: tile_1 -> tile-1 --}}
-<h2 class="tile-1">{{$staffUser->name}}さんの勤怠一覧</h2>
-</div>
+<h2 class="page-title">{{$staffUser->name}}さんの勤怠一覧</h2>
+
 <!-- 日付ナビゲーション -->
 <div class="date-navigation-frame">
 {{-- 修正: header1 -> header-1 --}}

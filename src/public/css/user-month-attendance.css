@@ -16,11 +16,7 @@ body {
     margin: 0 auto;
 }
 
-.title {
-    display: flex;
-}
-
-.title-1 {
+.page-title {
     border-left: 8px solid #000000;
     font-size: 28px;
     padding-left: 20px;

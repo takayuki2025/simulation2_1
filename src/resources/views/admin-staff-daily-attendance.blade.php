@@ -10,11 +10,11 @@
 @section('content')
 
 <div class="container">
-<div class="title">
+
 <!-- タイトルを動的に表示 -->
 {{-- 修正: tile_1 -> tile-1 --}}
-<h2 class="tile-1">{{ $currentDate->format('Y年m月d日') }}の勤怠</h2>
-</div>
+<h2 class="page-title">{{ $currentDate->format('Y年m月d日') }}の勤怠</h2>
+
 <!-- 日付ナビゲーション -->
 <div class="date-navigation-frame">
 {{-- 修正: header1 -> header-1 --}}
@@ -53,7 +53,7 @@
 <tbody>
 @foreach ($dailyAttendanceData as $data)
 <tr>
-<td>{{ $data['user_name'] }}</td>
+<td class="daily-user-name">{{ $data['user_name'] }}</td>
 <td>{{ $data['clockInTime'] }}</td>
 <td>{{ $data['clockOutTime'] }}</td>
 <td>{{ $data['breakTimeDisplay'] }}</td>

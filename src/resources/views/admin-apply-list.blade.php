@@ -10,10 +10,10 @@
 
 <div class="container">
 
-    <div class="title">
+
 {{-- 修正: tile_1 -> tile-1 --}}
-<h2 class="tile-1">申請一覧</h2>
-</div>
+<h2 class="page-title">申請一覧</h2>
+
 
     <div class="tab-container">
         <!-- 承認待ち: pending=true -->

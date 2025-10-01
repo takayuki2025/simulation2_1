@@ -22,7 +22,7 @@ body {
 }
 
 /* クラス名変更: tile_1 -> tile-1 */
-.tile-1 {
+.page-title {
     border-left: 8px solid #000000;
     font-size: 28px;
     padding-left: 20px;
@@ -66,10 +66,23 @@ body {
     padding: 10px;
     text-align: center;
     border-bottom: 2px solid #e1e1e1;
+    letter-spacing: 2px;
 }
 
 .staff-table tr:last-child td {
     border-bottom: none;
+}
+
+.list-user-name {
+            /* 1. 要素を1行に強制し、はみ出しを隠す */
+                white-space: nowrap;
+                overflow: hidden;
+            
+                /* 2. はみ出した部分を「...」で表示する */
+                text-overflow: ellipsis;
+            
+                /* 3. 要素の最大幅を制限する (これがないと省略されない) */
+                max-width: 130px;
 }
 
 .detail-button {

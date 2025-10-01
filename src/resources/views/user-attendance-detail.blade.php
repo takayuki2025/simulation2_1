@@ -10,9 +10,9 @@
 <body>
 <div class="container">
 
-<div class="title">
-<h2 class="tile-1">勤怠詳細・修正申請</h2>
-</div>
+
+<h2 class="page-title">勤怠詳細・修正申請</h2>
+
 
 <div class="attendance-detail-frame">
 <form action="{{ route('application.create') }}" method="POST" id="attendance-form">

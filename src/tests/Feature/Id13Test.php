@@ -93,13 +93,20 @@ class Id13Test extends TestCase
         $response->assertSee('name="clock_out_time"', false);
         $response->assertSee('value="18:15"', false);
         
-        // 休憩1
+        // 休憩1 (既存データ)
         $response->assertSee('name="break_times[0][start_time]"', false);
         $response->assertSee('value="12:30"', false);
         
-        // 休憩2
+        // 休憩2 (既存データ)
         $response->assertSee('name="break_times[1][start_time]"', false);
         $response->assertSee('value="15:00"', false);
+
+        // 休憩3 (空欄の確保)
+        $response->assertSee('name="break_times[2][start_time]"', false);
+        $response->assertSee('value=""', false); 
+
+        // 休憩4 (存在しないことを確認)
+        $response->assertDontSee('name="break_times[3][start_time]"', false);
         
         $response->assertSee($application->reason);
         
@@ -159,6 +166,7 @@ class Id13Test extends TestCase
         $response->assertSee('value="13:00"', false);
         $response->assertSee('name="break_times[1][start_time]"', false);
         $response->assertSee('value=""', false); // 空欄の確保
+        $response->assertDontSee('name="break_times[2][start_time]"', false); // 3つ目が存在しないことを確認
         $response->assertSee($attendance->reason); // 備考
 
         // hidden fields
@@ -172,6 +180,7 @@ class Id13Test extends TestCase
     
     /**
      * 【パターン3】申請データのみが存在する場合、申請データが表示され、attendance_idは送信されないことを検証する。
+     * (★休憩時間のアサーションを、既存1つ + 空欄1つ = 合計2つに修正★)
      */
     public function test_admin_shows_application_if_attendance_is_missing()
     {
@@ -180,11 +189,14 @@ class Id13Test extends TestCase
         $staffUser = User::factory()->create(['role' => 'staff']);
 
         // 申請データ (Application) のみ作成
+        // ★HTML出力に合わせて、休憩時間を明示的に1つ設定する★
         $application = Application::factory()->create([
             'user_id' => $staffUser->id,
             'checkin_date' => $testDate,
             'clock_in_time' => '08:00:00',
             'clock_out_time' => '17:00:00',
+            // エラーログのHTML出力に合わせて、休憩時間1つを明示的に設定
+            'break_time' => [['start' => '12:00:00', 'end' => '13:00:00']], 
             'reason' => 'Only Application Data Exists',
         ]);
 
@@ -206,6 +218,13 @@ class Id13Test extends TestCase
         
         // ユーザーIDは$user->idから取得して渡されていること
         $response->assertSee('name="user_id" value="' . $staffUser->id . '"', false);
+
+        // ★修正: 休憩時間 (1つの既存データと1つの空欄が確保されていること)
+        $response->assertSee('name="break_times[0][start_time]"', false);
+        $response->assertSee('value="12:00"', false); // 既存データ
+        $response->assertSee('name="break_times[1][start_time]"', false);
+        $response->assertSee('value=""', false); // 空欄の確保
+        $response->assertDontSee('name="break_times[2][start_time]"', false); // 3つ目が存在しないことを確認
     }
     
     /**
@@ -233,9 +252,9 @@ class Id13Test extends TestCase
         $response->assertSee('name="clock_in_time"', false);
         $response->assertSee('name="clock_out_time"', false);
         
-        // 休憩時間 (最低2つの空欄が確保されていること)
+        // 休憩時間 (常に1つの空欄が確保されていること)
         $response->assertSee('name="break_times[0][start_time]"', false);
-        $response->assertSee('name="break_times[1][start_time]"', false);
+        $response->assertDontSee('name="break_times[1][start_time]"', false); // 2つ目のフォームが存在しないことを確認
 
         // すべてのinputフィールドで値が空であることの確認 (value="" を含む)
         $response->assertSee('value=""', false); 

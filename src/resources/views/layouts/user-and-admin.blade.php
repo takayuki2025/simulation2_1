@@ -16,9 +16,9 @@
 <div class="a-tags">
 @auth
 @admin
-<a class="word-1" href="{{ route('admin.attendance.list.index') }}">勤怠一覧</a>
-<a class="word-2" href="{{ route('admin.staff.list.index') }}">スタッフ一覧</a>
-<a class="word-3" href="{{ route('apply.list') }}">申請一覧</a>
+<a class="model-1-button" href="{{ route('admin.attendance.list.index') }}">勤怠一覧</a>
+<a class="model-2-button" href="{{ route('admin.staff.list.index') }}">スタッフ一覧</a>
+<a class="apply-list-button" href="{{ route('apply.list') }}">申請一覧</a>
 @else
 @php
 // 現在日の勤怠データに退勤時刻が設定されているかチェック
@@ -26,18 +26,18 @@ $isClockedOut = isset($attendance) && isset($attendance->clock_out_time);
 @endphp
 @if ($isClockedOut)
 {{-- 退勤済みの場合に表示するリンク --}}
-<a class="word-1" href="{{ route('user.month.index') }}">今月の勤怠一覧</a>
-<a class="word-2" href="{{ route('apply.list') }}">申請一覧</a>
+<a class="model-1-button" href="{{ route('user.month.index') }}">今月の勤怠一覧</a>
+<a class="model-2-button" href="{{ route('apply.list') }}">申請一覧</a>
 @else
 {{-- 勤務中の場合や、まだ出勤打刻をしていない場合に表示するリンク --}}
-<a class="word-1" href="{{ route('user.stamping.index') }}">勤怠</a>
-<a class="word-2" href="{{ route('user.month.index') }}">勤怠一覧</a>
-<a class="word-3" href="{{ route('apply.list') }}">申請</a>
+<a class="model-1-button" href="{{ route('user.stamping.index') }}">勤怠</a>
+<a class="model-2-button" href="{{ route('user.month.index') }}">勤怠一覧</a>
+<a class="apply-list-button" href="{{ route('apply.list') }}">申請</a>
 @endif
 @endadmin
 <form action="{{ route('logout') }}" method="post">
 @csrf
-<button class="word-4">ログアウト</button>
+<button class="logout-button">ログアウト</button>
 </form>
 @endauth
 </div>
