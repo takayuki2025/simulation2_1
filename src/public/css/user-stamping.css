@@ -1,25 +1,46 @@
+/* -------------------------------------- */
+/* 共通スタイル (attendance.cssと統一) */
+/* -------------------------------------- */
 *,
 *::before,
 *::after {
     box-sizing: border-box;
 }
 
+/* bodyの最大幅設定は共通CSS（user-and-admin.cssの@yield('css')より前に読み込まれるcommon.cssか、その前に読み込まれるCSS）で定義されるべきですが、
+   ここでは提示されたuser-month-attendance.cssのbody定義に合わせています。 */
 body {
-    /* height: 100%;
-    margin: 0;
-    padding: 0; */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f0eff2;
     margin: 0 auto;
     max-width: 1400px;
-    background-color: #f0eff2;
 }
 
+/* 勤怠一覧ページと同じ最大幅と中央寄せを適用 */
+.container {
+    max-width: 950px;
+    margin: 0 auto;
+    /* 打刻ページではヘッダーの下の余白を確保するため、padding-topを設けると良いが、ここではヘッダー直下に配置されるため、特に設定しません。 */
+}
+
+/* -------------------------------------- */
+/* 打刻画面専用スタイル */
+/* -------------------------------------- */
+
+/* メインコンテンツエリアを垂直方向に中央揃えにするための設定 */
 .stamping-container {
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 70vh;
+    align-items: flex-start;
+    /* 画面の上部に近い位置に配置するため、flex-startに戻す */
+    /* ヘッダーの高さ(60px)を考慮し、残りの高さを計算 (例: 100vh - 60px) */
+    /* ページの上下に余白を残すため、min-heightは維持しつつ、余白を確保 */
+    padding-top: 50px;
+    /* ヘッダーからの距離 */
+    padding-bottom: 100px;
+    min-height: calc(100vh - 60px);
+    /* 少なくとも画面の残り高さ分を確保 */
     width: 100%;
-    /* box-sizing: border-box; */
 }
 
 .stamping-container-1 {
@@ -27,7 +48,15 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    /* padding: 2rem; */
+
+    /* 勤怠一覧のフレームデザインと統一 */
+    /* background-color: #fff; */
+    padding: 40px 60px;
+    /* border-radius: 8px; */
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+
+    width: 90%;
+    max-width: 450px;
 }
 
 .stamping-container-1 h3 {
@@ -46,17 +75,18 @@ body {
 }
 
 .submit-form {
-    margin-top: 10px;
+    margin-top: 30px;
     padding: 10px 20px;
     font-size: 1.25rem;
     font-weight: 600;
     cursor: pointer;
     border: none;
-    width: 140px;
+    width: 160px;
     border-radius: 12px;
     color: rgb(0, 0, 0);
     background-color: #ffffff;
     transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .submit-form:hover {
@@ -65,28 +95,34 @@ body {
 }
 
 .status {
-    background-color: #c8c8c8;
-    color: #757575;
+    background-color: #e1e1e1;
+    color: #696969;
+    font-weight: 600;
     border-radius: 15px;
-    padding: 5px 10px;
+    padding: 5px 15px;
+    margin-bottom: 10px;
 }
 
 .submit-out-or-break {
     display: flex;
+    justify-content: center;
+    gap: 60px;
+    width: 100%;
 }
 
 .submit-form-2 {
-    margin: 10px 30px 0 30px;
+    margin-top: 30px;
     padding: 10px 20px;
     font-size: 1.25rem;
     font-weight: 600;
     cursor: pointer;
     border: none;
-    width: 140px;
+    width: 160px;
     border-radius: 12px;
     color: rgb(0, 0, 0);
     background-color: #ffffff;
     transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .submit-form-2:hover {
