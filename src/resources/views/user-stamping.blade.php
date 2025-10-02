@@ -10,7 +10,7 @@
 
 <h3>{{ $greeting }}</h3>
 
-    < class="stamping-container">
+    <div class="stamping-container">
         <div class="stamping-container-inner">
     {{-- メール認証が完了していない場合 --}}
         @if(is_null(Auth::user()->email_verified_at))

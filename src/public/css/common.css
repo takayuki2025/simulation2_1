@@ -1,5 +1,5 @@
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: Verdana, Geneva, Tahoma, "Helvetica Neue", Arial, sans-serif;
     background-color: #ffffff;
     margin: 0 auto;
     max-width: 1400px;
@@ -30,9 +30,9 @@ body {
 .a-tags {
     display: flex;
     align-items: center;
-    gap: 45px;
+    gap: 40px;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 17px;
     padding-right: 40px;
 }
 
@@ -62,7 +62,7 @@ body {
     text-decoration: none;
     margin: 0;
     font-weight: 800;
-    font-size: 18px;
+    font-size: 17px;
     padding: 10px 0;
     vertical-align: middle;
 }

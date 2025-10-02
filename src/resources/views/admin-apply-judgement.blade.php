@@ -16,11 +16,11 @@
         <tbody>
             <tr>
                 <th>名前</th>
-                <td><span>{{ $data['name'] }}</span></td>
+                <td><span> {{ $data['name'] }}</span></td>
             </tr>
             <tr>
                 <th>日付</th>
-                <td><span>{{ $data['date'] }}</span></td>
+                <td><span> {{ $data['date'] }}</span></td>
             </tr>
             <tr>
                 <th>出勤・退勤</th>
@@ -55,7 +55,7 @@
             <tr class="last-row">
                 <th>備考</th>
                 <td>
-                    <span>{{ $data['reason'] }}</span>
+                    <span> {{ $data['reason'] }}</span>
                 </td>
             </tr>
         </tbody>

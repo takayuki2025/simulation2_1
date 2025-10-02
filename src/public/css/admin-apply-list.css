@@ -86,7 +86,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 255px;
+    max-width: 215px;
 }
 
 .detail-button {

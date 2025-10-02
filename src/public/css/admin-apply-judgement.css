@@ -56,49 +56,30 @@ body {
 
 .detail-table td {
     color: #000000;
+    /* font-size: 19px; */
     letter-spacing: 2px;
+    
 }
 
+
 .detail-table .last-row {
-    border-bottom: none;
+    /* border-bottom: none; */
 }
 
 .detail-table .last-row td,
 .detail-table .last-row th {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    /* padding-top: 20px;
+    padding-bottom: 20px; */
 }
 
-.time-inputs input[type="text"],
+/* .time-inputs input[type="text"], */
 .time-inputs span {
     width: 80px;
     padding: 5px;
-    font-size: 14px;
-}
-
-.time-inputs input[type="text"] {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.time-inputs span {
+    font-size: 15px;
     margin: 0 5px;
-    color: #555;
-}
-
-textarea,
-td>span {
-    width: 50%;
-    height: auto;
-    margin-top: 15px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    padding: 5px;
-    display: inline-block;
-}
-
-textarea {
-    height: 60px;
+        color: #000000;
+    /* color: #000000; */
 }
 
 td>span {
