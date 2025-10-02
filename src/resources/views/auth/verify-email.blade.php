@@ -82,10 +82,10 @@
     }
 </style>
 <body>
-    <div class="verification-container">
-        <div class="verification-container_1">
-            <h3>登録していただいたメールアドレスに認証メールを送付しました。</h3>
-            <h3>メール認証を完了してください</h3>
+<div class="verification-container">
+    <div class="verification-container_1">
+        <h3>登録していただいたメールアドレスに認証メールを送付しました。</h3>
+        <h3>メール認証を完了してください</h3>
 
             @if (session('status') === 'verification-link-sent')
                 <div class="status-message">
@@ -100,7 +100,7 @@
                 <button type="submit" class="resend-button">認証メールを再送する</button>
             </form>
 
-        </div>
     </div>
+</div>
 </body>
 @endsection

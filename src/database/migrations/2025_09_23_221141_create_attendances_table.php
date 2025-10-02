@@ -17,8 +17,6 @@ return new class extends Migration
             $table->date('checkin_date')->nullable();
             $table->dateTime('clock_in_time')->nullable();
             $table->dateTime('clock_out_time')->nullable();
-            // カラム名を 'break_time' に変更し、休憩開始・終了のペアの配列を格納します
-            // 例: [{"start": "2025-01-01 12:00:00", "end": "2025-01-01 13:00:00"}, ...]
             $table->json('break_time')->nullable();
             $table->integer('break_total_time')->default(0)->nullable();
             $table->integer('work_time')->nullable();

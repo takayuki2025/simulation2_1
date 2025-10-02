@@ -56,15 +56,15 @@ class AttendanceFactory extends Factory
             'checkin_date' => $checkinDate,
             'clock_in_time' => $clockIn->format('Y-m-d H:i:s'),
             'clock_out_time' => $clockOut->format('Y-m-d H:i:s'),
-            
+
             // JSONカラムとして保存するために配列をエンコード
             'break_time' => json_encode($breakTimeArray),
             'break_total_time' => $breakTotalMinutes,
             'work_time' => $workTimeMinutes,
-            
+
             // 修正済み: 理由欄は常にnullとする
             'reason' => null,
-            
+
             'created_at' => $clockIn,
             'updated_at' => $clockOut,
         ];

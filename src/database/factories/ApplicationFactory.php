@@ -27,7 +27,7 @@ class ApplicationFactory extends Factory
     {
         // テストデータとして現実的な日付を生成
         $checkinDate = Carbon::instance($this->faker->dateTimeBetween('-1 year', 'now'))->toDateString();
-        
+
         // 時刻データ
         $clockInTime = '09:00:00';
         $clockOutTime = '18:00:00';
@@ -49,26 +49,26 @@ class ApplicationFactory extends Factory
 
         return [
             // リレーション
-            'user_id' => User::factory(), 
+            'user_id' => User::factory(),
             // 勤怠日
             'checkin_date' => $checkinDate,
-            
+
             // ★FIX: dateTime形式で保存
-            'clock_in_time' => $clockInDateTime, 
+            'clock_in_time' => $clockInDateTime,
             'clock_out_time' => $clockOutDateTime,
-            
+
             // 休憩時間はJSON文字列として保存
             'break_time' => json_encode($breakTimes),
-            
+
             // 休憩合計時間と勤務時間も設定（テストデータの整合性向上）
             'break_total_time' => $breakTotalTime,
             'work_time' => $workTime,
 
             // 備考
-            'reason' => $this->faker->realText(50), 
-            
+            'reason' => $this->faker->realText(50),
+
             // ★FIX: boolean型に合わせて、true（文字列ではない）を設定する
-            'pending' => true, 
+            'pending' => true,
         ];
     }
 }

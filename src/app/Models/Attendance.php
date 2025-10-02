@@ -17,7 +17,6 @@ class Attendance extends Model
         'checkin_date',
         'clock_in_time',
         'clock_out_time',
-        // カラム名を 'break_time' に変更
         'break_time',
         'break_total_time',
         'work_time',
@@ -32,7 +31,6 @@ class Attendance extends Model
         'break_time' => 'array',
         'clock_in_time' => 'datetime',
         'clock_out_time' => 'datetime',
-        // 'checkin_date' => 'date',
     ];
 
         public function user(): BelongsTo

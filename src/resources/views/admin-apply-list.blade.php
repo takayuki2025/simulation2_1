@@ -1,27 +1,19 @@
 @extends('layouts.user-and-admin')
 
 @section('css')
-{{-- 修正: CSSファイル名をケバブケースに統一 --}}
-<link rel="stylesheet" href="{{ asset('css/admin-apply-list.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-apply-list.css') }}">
 @endsection
 
 @section('content')
 
-
 <div class="container">
 
-
-{{-- 修正: tile_1 -> tile-1 --}}
-<h2 class="page-title">申請一覧</h2>
-
+    <h2 class="page-title">申請一覧</h2>
 
     <div class="tab-container">
-        <!-- 承認待ち: pending=true -->
         <a href="?pending=true" class="tab-link {{ request('pending', 'true') == 'true' ? 'active' : '' }}">承認待ち</a>
-        <!-- 承認済み: pending=false -->
         <a href="?pending=false" class="tab-link {{ request('pending') == 'false' ? 'active' : '' }}">承認済み</a>
     </div>
-
 
     <table class="apply-table">
         <thead>
@@ -52,12 +44,9 @@
                         -
                     @endif
                 </td>
-                {{-- 修正: user_apply_reason -> user-apply-reason --}}
                 <td class="admin-apply-reason">{{ $application->reason }}</td>
                 <td>{{ $application->created_at->format('Y/m/d') }}</td>
-                <td>
-                    <a href="{{ route('admin.apply.judgement.index', ['attendance_correct_request_id' => $application->id]) }}" class="detail-button">詳細</a>
-                </td>
+                <td><a href="{{ route('admin.apply.judgement.index', ['attendance_correct_request_id' => $application->id]) }}" class="detail-button">詳細</a></td>
             </tr>
             @endforeach
         </tbody>

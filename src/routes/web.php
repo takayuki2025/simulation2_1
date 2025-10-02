@@ -4,8 +4,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AttendantManagerController;
-// use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -17,11 +15,6 @@ use App\Http\Controllers\AttendantManagerController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-// 通常のトップページなど、認証を必要としないルート
-// Route::get('/', function () {
-//     return view('index');
-// })->name('index');
 
 // ゲストユーザー向けの認証ルート
 // ログイン済みユーザーはアクセスできません。
@@ -54,23 +47,7 @@ Route::middleware(['auth'])->group(function () {
         return redirect('/attendance');
     })->middleware(['signed'])->name('verification.verify');
 
-    // 通常ユーザーのホーム (メール認証済みユーザーのみアクセス可能)
-    // Route::get('/attendance', function () {
-    //     return view('user_stamping');
-    // })->middleware('verified')->name('attendance.user.index');
-
-
-
-
-
-    // 管理者ユーザーの勤怠一覧ページ (管理者かつメール認証済みユーザーのみアクセス可能)
-    // Route::get('/admin/attendance/list', function () {
-    //     return view('admin_attendance');
-    // })->middleware('admin')->name('admin.attendance.list.index');
-
 });
-    // Route::get('/attendance', [AttendantManagerController::class, 'user_index'])->name('attendance.user.index');
-
 
 
 // ユーザーの勤怠管理のルート
