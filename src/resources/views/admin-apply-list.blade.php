@@ -39,7 +39,7 @@
                 <td>{{ $application->user->name }}</td>
                 <td>
                     @if ($application->clock_out_time)
-                        {{ \Carbon\Carbon::parse($application->clock_out_time)->format('Y/m/d') }}
+                        {{ \Carbon\Carbon::parse($application->checkin_date)->format('Y/m/d') }}
                     @else
                         -
                     @endif
