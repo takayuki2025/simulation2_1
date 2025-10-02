@@ -8,7 +8,7 @@
 
 @section('content')
 
-<body>
+
 
 <div class="container">
 
@@ -115,6 +115,6 @@
 
 </div>
 
-</body>
+
 
 @endsection

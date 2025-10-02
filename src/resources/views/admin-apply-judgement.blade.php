@@ -8,7 +8,7 @@
 
 @section('content')
 
-<body>
+
 <div class="container">
 
 {{-- 修正: tile_1 -> tile-1 --}}
@@ -87,6 +87,6 @@
 
 </div>
 
-</body>
+
 
 @endsection

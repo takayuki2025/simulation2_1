@@ -2,25 +2,22 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    /* 👈 全ての要素に適用 */
 }
 
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f0eff2;
-    margin: 0 auto;
+    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
+    /* margin: 0 auto;
     max-width: 1400px;
-    min-height: 1000px;
+    min-height: 1000px; */
 }
 
-/* コンテナ */
 .container {
     max-width: 950px;
     margin: 0 auto;
 }
 
-/* クラス名変更: tile_1 -> tile-1 */
 .page-title {
     border-left: 8px solid #000000;
     font-size: 28px;
@@ -28,7 +25,6 @@ body {
     margin: 50px 0 40px 0;
 }
 
-/* タブのコンテナ */
 .tab-container {
     width: 100%;
     padding: 10px 10px 10px 10px;
@@ -38,7 +34,6 @@ body {
     border-bottom: 2px solid #000000;
 }
 
-/* タブのリンク */
 .tab-link {
     padding: 10px 20px;
     text-decoration: none;
@@ -58,7 +53,6 @@ body {
     font-weight: 900;
 }
 
-/* 申請テーブル */
 .apply-table {
     width: 100%;
     color: #737373;
@@ -88,16 +82,10 @@ body {
     border-bottom: none;
 }
 
-/* クラス名変更: user_apply_reason -> user-apply-reason */
 .admin-apply-reason {
-    /* 1. 要素を1行に強制し、はみ出しを隠す */
     white-space: nowrap;
     overflow: hidden;
-
-    /* 2. はみ出した部分を「...」で表示する */
     text-overflow: ellipsis;
-
-    /* 3. 要素の最大幅を制限する (これがないと省略されない) */
     max-width: 255px;
 }
 

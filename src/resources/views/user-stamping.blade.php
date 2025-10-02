@@ -7,7 +7,7 @@
 
 @section('content')
 
-<body>
+
 {{-- ★ここからcontainerで全体を囲みます --}}
 <div class="container">
 
@@ -77,5 +77,5 @@
 </div>
 {{-- ★containerの閉じタグ --}}
 
-</body>
+
 @endsection

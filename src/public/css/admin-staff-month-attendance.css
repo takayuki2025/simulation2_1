@@ -2,15 +2,14 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    /* 👈 全ての要素に適用 */
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f0eff2;
-    margin: 0 auto;
+    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
+    /* margin: 0 auto;
     max-width: 1400px;
-    min-height: 1000px;
+    min-height: 1000px; */
 }
 
 .container {
@@ -18,7 +17,6 @@ body {
     margin: 0 auto;
 }
 
-/* クラス名変更: tile_1 -> tile-1 */
 .page-title {
     border-left: 8px solid #000000;
     font-size: 28px;
@@ -35,7 +33,6 @@ body {
     margin-bottom: 45px;
 }
 
-/* クラス名変更: header1 -> header-1 */
 .calendar-title {
     display: flex;
     justify-content: space-between;
@@ -57,16 +54,13 @@ body {
 .calendar-title .nav {
     display: flex;
     gap: 10px;
-    /* スペースを均等に占め、中央のh2を中央に配置する */
     flex-grow: 1;
 }
 
-/* 右側のナビゲーション内の要素を右端に寄せる */
 .calendar-title .nav:last-child {
     justify-content: flex-end;
 }
 
-/* クラス名変更: arrow_left, arrow_right -> arrow-left, arrow-right */
 .arrow-left,
 .arrow-right {
     background-color: #ffffff;
@@ -74,7 +68,6 @@ body {
     font-size: 15px;
     font-weight: 900;
     border: none;
-    /* 幅を固定して、テキスト幅の違いを無視させる */
     display: inline-block;
     width: 80px;
     text-align: center;
@@ -85,22 +78,18 @@ body {
     transition: background-color 0.2s;
 }
 
-/* クラス名変更: navigation_arrow -> navigation-arrow */
 .nav-arrow {
     color: #b2b2b2;
 }
 
 .arrow-left:hover,
 .arrow-right:hover {
-    /* ホバーとフォーカスの両方で黒背景、白文字を適用 */
     background-color: #000000;
     color: white;
-    /* ブラウザ標準の青い枠線（アウトライン）を無効にする */
     outline: none;
     box-shadow: none;
 }
 
-/* ホバー時に矢印の色も白にする */
 .arrow-left:hover .nav-arrow,
 .arrow-right:hover .nav-arrow {
     color: white;
@@ -120,7 +109,6 @@ body {
     border-collapse: collapse;
 }
 
-/* テーブルのすべての行（tr）にある最初のセル（thまたはtd）を選択 */
 .attendance-table th:first-child,
 .attendance-table td:first-child {
     text-align: left;
@@ -181,31 +169,22 @@ body {
     margin: 20px 20px 0 0;
 }
 
-/* クラス名変更: csv-submit -> csv-button (フォームのクラスに合わせて) */
 .csv-button button {
-    /* 1. パディングを追加してボタンサイズを調整 */
     padding: 10px 20px;
     margin-bottom: 20px;
-    /* 2. フォントサイズを調整してボタン全体を大きく見せる */
     font-size: 1em;
-    /* 3. その他見た目の調整 */
     background-color: #000000;
     color: white;
     border: none;
-    /* デフォルトのボタン枠線を削除 */
     border-radius: 5px;
-    /* 角を少し丸くする */
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
-    /* ホバー時のアニメーションを追加 */
 }
 
 .csv-button button:hover {
     background-color: #d1d1d1;
     color: #000000;
     font-weight: 800;
-    /* ホバーで少し色を変える */
     transform: translateY(-3px);
-    /* わずかに浮き上がらせるエフェクト */
     box-shadow: 0 2px 1px rgba(255, 255, 255, 0.1);
 }

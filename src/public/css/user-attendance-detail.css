@@ -2,45 +2,43 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    /* 👈 全ての要素に適用 */
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        background-color: #f0eff2;
-        margin: 0 auto;
+    background-color: #f0eff2;
+    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
+        /* margin: 0 auto;
         max-width: 1400px;
-        min-height: 1000px;
+        min-height: 1000px; */
 }
 
 .container {
     max-width: 950px;
-        margin: 0 auto;
+    margin: 0 auto;
 }
 
 .page-title {
     border-left: 8px solid #000000;
-        font-size: 28px;
-        padding-left: 20px;
-        margin: 50px 0 40px 0;
+    font-size: 28px;
+    padding-left: 20px;
+    margin: 50px 0 40px 0;
 }
 
 .attendance-detail-frame {
     background-color: #fff;
-        margin-bottom: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .detail-table {
     color: #737373;
-        font-weight: 800;
-        width: 100%;
-        font-size: 16px;
-        border-collapse: collapse;
+    font-weight: 800;
+    width: 100%;
+    font-size: 16px;
+    border-collapse: collapse;
 }
 
-/* 最後の行（.last-row）を除く、全てのセル（th, td）にスタイルを適用 */
 .detail-table tr:not(.last-row) th,
 .detail-table tr:not(.last-row) td {
     padding: 25px 80px;
@@ -48,12 +46,10 @@ body {
     border-bottom: none;
 }
 
-/* テーブルの行（tr）全体に下線を追加 */
 .detail-table tr {
     border-bottom: 2px solid #ddd;
 }
 
-/* ヘッダーのスタイル */
 .detail-table th {
     width: 30%;
     letter-spacing: 2px;
@@ -64,24 +60,10 @@ body {
     letter-spacing: 2px;
 }
 
-/* 最後の行の下線を削除します */
 .detail-table .last-row {
     border-bottom: none;
 }
 
-/* .detail-table .last-row td,
-.detail-table .last-row th {
-    padding-top: 5px;
-    padding-bottom: 5px;
-} */
-
-/* .time-inputs {
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-} */
-
-/* クラス名変更: detail-user_name -> detail-user-name */
 .detail-user-name {
     position: relative;
         left: 20px;
@@ -90,7 +72,6 @@ body {
         display: inline-block;
 }
 
-/* input[type="text"] の基本スタイル */
 .time-inputs input[type="text"] {
     font-weight: 800;
     text-align: center;
@@ -100,11 +81,6 @@ body {
     border-radius: 4px;
     font-size: 16px;
 }
-
-/* .time-inputs span {
-    margin: 0 5px;
-         color: #555;
-} */
 
 textarea {
     width: 54%;
@@ -156,11 +132,6 @@ textarea {
     background-color: #ffffff;
     color: #000000;
 }
-
-/* .back-button {
-    background-color: #f44336;
-    margin-left: 10px;
-} */
 
 .message-approved,
 .message-pending {

@@ -7,7 +7,7 @@
 
 @section('content')
 
-<body>
+
 <div class="container">
 
 @if (session('success'))
@@ -81,6 +81,6 @@
 
 </div>
 
-</body>
+
 
 @endsection

@@ -2,24 +2,21 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    /* 👈 全ての要素に適用 */
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f0eff2;
-    margin: 0 auto;
+    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
+    /* margin: 0 auto;
     max-width: 1400px;
-    min-height: 1000px;
+    min-height: 1000px; */
 }
 
 .container {
     max-width: 950px;
     margin: 0 auto;
-    /* padding: 20px; */
 }
 
-/* クラス名変更: tile_1 -> tile-1 */
 .page-title {
     border-left: 8px solid #000000;
     font-size: 28px;
@@ -28,18 +25,14 @@ body {
 }
 
 .date-nav-frame {
-    /* box-sizing: border-box; */
     width: 100%;
-    /* height: 12px; */
     background-color: #fff;
     padding: 10px 10px 10px 10px;
-    /* padding: 30px; */
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 45px;
 }
 
-/* クラス名変更: header1 -> header-1 */
 .calendar-title {
     display: flex;
     justify-content: space-between;
@@ -61,16 +54,13 @@ body {
 .calendar-title .nav {
     display: flex;
     gap: 10px;
-    /* 修正: スペースを均等に占め、中央のh2を中央に配置する */
     flex-grow: 1;
 }
 
-/* 追加: 右側のナビゲーション内の要素を右端に寄せる */
 .calendar-title .nav:last-child {
     justify-content: flex-end;
 }
 
-/* クラス名変更: arrow_left, arrow_right -> arrow-left, arrow-right */
 .arrow-left,
 .arrow-right {
     background-color: #ffffff;
@@ -78,47 +68,35 @@ body {
     font-size: 15px;
     font-weight: 900;
     border: none;
-    /* 修正: 幅を固定して、テキスト幅の違いを無視させる */
     display: inline-block;
     width: 80px;
     text-align: center;
     padding: 8px 0;
-    /* 上下のパディングは残し、左右のパディングは幅に含める */
-    /* padding: 8px 16px; */
     border-radius: 5px;
     cursor: pointer;
     text-decoration: none;
     transition: background-color 0.2s;
 }
 
-/* クラス名変更: navigation_arrow -> navigation-arrow */
 .nav-arrow {
     color: #b2b2b2;
 }
 
 .arrow-left:hover,
 .arrow-right:hover {
-    /* ホバーとフォーカスの両方で黒背景、白文字を適用 */
     background-color: #000000;
     color: white;
-
-    /* これが重要！ブラウザ標準の青い枠線（アウトライン）を無効にする */
     outline: none;
-
-    /* 必要に応じて、クリック中の青色を防ぐために:activeも追加 */
     box-shadow: none;
 }
 
-/* 追加：ホバー時に矢印（.navigation-arrow）の色も白にする */
 .arrow-left:hover .nav-arrow,
 .arrow-right:hover .nav-arrow {
     color: white;
 }
 
 .attendance-table-frame {
-    /* box-sizing: border-box; */
     background-color: #fff;
-    /* padding: 0 0; */
     margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -134,8 +112,6 @@ body {
 .attendance-table th {
     padding: 10px;
     text-align: center;
-    /* font-weight: 800; */
-    /* color: #555; */
     border-bottom: 3px solid #e1e1e1;
 }
 
@@ -148,33 +124,15 @@ body {
 }
 
 .daily-user-name {
-        /* 1. 要素を1行に強制し、はみ出しを隠す */
             white-space: nowrap;
             overflow: hidden;
-        
-            /* 2. はみ出した部分を「...」で表示する */
             text-overflow: ellipsis;
-        
-            /* 3. 要素の最大幅を制限する (これがないと省略されない) */
             max-width: 130px;
 }
 
 .attendance-table tr:last-child td {
     border-bottom: none;
 }
-
-
-/* ------------------------------------------------------------------ */
-/* 以下のセレクタは、HTML内に存在しないため、コメントアウトして整理しました。 */
-/*
-.day-column {
-    font-size: 15px;
-    font-weight: 800;
-    white-space: nowrap;
-    letter-spacing: 4px;
-}
-*/
-/* ------------------------------------------------------------------ */
 
 .detail-button {
     background-color: #ffffff;
@@ -193,8 +151,6 @@ body {
     color: white;
 }
 
-/* データがない場合のメッセージのスタイル */
-
 .no-attendance-message {
     text-align: center;
     padding: 40px 0;
@@ -206,16 +162,10 @@ body {
     color: #555;
 }
 
-/* 勤怠テーブルのラッパー */
-
 .attendance-table-frame {
     width: 100%;
     overflow-x: auto;
 }
-
-/* リンクを無効化する場合のスタイル 
-（HTML側で未使用ですが、念のため残しておきます）
-*/
 
 .disabled-nav {
     color: #a0a0a0;
@@ -226,7 +176,6 @@ body {
     cursor: default;
 }
 
-/* 詳細ボタンが無効な場合のスタイル */
 .disabled-detail-button {
     display: inline-block;
     padding: 8px 12px;

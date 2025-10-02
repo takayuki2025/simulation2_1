@@ -8,7 +8,7 @@
 
 @section('content')
 
-<body>
+
 <div class="container">
 
 
