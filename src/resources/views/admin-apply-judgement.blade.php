@@ -77,11 +77,11 @@
     <form action="{{ route('admin.apply.attendance.approve') }}" method="post">
         @csrf
         <input type="hidden" name="id" value="{{ $data['application_id'] }}">
-        <button type="submit" class="button update-button">承 認</button>
+        <button type="submit" class="button approve-button">承 認</button>
     </form>
     @else
         {{-- 修正: no_update-button -> no-update-button --}}
-        <button type="button" class="button no-update-button" disabled>承認済み</button>
+        <button type="button" class="button no-approve-button" disabled>承認済み</button>
     @endif
 </div>
 

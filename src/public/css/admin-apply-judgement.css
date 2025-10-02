@@ -75,11 +75,11 @@ body {
     padding-bottom: 20px;
 }
 
-.time-inputs {
+/* .time-inputs {
     white-space: nowrap;
     display: flex;
     align-items: center;
-}
+} */
 
 /* input[type="text"] に加えて span にもスタイルを適用 */
 .time-inputs input[type="text"],
@@ -155,28 +155,28 @@ td>span:last-child {
     transform: translateY(-2px);
 }
 
-.update-button {
+.approve-button {
     background-color: #000000;
     color: white;
 }
 
-.update-button:hover {
+.approve-button:hover {
     background-color: #ffffff;
     color: #000000;
 }
 
 /* クラス名変更: no_update-button -> no-update-button */
-.no-update-button {
+.no-approve-button {
     background-color: #99cea5;
 }
 
 
-.back-button {
+/* .back-button {
     background-color: #f44336;
     margin-left: 10px;
-}
+} */
 
-.message-approved,
+/* .message-approved,
 .message-pending {
     color: #f44336;
-}
+} */

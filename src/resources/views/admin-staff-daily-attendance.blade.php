@@ -16,20 +16,20 @@
 <h2 class="page-title">{{ $currentDate->format('Y年m月d日') }}の勤怠</h2>
 
 <!-- 日付ナビゲーション -->
-<div class="date-navigation-frame">
+<div class="date-nav-frame">
 {{-- 修正: header1 -> header-1 --}}
-<div class="header-1">
-<div class="navigation">
+<div class="calendar-title">
+<div class="nav">
 {{-- 修正: arrow_left -> arrow-left, navigation_arrow -> navigation-arrow --}}
-<a href="?date={{ $currentDate->copy()->subDay()->format('Y-m-d') }}" class="arrow-left"><span class="navigation-arrow">← </span>前 日</a>
+<a href="?date={{ $currentDate->copy()->subDay()->format('Y-m-d') }}" class="arrow-left"><span class="nav-arrow">← </span>前 日</a>
 </div>
 <h2>
 📅 <span id="current-date-display">{{ $currentDate->format('Y年m月d日') }}</span>
 </h2>
-<div class="navigation">
+<div class="nav">
 {{-- 修正: arrow_right -> arrow-right, navigation_arrow -> navigation-arrow --}}
 {{-- 制限を外し、常に翌日への移動を許可します --}}
-<a href="?date={{ $currentDate->copy()->addDay()->format('Y-m-d') }}" class="arrow-right">翌 日<span class="navigation-arrow"> →</span></a>
+<a href="?date={{ $currentDate->copy()->addDay()->format('Y-m-d') }}" class="arrow-right">翌 日<span class="nav-arrow"> →</span></a>
 </div>
 </div>
 </div>

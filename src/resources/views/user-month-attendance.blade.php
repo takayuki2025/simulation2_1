@@ -24,18 +24,18 @@
 
 <!-- 日付ナビゲーション -->
 
-<div class="date-navigation-frame">
-<div class="header-1">
-<div class="navigation">
+<div class="date-nav-frame">
+<div class="calendar-title">
+<div class="nav">
 {{-- prevMonthから年と月を取得してリンクを生成 --}}
-<a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow-left"><span class="arrow">← </span>前 月</a>
+<a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow-left"><span class="nav-arrow">← </span>前 月</a>
 </div>
 <h2>
 📅 <span id="current-date-display">{{ $date->format('Y/m') }}</span>
 </h2>
-<div class="navigation">
+<div class="nav">
 {{-- nextMonthから年と月を取得してリンクを生成 --}}
-<a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="arrow-right">翌 月<span class="arrow"> →</span></a>
+<a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="arrow-right">翌 月<span class="nav-arrow"> →</span></a>
 </div>
 </div>
 </div>

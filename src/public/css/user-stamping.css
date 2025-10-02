@@ -43,7 +43,7 @@ body {
     width: 100%;
 }
 
-.stamping-container-1 {
+.stamping-container-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -59,7 +59,7 @@ body {
     max-width: 450px;
 }
 
-.stamping-container-1 h3 {
+.stamping-container-inner h3 {
     margin: 0;
 }
 
@@ -74,7 +74,7 @@ body {
     font-weight: 800;
 }
 
-.submit-form {
+.submit-primary {
     margin-top: 30px;
     padding: 10px 20px;
     font-size: 1.25rem;
@@ -89,7 +89,7 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.submit-form:hover {
+.submit-primary:hover {
     background-color: black;
     color: white;
 }
@@ -110,7 +110,8 @@ body {
     width: 100%;
 }
 
-.submit-form-2 {
+/* 
+.submit-primary {
     margin-top: 30px;
     padding: 10px 20px;
     font-size: 1.25rem;
@@ -125,7 +126,7 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.submit-form-2:hover {
+.submit-primary:hover {
     background-color: black;
     color: white;
-}
+} */

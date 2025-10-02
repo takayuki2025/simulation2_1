@@ -24,12 +24,12 @@
     height: 30px;
 }
 
-.submit {
+.button-container {
     margin-top: 10px;
     display: block;
 }
 
-.submit-form {
+.register-button {
     position: relative;
     top: 20px;
     width: 500px;
@@ -50,14 +50,14 @@
     display: block;
 }
 
-.label-form-1 {
+.label-name {
     font-weight: 700;
     display: block;
     position: relative;
     right: 238px;
 }
 
-.label-form-2 {
+.label-email {
     font-weight: 700;
     margin-top: 30px;
     display: block;
@@ -65,7 +65,7 @@
     right: 200px;
 }
 
-.label-form-3 {
+.label-password {
     font-weight: 700;
     margin-top: 30px;
     display: block;
@@ -73,7 +73,7 @@
     right: 215px;
 }
 
-.label-form-4 {
+.label-conf-password {
     font-weight: 700;
     margin-top: 30px;
     display: block;

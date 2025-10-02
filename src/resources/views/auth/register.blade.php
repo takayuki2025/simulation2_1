@@ -13,36 +13,36 @@
 
 <form action="register" method="POST">
 @csrf
-    <label class="label-form-1">名前</label>
+    <label class="label-name">名前</label>
     <input type="text" class="name-form" name="name" value="{{ old('name') }}" />
         <div class="error">
             @error('name')
             {{ $message }}
             @enderror
         </div>
-    <label class="label-form-2">メールアドレス</label>
+    <label class="label-email">メールアドレス</label>
     <input type="text" class="email-form" name="email" value="{{ old('email') }}" />
         <div class="error">
             @error('email')
             {{ $message }}
             @enderror
         </div>
-    <label class="label-form-3">パスワード</label>
+    <label class="label-password">パスワード</label>
     <input type="password" class="password-form" name="password">
         <div class="error">
             @error('password')
             {{ $message }}
             @enderror
         </div>
-    <label class="label-form-4">パスワード確認</label>
+    <label class="label-conf-password">パスワード確認</label>
     <input type="password" class="password-form" name="password_confirmation">
         <div class="error">
             @error('password_confirmation')
             {{ $message }}
             @enderror
         </div>
-    <div class="submit">
-        <input type="submit" class="submit-form" value="登録する">
+    <div class="button-container">
+        <input type="submit" class="register-button" value="登録する">
     </div>
 </form>
 

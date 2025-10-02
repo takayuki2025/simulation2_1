@@ -13,22 +13,22 @@
 
     <form action="login" method="POST">
     @csrf
-        <label class="label-form-1">メールアドレス</label>
+        <label class="label-email">メールアドレス</label>
         <input type="text" class="email-form" name="email" value="{{ old('email') }}" />
     <div class="error">
         @error('email')
         {{ $message }}
         @enderror
     </div>
-        <label class="label-form-2">パスワード</label>
+        <label class="label-password">パスワード</label>
         <input type="password" class="password-form" name="password">
     <div class="error">
         @error('password')
         {{ $message }}
         @enderror
     </div>
-    <div class="submit">
-        <input type="submit" class="submit-form" value="ログインする">
+    <div class="button-container">
+        <input type="submit" class="login-button" value="ログインする">
     </div>
     </form>
 

@@ -136,12 +136,12 @@ textarea {
     transform: translateY(-2px);
 }
 
-.update-button {
+.approve-button {
     background-color: #000000;
     color: white;
 }
 
-.update-button:hover {
+.approve-button:hover {
     background-color: #ffffff;
     color: #000000;
 }

@@ -122,7 +122,7 @@
 
 <div class="button-container">
 
-    <button type="submit" class="button update-button">修 正</button>
+    <button type="submit" class="button approve-button">修 正</button>
 
 </div>
 

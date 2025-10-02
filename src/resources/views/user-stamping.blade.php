@@ -14,7 +14,7 @@
 <h3>{{ $greeting }}</h3>
 
 <div class="stamping-container">
-    <div class="stamping-container-1">
+    <div class="stamping-container-inner">
     {{-- メール認証が完了していない場合 --}}
     @if(is_null(Auth::user()->email_verified_at))
         <h3>メール認証処理が完了しませんでした。</h3>
@@ -30,7 +30,7 @@
 
             <form action="{{ route('attendance.clock_in') }}" method="post">
                 @csrf
-                <input type="submit" class="submit-form" value="出勤">
+                <input type="submit" class="submit-primary" value="出勤">
             </form>
 
         {{-- 退勤済み --}}
@@ -49,7 +49,7 @@
 
             <form action="{{ route('attendance.break_end') }}" method="post">
                 @csrf
-                <input type="submit" class="submit-form" value="休憩戻">
+                <input type="submit" class="submit-primary" value="休憩戻">
             </form>
 
         {{-- 勤務中（休憩中ではない） --}}
@@ -60,11 +60,11 @@
             <div class="submit-out-or-break">
                 <form action="{{ route('attendance.create') }}" method="post">
                     @csrf
-                    <input type="submit" class="submit-form-2" value="退勤">
+                    <input type="submit" class="submit-primary" value="退勤">
                 </form>
                 <form action="{{ route('attendance.break_start') }}" method="post">
                     @csrf
-                    <input type="submit" class="submit-form-2" value="休憩入">
+                    <input type="submit" class="submit-primary" value="休憩入">
                 </form>
             </div>
         @endif

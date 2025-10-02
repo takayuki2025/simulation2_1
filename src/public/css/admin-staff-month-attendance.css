@@ -26,7 +26,7 @@ body {
     margin: 50px 0 40px 0;
 }
 
-.date-navigation-frame {
+.date-nav-frame {
     width: 100%;
     background-color: #fff;
     padding: 10px;
@@ -36,13 +36,13 @@ body {
 }
 
 /* クラス名変更: header1 -> header-1 */
-.header-1 {
+.calendar-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.header-1 h2 {
+.calendar-title h2 {
     margin: 0;
     font-size: 1.3em;
     font-weight: 600;
@@ -54,7 +54,7 @@ body {
     line-height: 1.0;
 }
 
-.header-1 .navigation {
+.calendar-title .nav {
     display: flex;
     gap: 10px;
     /* スペースを均等に占め、中央のh2を中央に配置する */
@@ -62,7 +62,7 @@ body {
 }
 
 /* 右側のナビゲーション内の要素を右端に寄せる */
-.header-1 .navigation:last-child {
+.calendar-title .nav:last-child {
     justify-content: flex-end;
 }
 
@@ -86,7 +86,7 @@ body {
 }
 
 /* クラス名変更: navigation_arrow -> navigation-arrow */
-.navigation-arrow {
+.nav-arrow {
     color: #b2b2b2;
 }
 
@@ -101,8 +101,8 @@ body {
 }
 
 /* ホバー時に矢印の色も白にする */
-.arrow-left:hover .navigation-arrow,
-.arrow-right:hover .navigation-arrow {
+.arrow-left:hover .nav-arrow,
+.arrow-right:hover .nav-arrow {
     color: white;
 }
 
