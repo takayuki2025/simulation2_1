@@ -49,17 +49,19 @@ class AttendantManagerController extends Controller
             }
         }
 
-        // 3. 現在の日時情報を取得 (ビューの初期表示用)
+        // 3. 現在の日時情報を取得 (ビューの初期表示用) および 挨拶文作成の基準時刻
+        // Carbon::now() を使用することで、テスト実行時に時間が固定されるようになります。
         date_default_timezone_set('Asia/Tokyo');
-        $currentDate = date('Y年m月d日');
-        $dayOfWeek = date('w');
+        $now = Carbon::now();
+
+        $currentDate = $now->format('Y年m月d日');
+        $dayOfWeek = $now->dayOfWeek; // Carbon::dayOfWeek は 0(日)～6(土) を返す
         $dayOfWeekMap = ['日', '月', '火', '水', '木', '金', '土'];
         $currentDay = $dayOfWeekMap[$dayOfWeek];
-        $currentTime = date('H:i');
+        $currentTime = $now->format('H:i');
 
 
         // 4. 現在の時間帯に応じて挨拶文を作成
-        $now = Carbon::now();
         if ($now->hour >= 6 && $now->hour < 12) {
             $greeting = 'おはようございます、' . $user->name . 'さん';
         } elseif ($now->hour >= 12 && $now->hour < 18) {

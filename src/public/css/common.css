@@ -1,6 +1,5 @@
 body {
     max-width: 1300px;
-    min-height: 1000px;
     margin: auto;
 }
 
@@ -13,20 +12,6 @@ body {
     height: 60px;
 }
 
-/* ★修正点1: a-tags内のform要素からデフォルトのマージンを削除し、
-   Flexアイテムとして振る舞うように display: contents を適用します。 */
-.a-tags form {
-    /* formをFlexコンテナから取り除き、その子要素（ボタン）を直接Flexアイテムとして扱うようにする */
-    display: contents;
-    /* ただし、古いブラウザ対策やより確実な方法として、以下のようにリセットする方が無難です */
-    display: inline;
-    margin: 0;
-    padding: 0;
-    line-height: 1;
-    /* 行の高さをリセット */
-}
-
-
 .company {
     /* 修正: width を固定値に設定（ロゴの実際のサイズに合わせて調整） */
     width: 320px;
@@ -34,6 +19,15 @@ body {
     margin-left: 15px;
     flex-shrink: 0;
     /* フレックスアイテムとして縮まないようにする */
+}
+
+
+/* ★ログアウトボタンのformのズレ修正 */
+.a-tags form {
+    /* formをFlexコンテナから取り除き、その子要素（ボタン）を直接Flexアイテムとして扱うようにする */
+    display: contents;
+    margin: 0;
+    padding: 0;
 }
 
 
@@ -67,18 +61,18 @@ body {
     margin: 0;
 }
 
-/* ★修正点2: logout-buttonにもマージンをリセット */
 .logout-button {
     color: white;
     background-color: black;
     border: none;
     text-decoration: none;
+    /* 修正: 右の margin を 0 に統一 */
     margin: 0;
-    /* マージンを完全にリセット */
     font-weight: 800;
     font-size: 18px;
+    /* ボタンのクリック領域を確保するため、paddingを追加しても良い */
     padding: 10px 0;
-    /* ボタンはデフォルトで縦にずれることがあるため、vertical-align: middle; を追加するとより安定します。 */
+    /* 縦方向のズレを修正 */
     vertical-align: middle;
 }
 
