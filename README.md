@@ -7,11 +7,9 @@ Dockerビルド
 <br>
 　2\. （ターミナルコマンド）cd simulation2_1　の実行。
 <br>
-
-　5\. Docker Desktopを立ち上げて（ターミナルコマンド）docker-compose up -d --build　の実行
+　3\. Docker Desktopを立ち上げて（ターミナルコマンド）docker-compose up -d --build　の実行
 <br>
-　
-  <br>
+<br>
 laravel環境構築
 <br>
 <br>
@@ -20,31 +18,37 @@ laravel環境構築
 　2\. （PHPコンテナー）composer install　の実行
 <br>
 　3\. 　env.exampleファイルから.envを作成し、.envファイルの環境変数を変更<br>
-　(PHPコンテナー)  cp .env.example .env　の実行後.envの環境変数の変更<br>
-
-
-
-
-<br>
+　(PHPコンテナー)  cp .env.example .env　の実行後.envの環境変数の変更(今回は開発用を事前に.env.exampleにAPP_KEY以外は写しておきました。)
 <br>
 　4\. アプリケーションキーの作成<br>
-　　（PHPコンテナー）php artisan key:generate
+　　（PHPコンテナー）php artisan key:generate　の実行
 <br>
 　5\. マイグレーションの実行<br>
-　　php artisan migrate
+　　php artisan migrate　の実行
 <br>
 　6\. シーディングの実行<br>
-　　php artisan db:seed
+　　php artisan db:seed　の実行
 <br>
 　7\. テスト用のデーターベース作成からPHPUnitテスト実行まで。<br>
 　（exitでターミナルに戻ってから）docker-compose exec mysql bash　を実行<br>
 　（mysqlコンテナー）mysql -u root -p   の実行後パスワード　root　と入力して実行<br>
 　（mysql接続後）CREATE DATABASE coachtech2_test;　を実行 (実行後exitコマンドでターミナルまで戻る)<br>
 （ターミナルで　docker-compose exec php bash を実行した後のPHPコンテナーで）vendor/bin/phpunit　を実行してテストをしてください。<br>
-
+<br>
 <br>
 
 # 伝えること<br>
+- ユーザー情報（管理者・一般ユーザ）、勤怠記録情報（追加：申請依頼記録情報・承認待ちのみ）のダミーデーターを作成致しました。<br>
+　ダミーのユーザー情報一覧です。'　'は削除してください。　roleは管理者と一般ユーザーを分けるためのカラムです。<br>
+　　１　名前：'川田　隆之'、メールアドレス：'t.principle.k2024@gmail.com'、パスワード：'takayuki'、role：'admin'（管理者）、<br>
+　　２　名前：'山田　太郎'、メールアドレス：'taro.y@coachtech.com'、パスワード：'testtest1'、role：'employee'（一般ユーザー）、<br>
+　　３　名前：'西　怜奈'、メールアドレス：'reina.n@coachtech.com'、パスワード：'testtest2'、role：'employee'（一般ユーザー）、<br>
+　　４　名前：'秋田　朋美'、メールアドレス：'tomomi.a@coachtech.com'、パスワード：'testtest3'、role：'employee'（一般ユーザー）、<br>
+　　５　名前：'中西　教夫'、メールアドレス：'norio.n@coachtech.com'、パスワード：'testtest4'、role：'employee'（一般ユーザー）、<br>
+　ダミーの勤怠記録情報はランダムで生成されます。<br>
+
+
+
 
 <br>
 
