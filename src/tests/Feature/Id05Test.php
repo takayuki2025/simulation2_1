@@ -8,17 +8,10 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/**
- * ユーザーの勤怠打刻ページ（/attendance）における現在のステータス表示に関するテストスイート。
- * ログイン後、DBの状態に基づいて正しいステータス（勤務外、勤務中、休憩中、退勤済）が表示されることを検証する。
- *
- * 注記:
- * - データベースのbreak_timeカラムがJSON形式で、休憩開始・終了時刻の配列を保持することを前提とします。
- * - ユーザーがメール認証済みであることを前提とします。
- */
+
+// ID05 ステータス表示確認（一般ユーザー）機能のテスト
 class Id05Test extends TestCase
 {
-    // テスト後にデータベースをリセット
     use RefreshDatabase;
 
     /**

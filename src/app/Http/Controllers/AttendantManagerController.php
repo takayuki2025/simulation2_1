@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Application;
 use App\Http\Requests\ApplicationAndAttendantRequest;
-// use Carbon\Carbon;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log; // 大規模なプロジェクトの時のためLogファサードのインポートを追加

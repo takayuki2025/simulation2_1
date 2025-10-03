@@ -13,14 +13,14 @@ use Illuminate\Support\Carbon;
 class ApplicationFactory extends Factory
 {
     /**
-     * 対応するモデルを設定します。
+     *
      *
      * @var string
      */
     protected $model = Application::class;
 
     /**
-     * モデルのデフォルト状態を定義します。
+     *
      * @return array<string, mixed>
      */
     public function definition(): array

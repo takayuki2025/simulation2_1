@@ -16,6 +16,7 @@ use App\Http\Controllers\AttendantManagerController;
 |
 */
 
+
 // ゲストユーザー向けの認証ルート
 // ログイン済みユーザーはアクセスできません。
 Route::middleware(['guest'])->group(function () {
@@ -62,6 +63,7 @@ Route::middleware(['verified'])->group(function () {
     Route::post('/attendance/update', [AttendantManagerController::class, 'application_create'])->name('application.create');
 });
 
+
 // 管理者の勤怠管理ルート
 Route::middleware(['admin'])->group(function () {
     Route::get('/admin/attendance/list', [AttendantManagerController::class, 'admin_staff_daily_index'])->name('admin.attendance.list.index');
@@ -73,6 +75,7 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/apply/attendance/approve', [AttendantManagerController::class, 'admin_apply_attendance_approve'])->name('admin.apply.attendance.approve');
     Route::post('/admin/staff/attendance/export', [AttendantManagerController::class, 'export'])->name('admin.staff.attendance.export');
 });
+
 
 // 申請一覧共通ルート
 Route::get('/stamp_correction_request/list', function (Request $request) {

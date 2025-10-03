@@ -8,15 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\LoginRequest;
-// use Illuminate\Auth\Events\Login;
-// use Illuminate\Auth\Events\Registered;
-
 
 class LoginController extends Controller
 {
-    /**
-     * ログインフォームを表示する
-     */
+
     public function showLoginForm(Request $request)
     {
         // ログインフォームが管理者用か一般ユーザー用か、ルート名で判断する

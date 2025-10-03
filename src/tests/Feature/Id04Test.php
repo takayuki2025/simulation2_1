@@ -8,16 +8,10 @@ use Tests\TestCase;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 
-/**
- * ID04: ユーザーの勤怠打刻ページ（/attendance）に関するテストスイート
- *
- * 【修正方針】
- * 期待値はCarbon::setTestNow()で固定した時刻から動的に計算するようにし、
- * コントローラーがCarbonを正しく利用していれば、常に安定してパスするようにします。
- */
+
+// ID04 日時取得（一般ユーザー）機能のテスト
 class Id04Test extends TestCase
 {
-    // テスト後にデータベースをリセット
     use RefreshDatabase;
 
     /**

@@ -23,11 +23,7 @@ class Attendance extends Model
         'reason',
     ];
 
-    /**
-     * JSONカラムをPHPの配列として扱うよう設定
-     */
     protected $casts = [
-        // カラム名を 'break_time' に変更
         'break_time' => 'array',
         'clock_in_time' => 'datetime',
         'clock_out_time' => 'datetime',

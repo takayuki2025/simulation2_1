@@ -7,12 +7,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
-/**
- * 管理者ログイン機能（/admin/login）に関するテストスイート
- */
+
+// ID03 管理者ログイン認証機能のテスト
 class Id03Test extends TestCase
 {
-    // テスト後にデータベースをリセットし、テスト間の干渉を防ぎます
     use RefreshDatabase;
 
     /**

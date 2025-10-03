@@ -11,18 +11,12 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
+
+// ID16 メール認証機能のテスト
 class Id16Test extends TestCase
 {
     use RefreshDatabase;
 
-    /*
-    |--------------------------------------------------------------------------
-    | 冗長な setUp メソッドを削除しました
-    | 
-    | LaravelのFeature Testは、アプリケーションのルートを自動的にロードするため、
-    | ここで '/attendance' や '/admin/attendance/list' のルートを再定義する必要はありません。
-    |--------------------------------------------------------------------------
-    */
 
     /**
      * ID16-1(1)ユーザー登録時に認証メールが送信されることをテストします。

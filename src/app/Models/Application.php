@@ -27,7 +27,7 @@ class Application extends Model
         protected $casts = [
         'break_time' => 'array',
         'clock_in_time' => 'datetime',
-    'clock_out_time' => 'datetime',
+        'clock_out_time' => 'datetime',
     ];
 
         public function user(): BelongsTo

@@ -10,9 +10,10 @@ use App\Models\Attendance;
 use App\Models\Application;
 use Carbon\Carbon;
 
+
+// ID13 勤怠詳細情報取得・修正（管理者）機能のテスト
 class Id13Test extends TestCase
 {
-    // テスト後にデータベースをリフレッシュ（初期状態に戻す）
     use RefreshDatabase;
 
     /** @var \App\Models\User */
@@ -20,7 +21,7 @@ class Id13Test extends TestCase
 
     /** @var \App\Models\User */
     protected $staffUser;
-    
+
     /**
      * 各テスト実行前に必要なセットアップを実行
      */
@@ -31,7 +32,7 @@ class Id13Test extends TestCase
         $this->adminUser = User::factory()->create(['role' => 'admin']);
         $this->staffUser = User::factory()->create(['role' => 'staff']);
     }
-    
+
     /*
      * NOTE: バリデーション検証のテストは、実際のアプリケーションで定義されているPOSTルート
      * (/admin/attendance/approve) に依存します。

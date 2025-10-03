@@ -8,12 +8,10 @@ use App\Models\User;
 use App\Models\Attendance;
 use Carbon\Carbon;
 
-/**
- * ID06: ユーザーの勤怠状態に応じた画面表示のテスト
- */
+
+// ID06 出動（一般ユーザー）機能のテスト
 class Id06Test extends TestCase
 {
-    // テスト後にデータベースをリフレッシュし、クリーンな状態を保つ
     use RefreshDatabase;
 
     /**

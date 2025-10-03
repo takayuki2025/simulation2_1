@@ -5,15 +5,13 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use App\Models\User; // usersテーブルに保存されたか確認するために必要
+use App\Models\User;
 
-/**
- * 新規ユーザー登録機能のテスト
- * RegisterRequestで定義されたバリデーションと、データベースへの保存を確認します。
- */
+
+// ID01 一般ユーザー認証機能のテスト
 class Id01Test extends TestCase
 {
-    // テスト後にデータベースをリセットし、マイグレーションを再実行します
+
     use RefreshDatabase;
     use WithFaker;
 

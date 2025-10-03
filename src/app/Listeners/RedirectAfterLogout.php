@@ -23,10 +23,6 @@ class RedirectAfterLogout
      */
     public function handle(Logout $event): void
     {
-        // ログアウト後に指定のルートへリダイレクト
-        // ここでは、ログアウト後にログインページへリダイレクトします。
-        // デフォルトでは、アプリケーションのホームルート（/）にリダイレクトされます。
-        // 必要に応じて、他のルートに変更してください。
         Redirect::to(route('login'))->send();
     }
 }

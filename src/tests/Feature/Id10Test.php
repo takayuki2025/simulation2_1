@@ -8,6 +8,8 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+
+// ID10 勤怠詳細情報取得（一般ユーザー）機能のテスト
 class Id10Test extends TestCase
 {
     use RefreshDatabase;

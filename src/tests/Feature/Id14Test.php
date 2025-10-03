@@ -10,28 +10,29 @@ use App\Models\Attendance;
 use App\Models\Application;
 use Carbon\Carbon;
 
+
+// ID14 ユーザー情報取得（管理者）機能のテスト
 class Id14Test extends TestCase
 {
-    // テスト後にデータベースをリフレッシュ（初期状態に戻す）
     use RefreshDatabase;
 
-    // テスト用の一時的なルートとテストデータを設定
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // ----------------------------------------------------
         // 1. テスト用ルートの定義
         // ----------------------------------------------------
-        
+
         // 日次勤怠詳細ページ
         // URLの使用法に合わせて id と date をパラメータとして定義
         // ※ 実際のビューがレンダリングされるように暫定的に定義。
-        Route::get('/admin/attendance/{id}/{date}', function () { 
+        Route::get('/admin/attendance/{id}/{date}', function () {
             // ページ内容の確認に必要な最小限のデータをモックまたは取得
             $staffUser = User::find(request('id'));
             $dateString = request('date');
-            
+
             // 勤怠/申請データの取得ロジック（テスト用にはApplicationデータのみモック）
             $application = Application::where('user_id', $staffUser->id)
                                     ->where('checkin_date', $dateString)

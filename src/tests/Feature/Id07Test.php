@@ -9,9 +9,10 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Carbon\Carbon;
 
+
+// ID07 休憩（一般ユーザー）機能のテスト
 class Id07Test extends TestCase
 {
-    // テスト後にデータベースをリフレッシュし、クリーンな状態に戻します
     use RefreshDatabase;
 
     /**

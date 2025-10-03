@@ -10,15 +10,8 @@ use App\Models\Application;
 use App\Models\Attendance;
 use Carbon\Carbon;
 
-/**
- * 勤怠修正申請のバリデーション (ID11) と
- * 申請一覧表示・日跨ぎ補正ロジックの連携 (ID12) を統合してテストします。
- *
- * NOTE: このテストは、以下のルート名が定義されていることを前提としています。
- * - POST /attendance/update: 'application.create' (修正申請作成)
- * - GET /attendance/detail/{id?}: 'user.attendance.detail.index' (勤怠詳細/修正ページ)
- * - GET /stamp_correction_request/list: 'apply.list' (管理者/一般ユーザーの申請一覧)
- */
+
+// ID11 勤怠詳細情報修正（一般ユーザー）機能のテスト
 class Id11Test extends TestCase
 {
     use RefreshDatabase;
@@ -30,7 +23,7 @@ class Id11Test extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // 1. ユーザー作成
         $this->user = User::factory()->create(['role' => 'employee']);
         $this->admin = User::factory()->create(['role' => 'admin']);

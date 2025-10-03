@@ -11,14 +11,14 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class AttendanceFactory extends Factory
 {
     /**
-     * このファクトリーに対応するモデル名。
+     *
      *
      * @var string
      */
     protected $model = Attendance::class;
 
     /**
-     * モデルのデフォルト状態を定義します。
+     *
      *
      * @return array<string, mixed>
      */

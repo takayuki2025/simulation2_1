@@ -9,6 +9,8 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 
+
+// ID12 勤怠一覧情報取得（管理者）機能のテスト
 class Id12Test extends TestCase
 {
     use RefreshDatabase;
@@ -28,7 +30,7 @@ class Id12Test extends TestCase
         // 一般スタッフユーザーを作成 (role: 'user'を仮定)
         $this->staffUser = User::factory()->create(['role' => 'user']);
     }
-    
+
     /**
      * テスト後のクリーンアップ（テストで設定した現在時刻の固定を解除）
      */

@@ -8,6 +8,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Carbon\Carbon;
 
+
+// ID08 退勤（一般ユーザー）機能のテスト
 class Id08Test extends TestCase
 {
     use RefreshDatabase;

@@ -7,14 +7,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
+
+// ID02 一般ユーザーログイン認証機能のテスト
 class Id02Test extends TestCase
 {
-    // テスト後にデータベースをリセットし、テスト間の干渉を防ぎます
+
     use RefreshDatabase;
-
-
-
-    // --- 【追加: バリデーションエラーテスト】 ---
 
     /**
      * @test
