@@ -97,7 +97,7 @@ body {
 
 .attendance-table-frame {
     background-color: #fff;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -116,6 +116,7 @@ body {
 }
 
 .attendance-table td {
+    height: 47px;
     padding: 10px;
     text-align: center;
     border-bottom: 2px solid #e1e1e1;
@@ -124,14 +125,24 @@ body {
 }
 
 .daily-user-name {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
+}
+
+.attendance-table tr:last-child th {
+    /* margin: 0 auto; */
+    /* min-height: 50px; */
+    /* border-bottom: none; */
 }
 
 .attendance-table tr:last-child td {
-    border-bottom: none;
+    min-width: 85px;
+    /* min-height: 35px; */
+    /* max-inline-size:   14px; */
+    /* display: inline-block; */
+    /* border-bottom: none; */
 }
 
 .detail-button {
@@ -139,7 +150,7 @@ body {
     color: #000000;
     font-weight: 800;
     border: none;
-    padding: 6px 12px;
+    padding: 4px 12px;
     border-radius: 5px;
     cursor: pointer;
     text-decoration: none;
@@ -151,7 +162,7 @@ body {
     color: white;
 }
 
-.no-attendance-message {
+/* .no-attendance-message {
     text-align: center;
     padding: 40px 0;
     margin-top: 20px;
@@ -160,19 +171,17 @@ body {
     border-radius: 8px;
     font-size: 1.1em;
     color: #555;
-}
+} */
 
-.attendance-table-frame {
+/* .attendance-table-frame {
     width: 100%;
     overflow-x: auto;
-}
+} */
 
-.disabled-nav {
+/* .disabled-nav {
     color: #a0a0a0;
-    /* 薄い灰色 */
     opacity: 0.7;
     pointer-events: none;
-    /* クリックを無効化 */
     cursor: default;
 }
 
@@ -186,4 +195,4 @@ body {
     cursor: default;
     text-decoration: none;
     line-height: 1;
-}
+} */

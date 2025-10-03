@@ -62,10 +62,7 @@
         </tbody>
         </table>
         @else
-{{-- 全スタッフが出勤データがなかった場合のメッセージ --}}
-            <div class="no-attendance-message">
-                <p>本日は出勤者のデータはありません。</p>
-            </div>
+
         @endif
     </div>
 </div>

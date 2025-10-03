@@ -61,9 +61,11 @@ body {
     margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
 }
 
 .apply-table th {
+    /* width: 130px; */
     padding: 10px;
     text-align: left;
     padding-left: 50px;
@@ -71,22 +73,50 @@ body {
 }
 
 .apply-table td {
+    /* width: 130px; */
     padding: 10px;
     text-align: left;
     padding-left: 50px;
     border-bottom: 2px solid #e1e1e1;
 }
 
-.apply-table tr:last-child td {
-    border-bottom: none;
+.apply-table tr:first-child th {
+    /* width: 130px; */
 }
 
-.user-apply-reason {
+.apply-table th:nth-child(1),
+.apply-table th:nth-child(6) {
+    width: 130px;
+}
+
+.apply-table th:nth-child(2) {
+    width: 190px;
+    /* 2番目の幅を130pxに固定 */
+}
+
+.apply-table th:nth-child(3),
+.apply-table th:nth-child(5) {
+    width: 150px;
+}
+
+.apply-table th:nth-child(4) {
+    width: 215px;
+    /* 2番目の幅を130pxに固定 */
+}
+
+.apply-table td:nth-child(2),
+.apply-table td:nth-child(4){
+    white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        /* max-width: 130px; */
+}
+
+/* .user-apply-reason {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 255px;
-}
+} */
 
 .detail-button {
     background-color: #ffffff;

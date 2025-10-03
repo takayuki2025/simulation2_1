@@ -67,9 +67,12 @@ body {
 .detail-user-name {
     position: relative;
         left: 20px;
-        white-space: normal;
+        /* white-space: normal; */
         max-width: 420px;
         display: inline-block;
+                white-space: pre-wrap;
+            overflow-wrap: break-word;
+                word-break: break-all;
 }
 
 .time-inputs input[type="text"] {

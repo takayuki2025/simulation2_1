@@ -44,11 +44,16 @@
                         -
                     @endif
                 </td>
-                <td class="admin-apply-reason">{{ $application->reason }}</td>
+                <td>{{ $application->reason }}</td>
                 <td>{{ $application->created_at->format('Y/m/d') }}</td>
                 <td><a href="{{ route('admin.apply.judgement.index', ['attendance_correct_request_id' => $application->id]) }}" class="detail-button">詳細</a></td>
             </tr>
             @endforeach
+                    @if ($applications->isEmpty())
+        <tr>
+            <td colspan="6" style="text-align: center; color: #777;">該当する申請はありません。</td>
+        </tr>
+        @endif
         </tbody>
     </table>
 </div>

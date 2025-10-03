@@ -123,8 +123,14 @@ body {
     letter-spacing: 2px;
 }
 
+.attendance-table th:first-child,
+.attendance-table td:first-child {
+    width: 210px;
+}
+
 .attendance-table tr:last-child td {
-    border-bottom: none;
+    min-width: 85px;
+    /* border-bottom: none; */
 }
 
 .day-column-th {

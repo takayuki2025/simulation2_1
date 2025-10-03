@@ -135,7 +135,8 @@ body {
 }
 
 .attendance-table tr:last-child td {
-    border-bottom: none;
+    min-width: 85px;
+    /* border-bottom: none; */
 }
 
 /* 土日専用クラス (bladeで利用されているため残す) */

@@ -46,9 +46,9 @@
             <tr>
                 <th>休憩</th>
                 <td class="time-inputs">
-                    <span>-</span>
-                    <span>〜</span>
-                    <span>-</span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
                     </td>
             </tr>
         @endforelse
