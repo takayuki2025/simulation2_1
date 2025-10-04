@@ -604,9 +604,13 @@ class UserAttendantManagerController extends Controller
         $application->break_time = $breakTimeJsonArray;
         // --- 修正箇所2: 終了 ---
         $application->reason = $reason;
-        // work_time, break_total_timeは承認時に計算されるためnullのまま保存
-        $application->work_time = 0;
-        $application->break_total_time = 0;
+        
+        // ★修正箇所: break_total_time, work_time の代入を削除。
+        //   これらの値は申請データに含まれるべきではないため、マイグレーションから削除したことに伴い、
+        //   代入処理も削除します。承認時に計算されるという設計思想に合致します。
+        // $application->work_time = 0;
+        // $application->break_total_time = 0;
+        
         $application->save();
 
         // ----------------------------------------------------------------------

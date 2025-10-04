@@ -61,8 +61,8 @@ class ApplicationFactory extends Factory
             'break_time' => json_encode($breakTimes),
 
             // 休憩合計時間と勤務時間も設定（テストデータの整合性向上）
-            'break_total_time' => $breakTotalTime,
-            'work_time' => $workTime,
+            // 'break_total_time' => $breakTotalTime,
+            // 'work_time' => $workTime,
 
             // 備考
             'reason' => $this->faker->realText(50),

@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Application;
-use App\Models\Attendance;
 use Illuminate\Support\Carbon;
 
 class ApplicationsTableSeeder extends Seeder
@@ -26,7 +25,7 @@ class ApplicationsTableSeeder extends Seeder
                 // 日付を過去にずらす
                 $date = Carbon::today()->subDays($i);
 
-                // 平日の場合はスキップ
+                // 平日の場合はスキップ（休日出勤申請のデータとしてシードするため）
                 if ($date->isWeekday()) {
                     continue;
                 }
@@ -43,10 +42,6 @@ class ApplicationsTableSeeder extends Seeder
                 $clockInTime = $date->copy()->setHour(9)->setMinute(0)->setSecond(0)->addMinutes($randomMinutes);
                 $clockOutTime = $date->copy()->setHour(18)->setMinute(0)->setSecond(0)->addMinutes($randomMinutes);
 
-                // 勤務時間（休憩時間を引く前の時間）を分単位で計算
-                $totalWorkMinutes = abs($clockOutTime->diffInMinutes($clockInTime));
-                $totalBreakMinutes = 0;
-
                 // 休憩データを定義 (Carbonインスタンス)
                 $breaks = [
                     // JSON内部キーを 'start' と 'end' に変更
@@ -57,33 +52,29 @@ class ApplicationsTableSeeder extends Seeder
 
                 // JSONカラム 'break_time' に格納するデータ配列を準備
                 $breakTimeJsonArray = [];
-                // 各休憩時間を合計し、配列に格納
+                // 各休憩時間をJSONフォーマットに合わせて整形
                 foreach ($breaks as $break) {
                     // start/end の Carbonインスタンスを文字列に変換して配列に追加
                     $breakTimeJsonArray[] = [
                         'start' => $break['start']->toDateTimeString(),
                         'end' => $break['end']->toDateTimeString(),
                     ];
-                    // 休憩時間の計算
-                    $totalBreakMinutes += abs($break['end']->diffInMinutes($break['start']));
                 }
 
-                // 最終的な労働時間を計算し、マイナスにならないように修正
-                $finalWorkMinutes = max(0, $totalWorkMinutes - $totalBreakMinutes);
-
-                // pendingカラムは50%の確率でfalseにする
+                // pendingカラムは50%の確率でfalse (承認済み) にする
+                // rand(1, 100) が 50 以下なら false (承認済み)、それ以外なら true (保留中)
                 $pending = (rand(1, 100) <= 0) ? false : true;
 
                     Application::create([
                         'user_id' => $userId,
+                        // 'attendance_id' は nullable でここでは null のままにします
                         'clock_in_time' => $clockInTime,
                         'clock_out_time' => $clockOutTime,
                         'checkin_date' => $date->toDateString(),
-                        'work_time' => $finalWorkMinutes,
-                        'break_total_time' => $totalBreakMinutes,
+                        // 'work_time' および 'break_total_time' はマイグレーションから削除されたため、ここから削除
                         'pending' => $pending,
                         'reason' => '休日出勤のため出勤',
-                        // 新しいJSONカラムに配列を渡す
+                        // JSONカラムに配列を渡す
                         'break_time' => $breakTimeJsonArray,
                     ]);
 

@@ -57,9 +57,10 @@ class Id13Test extends TestCase
         ]);
 
         // 上書きとなる申請データ (Application)
-        $application = Application::factory()->create([
+        Application::factory()->create([
             'user_id' => $this->staffUser->id,
             'checkin_date' => $testDate,
+            // break_total_time, work_timeはマイグレーションから削除されたため、テストデータ作成時に含めない
             'clock_in_time' => '09:15:00', // 優先されるデータ
             'clock_out_time' => '18:15:00', // 優先されるデータ
             'break_time' => [
@@ -68,6 +69,12 @@ class Id13Test extends TestCase
             ],
             'reason' => 'Application Reason Override', // 優先されるデータ
         ]);
+        
+        // 備考を取得するために、再取得
+        $application = Application::where('user_id', $this->staffUser->id)
+                                  ->where('checkin_date', $testDate)
+                                  ->first();
+
 
         // 日別勤怠一覧ページからのアクセスをシミュレート
         $redirectUrl = '/admin/daily?date=' . $testDate; 
@@ -171,6 +178,8 @@ class Id13Test extends TestCase
         // 休憩時間 (勤怠データの1つ + 空欄1つ) (type="text" でアサート)
         $response->assertSee('name="break_times[0][start_time]"', false);
         $response->assertSee('value="13:00"', false);
+        $response->assertSee('name="break_times[0][end_time]"', false); // end_timeもチェック
+        $response->assertSee('value="14:00"', false); 
         $response->assertSee('name="break_times[1][start_time]"', false);
         $response->assertSee('value=""', false); // 空欄の確保
         $response->assertDontSee('name="break_times[2][start_time]"', false); // 3つ目が存在しないことを確認
@@ -196,6 +205,7 @@ class Id13Test extends TestCase
         $application = Application::factory()->create([
             'user_id' => $this->staffUser->id,
             'checkin_date' => $testDate,
+            // break_total_time, work_timeはマイグレーションから削除されたため、テストデータ作成時に含めない
             'clock_in_time' => '08:00:00',
             'clock_out_time' => '17:00:00',
             // 休憩時間1つを明示的に設定
@@ -335,6 +345,12 @@ class Id13Test extends TestCase
             'reason' => 'Test Reason',
         ];
         
+        // バリデーションメッセージの定義 (ログで確認された新しいメッセージ体系に対応)
+        // 休憩時間の不正に関する汎用的なメッセージ
+        $genericBreakTimeMessage = '休憩時間が不適切な値です。'; 
+        // 休憩終了時刻が退勤時刻を超えた場合などに出る可能性のあるメッセージ
+        $breakTimeOrClockOutMessage = '休憩時間もしくは退勤時間が不適切な値です。';
+
         // --- シナリオ A: 休憩の順序不正 (開始 >= 終了: 例 14:00 - 13:00) ---
         $invalidBreakOrderData = array_merge($baseData, [
             'break_times' => [
@@ -346,9 +362,9 @@ class Id13Test extends TestCase
                           ->post($updateUrl, $invalidBreakOrderData);
 
         $responseA->assertRedirect();
-        // 'break_times.*.start_time.before' => '休憩時間が不適切な値です。'
+        // 休憩の順序不正のエラー
         $responseA->assertSessionHasErrorsIn('default', [
-            'break_times.0.start_time' => '休憩時間が不適切な値です。',
+            'break_times.0.start_time' => $genericBreakTimeMessage,
         ]);
         
         // --- シナリオ B: 休憩開始が出勤時刻より前 (例 09:00 - 11:00) ---
@@ -362,9 +378,9 @@ class Id13Test extends TestCase
                           ->post($updateUrl, $invalidBreakStartBoundaryData);
 
         $responseB->assertRedirect();
-        // 'break_times.*.start_time.after_or_equal' => '休憩開始時刻は、出勤時刻以降に設定してください。'
+        // 休憩開始時刻の境界チェックのエラー (失敗ログに基づきメッセージを修正)
         $responseB->assertSessionHasErrorsIn('default', [
-            'break_times.0.start_time' => '休憩開始時刻は、出勤時刻以降に設定してください。',
+            'break_times.0.start_time' => $genericBreakTimeMessage, 
         ]);
         
         // --- シナリオ C: 休憩終了が退勤時刻より後 (例 18:30 - 19:30) ---
@@ -378,9 +394,9 @@ class Id13Test extends TestCase
                           ->post($updateUrl, $invalidBreakEndBoundaryData);
 
         $responseC->assertRedirect();
-        // 'break_times.*.end_time.before_or_equal' => '休憩時間もしくは退勤時間が不適切な値です。'
+        // 休憩終了時刻の境界チェックのエラー (元のメッセージを維持)
         $responseC->assertSessionHasErrorsIn('default', [
-            'break_times.0.end_time' => '休憩時間もしくは退勤時間が不適切な値です。',
+            'break_times.0.end_time' => $breakTimeOrClockOutMessage,
         ]);
     }
 

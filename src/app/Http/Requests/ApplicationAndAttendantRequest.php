@@ -153,8 +153,8 @@ class ApplicationAndAttendantRequest extends FormRequest
         // 管理者用の共通メッセージ
         $adminTimeError = '出勤時間もしくは退勤時間が不適切な値です。';
         // 一般ユーザー用の個別メッセージ
-        $userClockInError = '出勤時刻が不適切な値です。';
-        $userClockOutError = '退勤時間が不適切な値です。';
+        $userClockInError = '出勤時間もしくは退勤時間が不適切な値です。';
+        $userClockOutError = '出勤時間もしくは退勤時間が不適切な値です。';
         return [
             // 1. 出勤・退勤の順序エラー (ロールによってメッセージを分岐)
             'clock_in_time.before' => $isAdmin ? $adminTimeError : $userClockInError,
@@ -164,7 +164,7 @@ class ApplicationAndAttendantRequest extends FormRequest
             'break_times.*.start_time.before' => '休憩時間が不適切な値です。',
             'break_times.*.end_time.after' => '休憩時間が不適切な値です。',
             // 個別メッセージ
-            'break_times.*.start_time.after_or_equal' => '休憩開始時刻は、出勤時刻以降に設定してください。',
+            'break_times.*.start_time.after_or_equal' => '休憩時間が不適切な値です。',
             'break_times.*.end_time.before_or_equal' => '休憩時間もしくは退勤時間が不適切な値です。',
             // 休憩の必須メッセージ (部分入力の場合にカスタムチェックで利用)
             'break_times.*.start_time.required_with' => '休憩開始時刻を入力してください。',    //

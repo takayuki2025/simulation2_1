@@ -19,8 +19,6 @@ return new class extends Migration
             $table->dateTime('clock_in_time');
             $table->dateTime('clock_out_time');
             $table->json('break_time')->nullable();
-            $table->integer('break_total_time')->default(0);
-            $table->integer('work_time')->nullable();
             $table->string('reason', 191);
             $table->boolean('pending')->default(true);
             $table->timestamps();

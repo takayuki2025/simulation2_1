@@ -43,9 +43,8 @@ class Id11Test extends TestCase
             'break_times' => [
                 ['start_time' => '12:00', 'end_time' => '13:00'],
             ],
-            // 💡 修正: データベースのNULL制約を満たすため、計算後の値をテストデータに追加
-            'work_time' => 480, 
-            'break_total_time' => 60,
+            // 'work_time'と'break_total_time'は、applicationsテーブルから削除されたため、リクエストデータから除外します。
+            // これらはバックエンドで計算され、必要であれば別の場所に保存されるか、リクエストから削除されるべきです。
         ];
     }
 
@@ -85,9 +84,9 @@ class Id11Test extends TestCase
         // route()ヘルパーを使用
         $response = $this->actingAs($this->user)->post(route('application.create'), $invalidData);
 
-        // バリデーションメッセージは実装に依存するが、ここでは'clock_in_time'が原因であることを確認
+        // ★修正: バリデーションメッセージを「出勤時間もしくは退勤時間が不適切な値です。」に修正
         $response->assertSessionHasErrors([
-            'clock_in_time' => '出勤時刻が不適切な値です。',
+            'clock_in_time' => '出勤時間もしくは退勤時間が不適切な値です。',
         ]);
     }
 
@@ -103,9 +102,9 @@ class Id11Test extends TestCase
         // route()ヘルパーを使用
         $response = $this->actingAs($this->user)->post(route('application.create'), $invalidData);
 
-        // バリデーションメッセージは実装に依存するが、ここでは'clock_out_time'が原因であることを確認
+        // ★修正: バリデーションメッセージを「出勤時間もしくは退勤時間が不適切な値です。」に修正
         $response->assertSessionHasErrors([
-            'clock_out_time' => '退勤時間が不適切な値です。',
+            'clock_out_time' => '出勤時間もしくは退勤時間が不適切な値です。',
         ]);
     }
 
@@ -176,9 +175,10 @@ class Id11Test extends TestCase
         // route()ヘルパーを使用
         $response = $this->actingAs($this->user)->post(route('application.create'), $invalidData);
 
+        // ★修正: バリデーションメッセージを「休憩時間が不適切な値です。」に修正
         $response->assertSessionHasErrors([
             // 休憩開始 8:00 は出勤 9:00 より前なのでエラー
-            'break_times.0.start_time' => '休憩開始時刻は、出勤時刻以降に設定してください。',
+            'break_times.0.start_time' => '休憩時間が不適切な値です。',
         ]);
     }
 
@@ -252,9 +252,7 @@ class Id11Test extends TestCase
                 // 休憩も日跨ぎが考慮される (10/28 02:00 - 10/28 03:00に補正されるはず)
                 ['start_time' => '02:00', 'end_time' => '03:00'], 
             ],
-            // 💡 修正: データベースのNULL制約を満たすため、計算後の値をテストデータに追加
-            'work_time' => 420, 
-            'break_total_time' => 60,
+            // 'work_time'と'break_total_time'は、applicationsテーブルから削除されたため、リクエストデータから除外します。
         ];
 
         // 2. 一般ユーザーとして認証し、申請をPOST (route()ヘルパーを使用)
@@ -299,6 +297,7 @@ class Id11Test extends TestCase
             'user_id' => $this->user->id, 
             'checkin_date' => '2025-10-26'
         ]);
+        // applicationsテーブルのwork_timeとbreak_total_timeは削除されているため、含めない
         $approvedApplication = Application::create([
             'attendance_id' => $approvedAttendance->id, // ★ 修正: Attendance IDを紐づける
             'user_id' => $this->user->id,
@@ -580,20 +579,15 @@ class Id11Test extends TestCase
         
         $pendingCheckIn = '08:00'; // 申請により 08:00 に修正
         // 承認待ちの申請データを作成
+        // applicationsテーブルのwork_timeとbreak_total_timeは削除されているため、含めない
         Application::create([
             'attendance_id' => $attendance2->id, 
             'user_id' => $this->user->id,
             'pending' => true, // booleanを使用するように修正
             'checkin_date' => $attendance2->checkin_date,
             'clock_in_time' => "{$attendance2->checkin_date} {$pendingCheckIn}:00",
-            
-            // ★修正箇所: NOT NULL制約を回避するため clock_out_time を追加
             'clock_out_time' => "{$attendance2->checkin_date} 17:00:00", 
-            
             'reason' => 'Pending test reason', 
-            // 💡 修正: データベースのNULL制約を満たすため、計算後の値を追加
-            'work_time' => 540,
-            'break_total_time' => 60,
         ]);
         
         // ★★★ route()ヘルパーを使用して詳細ルートを生成（URLの直接構築を回避）★★★
@@ -629,20 +623,15 @@ class Id11Test extends TestCase
         
         $approvedCheckIn = '07:00'; // 申請により 07:00 に修正
         // 承認済みの申請データを作成
+        // applicationsテーブルのwork_timeとbreak_total_timeは削除されているため、含めない
         Application::create([
             'attendance_id' => $attendance3->id, 
             'user_id' => $this->user->id,
             'pending' => false, // booleanを使用するように修正
             'checkin_date' => $attendance3->checkin_date,
             'clock_in_time' => "{$attendance3->checkin_date} {$approvedCheckIn}:00",
-            
-            // ★修正箇所: NOT NULL制約を回避するため clock_out_time を追加
             'clock_out_time' => "{$attendance3->checkin_date} 16:00:00", 
-            
             'reason' => 'Approved test reason', 
-            // 💡 修正: データベースのNULL制約を満たすため、計算後の値を追加
-            'work_time' => 600,
-            'break_total_time' => 60,
         ]);
 
         // ★★★ route()ヘルパーを使用して詳細ルートを生成（URLの直接構築を回避）★★★
