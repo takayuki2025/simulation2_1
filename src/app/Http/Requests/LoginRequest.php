@@ -36,13 +36,6 @@ class LoginRequest extends FormRequest
             'password.required' => 'パスワードを入力してください。',
         ];
 
-        // ルート名が 'admin.login.post' の場合は、管理者ログイン用のメッセージを追加
-        // このプロジェクトでは、ルートによってエラーメッセージを出し分ける必要は薄いですが、
-        // 異なるバリデーションルールやメッセージを適用したい場合の例として残します。
-        // if ($this->isAdminLogin()) {
-        //     // 管理者ログイン特有のメッセージ
-        // }
-
         return $messages;
     }
 

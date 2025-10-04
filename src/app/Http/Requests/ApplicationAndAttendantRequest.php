@@ -19,13 +19,12 @@ class ApplicationAndAttendantRequest extends FormRequest
         $timeRegex = '/^([0-9]{1,2}):([0-5][0-9])$/';
         return [
             'checkin_date' => ['required', 'date_format:Y-m-d'],
-            'reason' => ['required', 'string', 'max:191'],
-            'break_times' => ['nullable', 'array'],
             'clock_in_time' => ['required', 'regex:' . $timeRegex],
             'clock_out_time' => ['required', 'regex:' . $timeRegex],
-            // 休憩時間は入力がなくても許可するため、'nullable'を使用
             'break_times.*.start_time' => ['nullable', 'regex:' . $timeRegex],
             'break_times.*.end_time' => ['nullable', 'regex:' . $timeRegex],
+            'break_times' => ['nullable', 'array'],
+            'reason' => ['required', 'string', 'max:191'],
         ];
     }
     /**
@@ -168,18 +167,18 @@ class ApplicationAndAttendantRequest extends FormRequest
             'break_times.*.start_time.after_or_equal' => '休憩開始時刻は、出勤時刻以降に設定してください。',
             'break_times.*.end_time.before_or_equal' => '休憩時間もしくは退勤時間が不適切な値です。',
             // 休憩の必須メッセージ (部分入力の場合にカスタムチェックで利用)
-            'break_times.*.start_time.required_with' => '休憩開始時刻を入力してください。',
-            'break_times.*.end_time.required_with' => '休憩終了時刻を入力してください。',
+            'break_times.*.start_time.required_with' => '休憩開始時刻を入力してください。',    //
+            'break_times.*.end_time.required_with' => '休憩終了時刻を入力してください。',      //
             // 3. 形式・必須チェック (共通)
             'clock_in_time.required' => '出勤時刻を入力してください。',
             'clock_out_time.required' => '退勤時刻を入力してください。',
             'reason.required' => '備考を記入してください。',
-            'checkin_date.required' => '対象日付は必須です。',
+            'checkin_date.required' => '対象日付は必須です。',       //
             'clock_in_time.regex' => '出勤時刻は「H:i」または「HH:ii」の形式で入力してください。',
             'clock_out_time.regex' => '退勤時刻は「H:i」または「HH:ii」の形式で入力してください。',
             'break_times.*.start_time.regex' => '休憩開始時刻は「H:i」または「HH:ii」の形式で入力してください。',
             'break_times.*.end_time.regex' => '休憩終了時刻は「H:i」または「HH:ii」の形式で入力してください。',
-            'reason.max' => '理由は500文字以内で入力してください。',
+            'reason.max' => '備考は191文字以内で入力してください。',
         ];
     }
     public function attributes()

@@ -25,8 +25,7 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:191'],
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
-            // パスワードのルールはFortifyのものをそのまま利用します
-            'password' => ['required', 'min:8', 'string', new Password, 'confirmed'],
+            'password' => ['required', 'min:8', 'string', 'confirmed'],
             'password_confirmation' => ['required',]
         ];
     }

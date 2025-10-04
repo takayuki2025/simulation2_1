@@ -74,14 +74,8 @@ class ApplicationsTableSeeder extends Seeder
                 // pendingカラムは50%の確率でfalseにする
                 $pending = (rand(1, 100) <= 0) ? false : true;
 
-                // 既存のAttendanceレコードからランダムにIDを取得
-                $attendance = Attendance::inRandomOrder()->first();
-
-                // Attendanceレコードが存在する場合にのみApplicationレコードを作成
-                if ($attendance) {
                     Application::create([
                         'user_id' => $userId,
-                        'attendance_id' => $attendance->id, // attendance_idを追加
                         'clock_in_time' => $clockInTime,
                         'clock_out_time' => $clockOutTime,
                         'checkin_date' => $date->toDateString(),
@@ -92,7 +86,7 @@ class ApplicationsTableSeeder extends Seeder
                         // 新しいJSONカラムに配列を渡す
                         'break_time' => $breakTimeJsonArray,
                     ]);
-                }
+
             }
         }
     }

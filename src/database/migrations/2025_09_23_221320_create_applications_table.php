@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('attendance_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->date('checkin_date')->nullable();
-            $table->dateTime('clock_in_time')->nullable();
-            $table->dateTime('clock_out_time')->nullable();
+            $table->date('checkin_date');
+            $table->dateTime('clock_in_time');
+            $table->dateTime('clock_out_time');
             $table->json('break_time')->nullable();
-            $table->integer('break_total_time')->default(0)->nullable();
+            $table->integer('break_total_time')->default(0);
             $table->integer('work_time')->nullable();
-            $table->string('reason', 191)->nullable();
+            $table->string('reason', 191);
             $table->boolean('pending')->default(true);
             $table->timestamps();
         });

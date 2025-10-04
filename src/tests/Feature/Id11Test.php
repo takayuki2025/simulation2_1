@@ -29,7 +29,10 @@ class Id11Test extends TestCase
         $this->admin = User::factory()->create(['role' => 'admin']);
 
         // 2. 成功するリクエストのベースデータ (ID11 Valid Data)
-        // このテストでは勤怠IDをNULLにしていますが、申請一覧テストではIDをセットします。
+        // 勤務時間: 9:00 -> 18:00 (9時間 = 540分)
+        // 休憩時間: 12:00 -> 13:00 (60分)
+        // 勤務時間合計（実働）: 540 - 60 = 480分 (8時間)
+        // 休憩時間合計: 60分 (1時間)
         $this->validData = [
             'attendance_id' => null,
             'user_id' => $this->user->id,
@@ -40,6 +43,9 @@ class Id11Test extends TestCase
             'break_times' => [
                 ['start_time' => '12:00', 'end_time' => '13:00'],
             ],
+            // 💡 修正: データベースのNULL制約を満たすため、計算後の値をテストデータに追加
+            'work_time' => 480, 
+            'break_total_time' => 60,
         ];
     }
 
@@ -219,6 +225,12 @@ class Id11Test extends TestCase
     {
         $date = '2025-10-27'; // 申請対象日
         $reason = '夜勤明けのため、退勤時間が翌日になっています。'; // 特定のためのユニークな理由
+        
+        // 日跨ぎの計算
+        // 業務時間: 22:00 (10/27) から 06:00 (10/28) まで = 8時間 (480分)
+        // 休憩: 02:00 (10/28) から 03:00 (10/28) まで = 1時間 (60分)
+        // 勤務時間合計（実働）: 480 - 60 = 420分
+        // 休憩時間合計: 60分
 
         // 1. 申請対象日のAttendanceレコードをまず作成する
         $attendance = Attendance::factory()->create([
@@ -240,6 +252,9 @@ class Id11Test extends TestCase
                 // 休憩も日跨ぎが考慮される (10/28 02:00 - 10/28 03:00に補正されるはず)
                 ['start_time' => '02:00', 'end_time' => '03:00'], 
             ],
+            // 💡 修正: データベースのNULL制約を満たすため、計算後の値をテストデータに追加
+            'work_time' => 420, 
+            'break_total_time' => 60,
         ];
 
         // 2. 一般ユーザーとして認証し、申請をPOST (route()ヘルパーを使用)
@@ -552,12 +567,15 @@ class Id11Test extends TestCase
         // ----------------------------------------------------
         // Case 2: 承認待ちの申請データが存在する場合 
         // ----------------------------------------------------
-        $targetDate2 = $targetDate->addDay();
+        $targetDate2 = $targetDate->copy()->addDay(); // Carbonオブジェクトをコピーして日付を進める
         // 新しい勤怠データを作成
         $attendance2 = Attendance::factory()->create([
             'user_id' => $this->user->id,
             'checkin_date' => $targetDate2->format('Y-m-d'),
             'clock_in_time' => "{$targetDate2->format('Y-m-d')} 09:00:00", // 元は 09:00
+            'clock_out_time' => "{$targetDate2->format('Y-m-d')} 18:00:00",
+            'work_time' => 540,
+            'break_total_time' => 60,
         ]);
         
         $pendingCheckIn = '08:00'; // 申請により 08:00 に修正
@@ -568,7 +586,14 @@ class Id11Test extends TestCase
             'pending' => true, // booleanを使用するように修正
             'checkin_date' => $attendance2->checkin_date,
             'clock_in_time' => "{$attendance2->checkin_date} {$pendingCheckIn}:00",
+            
+            // ★修正箇所: NOT NULL制約を回避するため clock_out_time を追加
+            'clock_out_time' => "{$attendance2->checkin_date} 17:00:00", 
+            
             'reason' => 'Pending test reason', 
+            // 💡 修正: データベースのNULL制約を満たすため、計算後の値を追加
+            'work_time' => 540,
+            'break_total_time' => 60,
         ]);
         
         // ★★★ route()ヘルパーを使用して詳細ルートを生成（URLの直接構築を回避）★★★
@@ -591,12 +616,15 @@ class Id11Test extends TestCase
         // ----------------------------------------------------
         // Case 3: 承認済みの申請データが存在する場合 
         // ----------------------------------------------------
-        $targetDate3 = $targetDate->addDay();
+        $targetDate3 = $targetDate->copy()->addDays(2); // Carbonオブジェクトをコピーして日付を進める
         // 新しい勤怠データを作成
         $attendance3 = Attendance::factory()->create([
             'user_id' => $this->user->id,
             'checkin_date' => $targetDate3->format('Y-m-d'),
             'clock_in_time' => "{$targetDate3->format('Y-m-d')} 09:00:00", // 元は 09:00
+            'clock_out_time' => "{$targetDate3->format('Y-m-d')} 18:00:00",
+            'work_time' => 540,
+            'break_total_time' => 60,
         ]);
         
         $approvedCheckIn = '07:00'; // 申請により 07:00 に修正
@@ -607,7 +635,14 @@ class Id11Test extends TestCase
             'pending' => false, // booleanを使用するように修正
             'checkin_date' => $attendance3->checkin_date,
             'clock_in_time' => "{$attendance3->checkin_date} {$approvedCheckIn}:00",
+            
+            // ★修正箇所: NOT NULL制約を回避するため clock_out_time を追加
+            'clock_out_time' => "{$attendance3->checkin_date} 16:00:00", 
+            
             'reason' => 'Approved test reason', 
+            // 💡 修正: データベースのNULL制約を満たすため、計算後の値を追加
+            'work_time' => 600,
+            'break_total_time' => 60,
         ]);
 
         // ★★★ route()ヘルパーを使用して詳細ルートを生成（URLの直接構築を回避）★★★

@@ -13,31 +13,24 @@ use Illuminate\Support\Facades\Log; // 大規模なプロジェクトの時の�
 
 class UserAttendantManagerController extends Controller
 {
-    /**
-     * ユーザー打刻画面の表示と状態判定（日跨ぎ対応）
-     */
+
     public function user_stamping_index()
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
-
-        // ---------------------------------------------
-        // ★★★ 修正箇所: 日跨ぎ対応ロジックを優先 ★★★
-        // ---------------------------------------------
-        
         // 1. 最優先: clock_out_time が null (未退勤) のレコードを取得する。
         //    これにより、昨日出勤し、現在が日を跨いでいてもそのレコードが「現在の勤務」となる。
         $attendance = Attendance::where('user_id', $user->id)
-                                ->whereNull('clock_out_time')
-                                ->orderByDesc('checkin_date') // 複数あった場合は最新の日付のもの
-                                ->first();
+            ->whereNull('clock_out_time')
+            ->orderByDesc('checkin_date') // 複数あった場合は最新の日付のもの
+            ->first();
 
         // 2. 未退勤のレコードがない場合のみ、今日の完了したレコードを取得する（日を跨がずに勤務が終了した場合など）
         //    ※ 昨日の勤務が完了している場合、この処理はスキップされ $attendance は null のままになる
         if (!$attendance) {
             $attendance = Attendance::where('user_id', $user->id)
-                                    ->whereDate('checkin_date', Carbon::today())
-                                    ->first();
+                ->whereDate('checkin_date', Carbon::today())
+                ->first();
         }
 
         // 3. 勤務状態を判定
@@ -48,8 +41,8 @@ class UserAttendantManagerController extends Controller
         if (isset($attendance)) {
             // break_timeが配列であればそのまま、文字列(JSON)であればデコードを試みる
             $breakTimeData = is_array($attendance->break_time)
-                             ? $attendance->break_time
-                             : (is_string($attendance->break_time) ? json_decode($attendance->break_time, true) : null);
+                ? $attendance->break_time
+                : (is_string($attendance->break_time) ? json_decode($attendance->break_time, true) : null);
 
             if ($breakTimeData && is_array($breakTimeData) && !empty($breakTimeData)) {
                 $lastBreak = end($breakTimeData);
@@ -63,7 +56,6 @@ class UserAttendantManagerController extends Controller
         // 4. 現在の日時情報を取得 (ビューの初期表示用) および 挨拶文作成の基準時刻
         date_default_timezone_set('Asia/Tokyo');
         $now = Carbon::now();
-
         $currentDate = $now->format('Y年m月d日');
         $dayOfWeek = $now->dayOfWeek; // Carbon::dayOfWeek は 0(日)～6(土) を返す
         $dayOfWeekMap = ['日', '月', '火', '水', '木', '金', '土'];
@@ -90,32 +82,27 @@ class UserAttendantManagerController extends Controller
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
-
         // URLパラメータから年と月を取得、なければ現在の日付を使用
         $year = $request->get('year', date('Y'));
         $month = $request->get('month', date('m'));
         $date = Carbon::createFromDate($year, $month, 1);
-
         // 前月と次月のURLを生成
         $prevMonth = $date->copy()->subMonth();
         $nextMonth = $date->copy()->addMonth();
-
         // ログインユーザーのIDを取得
         $userId = Auth::id();
-
         // ユーザーのその月の勤怠レコードを日付をキーとするコレクションで取得
         $attendances = Attendance::where('user_id', $user->id)
-                            ->whereYear('checkin_date', $year)
-                            ->whereMonth('checkin_date', $month)
-                            ->get()
+            ->whereYear('checkin_date', $year)
+            ->whereMonth('checkin_date', $month)
+            ->get()
                             // 日付（Y-m-d）をキーとしてコレクションを再構成
-                            ->keyBy(function ($item) {
-                                return Carbon::parse($item->checkin_date)->format('Y-m-d');
-                            });
+            ->keyBy(function ($item) {
+                return Carbon::parse($item->checkin_date)->format('Y-m-d');
+            });
 
         $formattedAttendanceData = [];
         $daysInMonth = $date->daysInMonth;
-        
         // ★追加: 今日の日付を取得 (比較に使用)
         $today = Carbon::now()->startOfDay();
 
@@ -123,7 +110,6 @@ class UserAttendantManagerController extends Controller
             $currentDay = Carbon::createFromDate($year, $month, $i);
             $dateKey = $currentDay->format('Y-m-d');
             $attendance = $attendances->get($dateKey);
-            
             $dayOfWeekMap = ['日', '月', '火', '水', '木', '金', '土'];
             $dayOfWeek = $dayOfWeekMap[$currentDay->dayOfWeek];
 
@@ -136,21 +122,19 @@ class UserAttendantManagerController extends Controller
                 'break_time' => '',
                 'work_time' => '',
                 // デフォルトのURLを、勤怠データがない場合を想定して生成
-                'detail_url' => route('user.attendance.detail.index', ['date' => $dateKey]), 
-                'attendance_id' => null, 
+                'detail_url' => route('user.attendance.detail.index', ['date' => $dateKey]),
+                'attendance_id' => null,
                 // ★追加: 詳細ボタンの表示制御のためにCarbonオブジェクトを追加
-                'current_day_carbon' => $currentDay, 
+                'current_day_carbon' => $currentDay,
             ];
 
             if ($attendance) {
                 // 退勤時間が記録されているか、かつ出勤時間と同じ値ではないかチェック
                 $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time;
-                
                 $data['clock_in'] = Carbon::parse($attendance->clock_in_time)->format('H:i');
-                
                 // 退勤時間は打刻があれば表示
                 $data['clock_out'] = $hasClockedOut ? Carbon::parse($attendance->clock_out_time)->format('H:i') : '';
-                
+
                 // 休憩時間 (分を H:i 形式に変換)
                 if ($attendance->break_total_time !== null) {
                     $minutes = $attendance->break_total_time;
@@ -167,7 +151,7 @@ class UserAttendantManagerController extends Controller
                 $data['detail_url'] = route('user.attendance.detail.index', ['id' => $attendance->id, 'date' => $dateKey]);
                 $data['attendance_id'] = $attendance->id;
             }
-            
+
             $formattedAttendanceData[] = $data;
         }
 
@@ -192,11 +176,9 @@ class UserAttendantManagerController extends Controller
     {
         // 認証済みユーザーを取得 (ログインしているスタッフ)
         $loggedInUser = Auth::user();
-
         // クエリパラメータから日付を取得 (フォールバックとして使用)
         // 初期値として $date を確定
         $date = $request->input('date') ?? Carbon::now()->toDateString();
-
         $attendance = null;
         $targetUserId = $loggedInUser->id; // スタッフ自身が対象
 
@@ -207,7 +189,6 @@ class UserAttendantManagerController extends Controller
         if ($id) {
             // $id が渡された場合、Attendance IDとして検索を試みる
             $tempAttendance = Attendance::find($id);
-            
             // 勤怠データが見つかり、かつそれがログインユーザーのものであることを確認
             if ($tempAttendance && $tempAttendance->user_id == $loggedInUser->id) {
                 // (A) Attendance IDで勤怠データが見つかった場合
@@ -217,32 +198,31 @@ class UserAttendantManagerController extends Controller
             } else {
                 // (B) IDで見つからない、または他人のデータの場合、URLの$dateを基に再検索
                 $attendance = Attendance::where('user_id', $loggedInUser->id)
-                                        ->whereDate('checkin_date', $date)
-                                        ->first();
+                    ->whereDate('checkin_date', $date)
+                    ->first();
             }
         } else {
             // (C) $id が渡されなかった場合（勤怠データがない日の詳細）
             $attendance = Attendance::where('user_id', $loggedInUser->id)
-                                    ->whereDate('checkin_date', $date)
-                                    ->first();
+                ->whereDate('checkin_date', $date)
+                ->first();
         }
-        
+
         // ターゲットユーザーはログインユーザーで固定
         $targetUser = $loggedInUser;
 
         // ----------------------------------------------------
         // 2. 申請データ ($application) の取得 (確定した$dateを使用)
         // ----------------------------------------------------
-        
+
         // 2-1. 確定した$dateのcheckin_dateを持つ申請を検索（標準的な検索）
         $application = Application::where('user_id', $targetUser->id)
-                                ->whereDate('checkin_date', $date)
-                                ->first();
+            ->whereDate('checkin_date', $date)
+            ->first();
 
         // ★日跨ぎ対応の修正: 申請が見つからない場合、前日の申請が現在の$dateを跨いでいるか確認
         if (!$application) {
             $prevDate = Carbon::parse($date)->subDay()->toDateString();
-            
             $application = Application::where('user_id', $targetUser->id)
                 ->whereDate('checkin_date', $prevDate) // 前日の申請を検索
                 // ... AND その退勤時刻が現在の$dateの開始時刻（00:00:00）より後であること
@@ -255,7 +235,7 @@ class UserAttendantManagerController extends Controller
         // ----------------------------------------------------
         // 3. フォーム初期値 ($sourceData) の決定（申請データ優先）
         // ----------------------------------------------------
-        $sourceData = $application ?? $attendance; 
+        $sourceData = $application ?? $attendance;
 
         // ----------------------------------------------------
         // 4. 休憩時間のフォーム入力欄の準備
@@ -281,7 +261,7 @@ class UserAttendantManagerController extends Controller
                 }
             }
         }
-        
+
         // ----------------------------------------------------
         // 常に1つの空の休憩フォームを無条件に追加する
         // ----------------------------------------------------
@@ -289,17 +269,17 @@ class UserAttendantManagerController extends Controller
             'start_time' => '',
             'end_time' => ''
         ];
-        
+
         // ----------------------------------------------------
         // 5. ビューに渡すデータをまとめる
         // ----------------------------------------------------
         $viewData = [
             'attendance' => $attendance,
-            'user' => $targetUser, 
-            'date' => Carbon::parse($date)->toDateString(), 
-            'formBreakTimes' => $formBreakTimes, 
+            'user' => $targetUser,
+            'date' => Carbon::parse($date)->toDateString(),
+            'formBreakTimes' => $formBreakTimes,
             'application' => $application,
-            'primaryData' => $sourceData, 
+            'primaryData' => $sourceData,
         ];
 
         return view('user-attendance-detail', $viewData);
@@ -313,10 +293,8 @@ class UserAttendantManagerController extends Controller
     {
         // 認証ユーザーのIDを取得
         $userId = Auth::id();
-
         // 'pending'というクエリパラメータを取得。存在しない場合は'true'をデフォルト値とする
         $status = $request->query('pending', 'true');
-
         // 認証ユーザーの申請のみをフィルタリング
         $query = Application::with('user')->where('user_id', $userId);
 
@@ -329,8 +307,8 @@ class UserAttendantManagerController extends Controller
             $query->where('pending', false);
         }
 
-        // 最新のものが上に来るように降順でソートして取得
-        $applications = $query->orderBy('created_at', 'desc')->get();
+        // 💡 修正点: 対象日時（checkin_date）の古い順（昇順: asc）でソートして取得
+        $applications = $query->orderBy('checkin_date', 'asc')->get();
 
         // ---------------------------------------------
         // ★★★ 修正箇所: 対象日時を checkin_date に変更 ★★★
@@ -343,17 +321,14 @@ class UserAttendantManagerController extends Controller
             if ($application->checkin_date) {
                 // 💡 修正: 対象日付を checkin_date に設定
                 $carbonCheckinDate = Carbon::parse($application->checkin_date);
-                
                 // 詳細リンクに渡す Y-m-d 形式の日付
                 $targetDate = $carbonCheckinDate->format('Y-m-d');
-                
                 // テーブルに表示する Y/m/d 形式の日付
                 $targetDateDisplay = $carbonCheckinDate->format('Y/m/d');
-                
                 // 詳細URLを生成（checkin_date ベースのルートを使用）
                 $detailUrl = route('user.attendance.detail.index', ['date' => $targetDate]);
             }
-            
+
             return [
                 'id' => $application->id, // ★ IDを追加
                 'status_text' => $application->pending ? '承認待ち' : '承認済み',
@@ -371,7 +346,7 @@ class UserAttendantManagerController extends Controller
 
         return view('user-apply-list', [
             // 整形済みのデータをビューに渡す
-            'applications' => $formattedApplications, 
+            'applications' => $formattedApplications,
         ]);
     }
 
@@ -382,11 +357,10 @@ class UserAttendantManagerController extends Controller
     public function clockIn()
     {
         $user = Auth::user();
-
         // 進行中の未退勤レコードがないか確認 (日跨ぎ対応)
         $existingAttendance = Attendance::where('user_id', $user->id)
-                                        ->whereNull('clock_out_time')
-                                        ->first();
+            ->whereNull('clock_out_time')
+            ->first();
 
         if (is_null($existingAttendance)) {
             // 未退勤レコードがない場合のみ、新規作成
@@ -397,11 +371,12 @@ class UserAttendantManagerController extends Controller
             ]);
         } else {
             // 既に進行中の勤務がある場合は、二重出勤を防ぐためにリダイレクト
-            return redirect()->route('user.stamping.index')->with('error', '既に勤務中です。退勤処理を完了してください。');
+            return redirect()->route('user.stamping.index')->with('error', '既に出勤中です。退勤処理を完了してください。');
         }
 
         return redirect()->route('user.stamping.index');
     }
+
 
     /**
      * 退勤処理を実行します。（JSON休憩対応 / 日跨ぎ対応）
@@ -409,39 +384,36 @@ class UserAttendantManagerController extends Controller
     public function attendance_create()
     {
         $user = Auth::user();
-
         // 進行中の未退勤レコードを探す (日跨ぎ対応)
         $attendance = Attendance::where('user_id', $user->id)
-                                ->whereNull('clock_out_time')
-                                ->orderByDesc('checkin_date')
-                                ->first();
+            ->whereNull('clock_out_time')
+            ->orderByDesc('checkin_date')
+            ->first();
 
         // 記録があり、まだ退勤時刻が打刻されていない場合のみ処理を実行
         if ($attendance) {
             $now = Carbon::now();
-            
             // 出勤時刻をCarbonオブジェクトに変換
             $clockInCarbon = $attendance->clock_in_time ? Carbon::parse($attendance->clock_in_time) : null;
 
             if (!$clockInCarbon) {
                  // 出勤時刻がない場合は処理をスキップまたはエラー
-                 Log::warning('退勤処理エラー: ' . $user->id . 'の出勤時刻が見つかりません。');
-                 return redirect()->route('user.stamping.index')->with('error', '出勤時刻の記録がないため、退勤処理を完了できません。');
+                Log::warning('退勤処理エラー: ' . $user->id . 'の出勤時刻が見つかりません。');
+                return redirect()->route('user.stamping.index')->with('error', '出勤時刻の記録がないため、退勤処理を完了できません。');
             }
-            
+
             // break_time JSONカラムを配列として取得
             $breakTimes = is_array($attendance->break_time) ? $attendance->break_time : json_decode($attendance->break_time, true) ?? []; 
-
             // 1. 総休憩時間（秒）をJSON配列から計算
             $totalBreakSeconds = 0;
             foreach ($breakTimes as $break) {
                 if (!empty($break['start']) && !empty($break['end'])) { 
                     $start = Carbon::parse($break['start']);
                     $end = Carbon::parse($break['end']);
-                    
+
                     if ($end->gt($start)) {
                        // Carbonのtimestamp差分で休憩時間を計算
-                       $totalBreakSeconds += $end->timestamp - $start->timestamp;
+                        $totalBreakSeconds += $end->timestamp - $start->timestamp;
                     }
                 }
             }
@@ -456,7 +428,6 @@ class UserAttendantManagerController extends Controller
             $finalWorkSeconds = max(0, $totalWorkSeconds - $totalBreakSeconds);
             $finalWorkMinutes = round($finalWorkSeconds / 60);
             $totalBreakMinutes = round($totalBreakSeconds / 60);
-
             $attendance->update([
                 'clock_out_time' => $now,
                 'work_time' => $finalWorkMinutes,
@@ -467,23 +438,22 @@ class UserAttendantManagerController extends Controller
         return redirect()->route('user.stamping.index');
     }
 
+
     /**
      * 休憩開始処理を実行します。（JSON休憩対応 / 日跨ぎ対応）
      */
     public function breakStart()
     {
         $user = Auth::user();
-
         // 進行中の未退勤レコードを探す (日跨ぎ対応)
         $attendance = Attendance::where('user_id', $user->id)
-                                ->whereNull('clock_out_time')
-                                ->orderByDesc('checkin_date')
-                                ->first();
+            ->whereNull('clock_out_time')
+            ->orderByDesc('checkin_date')
+            ->first();
 
         if ($attendance) {
             // break_timeを取得。JSON castが設定されていない可能性を考慮し、配列化を試みる。
             $breakTimes = is_array($attendance->break_time) ? $attendance->break_time : json_decode($attendance->break_time, true) ?? [];
-
             // 最後の休憩データを取り出し、終了しているかチェック
             $lastBreak = end($breakTimes);
 
@@ -506,18 +476,18 @@ class UserAttendantManagerController extends Controller
         return redirect()->route('user.stamping.index');
     }
 
+
     /**
      * 休憩終了処理を実行します。（JSON休憩対応 / 日跨ぎ対応）
      */
     public function breakEnd()
     {
         $user = Auth::user();
-
         // 進行中の未退勤レコードを探す (日跨ぎ対応)
         $attendance = Attendance::where('user_id', $user->id)
-                                ->whereNull('clock_out_time')
-                                ->orderByDesc('checkin_date')
-                                ->first();
+            ->whereNull('clock_out_time')
+            ->orderByDesc('checkin_date')
+            ->first();
 
         if ($attendance) {
             // break_timeを取得。JSON castが設定されていない可能性を考慮し、配列化を試みる。
@@ -541,16 +511,15 @@ class UserAttendantManagerController extends Controller
                     if (!empty($break['start']) && !empty($break['end'])) { 
                         $start = Carbon::parse($break['start']);
                         $end = Carbon::parse($break['end']);
-                        
+
                         if ($end->gt($start)) {
-                           $totalBreakSeconds += $end->timestamp - $start->timestamp;
+                            $totalBreakSeconds += $end->timestamp - $start->timestamp;
                         }
                     }
                 }
-                
+
                 // 2. 総休憩時間を分単位に変換
                 $totalBreakMinutes = round($totalBreakSeconds / 60);
-
                 // 3. break_time と break_total_time の両方を更新
                 $attendance->update([
                     'break_time' => $breakTimes,
@@ -570,22 +539,19 @@ class UserAttendantManagerController extends Controller
     {
         // 認証済みユーザーを取得
         $user = Auth::user();
-
         // フォームから送信された勤怠IDを取得
         $attendanceId = $request->input('attendance_id');
-
         // フォームから送信されたデータを取得
         $date = $request->input('checkin_date');
         $checkinTime = trim($request->input('clock_in_time'));
         $checkoutTime = trim($request->input('clock_out_time'));
         $reason = trim($request->input('reason'));
-        $breakTimes = $request->input('break_times', []); 
-
+        $breakTimes = $request->input('break_times', []);
         // 勤怠データを applications テーブルに保存
         $application = new Application();
         $application->user_id = $user->id;
         $application->checkin_date = $date;
-        $application->pending = true; 
+        $application->pending = true;
 
         // 勤怠IDが存在する場合のみセット
         if ($attendanceId) {
@@ -600,14 +566,14 @@ class UserAttendantManagerController extends Controller
             $clockInCarbon = Carbon::parse($date . ' ' . $checkinTime);
             $application->clock_in_time = $clockInCarbon;
         }
-        
+
         // 退勤時刻を設定し、日跨ぎを補正
         if (!empty($checkoutTime)) {
             $clockOutCarbon = Carbon::parse($date . ' ' . $checkoutTime);
-            
+
             // 💡 修正箇所1: 退勤時刻が出勤時刻よりも前なら翌日に補正
             if ($clockInCarbon && $clockOutCarbon->lt($clockInCarbon)) {
-                 $clockOutCarbon = $clockOutCarbon->addDay();
+                $clockOutCarbon = $clockOutCarbon->addDay();
             }
             $application->clock_out_time = $clockOutCarbon;
         }
@@ -621,7 +587,7 @@ class UserAttendantManagerController extends Controller
             if (!empty($breakStartTime) && !empty($breakEndTime)) {
                 $breakStartCarbon = Carbon::parse($date . ' ' . $breakStartTime);
                 $breakEndCarbon = Carbon::parse($date . ' ' . $breakEndTime);
-                
+
                 // 💡 修正箇所2: 休憩終了時刻が開始時刻よりも前なら翌日に補正
                 if ($breakEndCarbon->lt($breakStartCarbon)) {
                     $breakEndCarbon = $breakEndCarbon->addDay();
@@ -633,17 +599,14 @@ class UserAttendantManagerController extends Controller
                 ];
             }
         }
-        
+
         // break_time JSONカラムに設定
         $application->break_time = $breakTimeJsonArray;
         // --- 修正箇所2: 終了 ---
-
         $application->reason = $reason;
-
         // work_time, break_total_timeは承認時に計算されるためnullのまま保存
-        $application->work_time = null;
-        $application->break_total_time = null;
-
+        $application->work_time = 0;
+        $application->break_total_time = 0;
         $application->save();
 
         // ----------------------------------------------------------------------
@@ -651,7 +614,6 @@ class UserAttendantManagerController extends Controller
         // ----------------------------------------------------------------------
         // 日付を「〇月〇日」形式に整形
         $displayDate = Carbon::parse($date)->isoFormat('M月D日');
-        
         $successMessage = "{$user->name}さん、{$displayDate}の修正申請を受け付けました。";
 
         return redirect()->route('user.month.index', ['date' => $date])->with('success', $successMessage);

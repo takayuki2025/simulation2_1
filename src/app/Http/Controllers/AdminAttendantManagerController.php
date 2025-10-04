@@ -30,26 +30,25 @@ class AdminAttendantManagerController extends Controller
 
         // 1. 指定された日付の全ユーザーの勤怠レコードを取得し、ユーザーIDでインデックス付け
         $attendances = Attendance::where('checkin_date', $dateString)
-                                ->with('user')
-                                ->get()
-                                ->keyBy('user_id'); // ユーザーIDをキーとしてアクセスしやすくする
+            ->with('user')
+            ->get()
+            ->keyBy('user_id'); // ユーザーIDをキーとしてアクセスしやすくする
 
         // 2. 全ての一般スタッフユーザーを取得 (管理者ユーザーを除外する想定)
         // ここではロールが'admin'ではないユーザーを取得すると仮定します。
         $allStaffUsers = User::where('role', '!=', 'admin')
-                             ->get();
+            ->get();
 
         // **********************************************
         // 全ユーザーの勤怠データ準備ロジック
         // **********************************************
-        
-        $dailyAttendanceData = [];
 
+        $dailyAttendanceData = [];
         // 時間フォーマット用のヘルパー関数（例: 480分 -> 8:00, 0分 -> 0:00）
         $formatTime = function (?int $minutes): string {
             // ★修正点: 勤怠データがない場合に空文字列 '' を返す（打刻済みで0分の場合 0:00）
-            if ($minutes === null) return ''; 
-            
+            if ($minutes === null) return '';
+
             $hours = floor($minutes / 60);
             $mins = $minutes % 60;
             return $hours . ':' . str_pad($mins, 2, '0', STR_PAD_LEFT);
@@ -61,9 +60,9 @@ class AdminAttendantManagerController extends Controller
             $attendance = $attendances->get($user->id);
 
             $hasAttendanceRecord = $attendance !== null;
-            $hasClockedOut = $hasAttendanceRecord 
-                             ? ($attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time)
-                             : false;
+            $hasClockedOut = $hasAttendanceRecord
+                ? ($attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time)
+                : false;
 
             if ($hasAttendanceRecord) {
                 // 勤怠データがある場合
@@ -71,8 +70,8 @@ class AdminAttendantManagerController extends Controller
                     'user_id' => $user->id,
                     'user_name' => $user->name,
                     'clockInTime' => Carbon::parse($attendance->clock_in_time)->format('H:i'),
-                    'clockOutTime' => $hasClockedOut 
-                                        ? Carbon::parse($attendance->clock_out_time)->format('H:i') 
+                    'clockOutTime' => $hasClockedOut
+                                        ? Carbon::parse($attendance->clock_out_time)->format('H:i')
                                         : '', // 退勤がない場合も空欄
                     // 勤怠データはあるが0分の場合、0:00が表示される (formatTime内のロジックで対応)
                     'breakTimeDisplay' => $formatTime($attendance->break_total_time),
@@ -87,7 +86,7 @@ class AdminAttendantManagerController extends Controller
                     'clockInTime' => '',
                     'clockOutTime' => '',
                     // ★修正点: 勤怠データがない日は空欄 ''
-                    'breakTimeDisplay' => '', 
+                    'breakTimeDisplay' => '',
                     'workTimeDisplay' => '',
                     'dateString' => $dateString,
                 ];
@@ -96,12 +95,10 @@ class AdminAttendantManagerController extends Controller
 
         // 勤怠データがあったかどうかのフラグを更新
         $hasAttendance = $allStaffUsers->isNotEmpty();
-        
         // **********************************************
         // Bladeファイルで使用する今日の日付情報を追加
         // **********************************************
         $today = Carbon::now()->startOfDay();
-
         $viewData = [
             'currentDate' => $currentDate,
             'dailyAttendanceData' => $dailyAttendanceData,
@@ -122,30 +119,25 @@ class AdminAttendantManagerController extends Controller
         // クエリパラメータからユーザーID（スタッフのID）と日付を取得
         $userId = $request->input('user_id') ?? $id;
         $date = $request->input('date') ?? Carbon::now()->toDateString();
-        
         // 対象スタッフのユーザー情報を取得
         $staffUser = User::findOrFail($userId);
-
         // 勤怠データを取得
         $attendance = Attendance::where('user_id', $userId)
-                                ->where('checkin_date', $date)
-                                ->first();
+            ->where('checkin_date', $date)
+            ->first();
 
         // 勤怠データが存在するかどうかに関係なく、その日の申請データを検索して取得
         $application = Application::where('user_id', $userId)
-                                ->where('checkin_date', $date)
-                                ->first();
-
+            ->where('checkin_date', $date)
+            ->first();
         // フォームの初期値として使用するデータソースを決定
         // 申請データがあればそれを優先し、なければ既存の勤怠データを使用する
         $sourceData = $application ?? $attendance;
-
         // ----------------------------------------------------
         // 休憩時間のフォーム入力欄の準備 (JSON配列から作成)
         // ----------------------------------------------------
         $formBreakTimes = [];
         $breakTimeData = [];
-
         // ★最終修正: 以下の条件をすべて満たす場合のみ、休憩データを採用する
         // 1. $sourceData (申請または勤怠) が存在する
         // 2. 出勤時刻 または 退勤時刻 のいずれかが存在する
@@ -155,8 +147,8 @@ class AdminAttendantManagerController extends Controller
             // 出勤・退勤時刻が存在する場合のみ、break_timeのデータを取得
             // break_timeがJSON文字列であればデコードを試みる
             $breakTimeData = is_array($sourceData->break_time) ? $sourceData->break_time : json_decode($sourceData->break_time, true);
-        } 
-        
+        }
+
         // 既存の休憩データをフォーム形式に整形
         if (is_array($breakTimeData) && !empty($breakTimeData)) {
             foreach ($breakTimeData as $break) {
@@ -172,7 +164,7 @@ class AdminAttendantManagerController extends Controller
                 }
             }
         }
-        
+
         // ----------------------------------------------------
         // ★ 修正箇所: 常に1つの空の休憩フォームを無条件に追加する
         // ----------------------------------------------------
@@ -180,21 +172,6 @@ class AdminAttendantManagerController extends Controller
             'start_time' => '',
             'end_time' => ''
         ];
-
-        // 以前の最低2つ空欄確保のロジックは不要になったため削除
-        /*
-        $minBreaks = 2;
-        $existingBreakCount = count($formBreakTimes);
-        if ($existingBreakCount < $minBreaks) {
-            for ($i = $existingBreakCount; $i < $minBreaks; $i++) {
-                $formBreakTimes[] = [
-                    'start_time' => '',
-                    'end_time' => ''
-                ];
-            }
-        }
-        */
-
         // ビューに渡すデータをまとめる
         $viewData = [
             'attendance' => $attendance,
@@ -233,24 +210,19 @@ class AdminAttendantManagerController extends Controller
         $year = $request->get('year', date('Y'));
         $month = $request->get('month', date('m'));
         $date = Carbon::create($year, $month, 1);
-
         // 前月と次月のURLを生成
         $prevMonth = $date->copy()->subMonth();
         $nextMonth = $date->copy()->addMonth();
-
         // 指定されたIDのユーザーを1人だけ取得
         $staffUser = User::findOrFail($id);
-
         // 指定されたIDのユーザーとその月の勤怠レコードを取得
         $attendances = Attendance::where('user_id', $id)
             ->whereYear('checkin_date', $year)
             ->whereMonth('checkin_date', $month)
             ->get();
-        
         // **********************************************
         // データ準備ロジック
         // **********************************************
-        
         $daysInMonth = $date->daysInMonth;
         $monthlyAttendanceData = [];
         $dayOfWeekArray = ['日', '月', '火', '水', '木', '金', '土'];
@@ -273,10 +245,8 @@ class AdminAttendantManagerController extends Controller
         for ($i = 1; $i <= $daysInMonth; $i++) {
             $currentDay = Carbon::create($year, $month, $i);
             $dateString = $currentDay->format('Y-m-d');
-            
             // その日の勤怠データを取得
             $attendance = $attendances->firstWhere('checkin_date', $dateString);
-            
             // 勤怠データがない日の初期値はすべて空欄にする
             $dayData = [
                 'day' => $i,
@@ -300,14 +270,12 @@ class AdminAttendantManagerController extends Controller
                 // break_total_time が null の場合は 0 として扱い、'0:00' が表示されるようにする。
                 $totalBreakMinutes = $attendance->break_total_time ?? 0;
                 $dayData['breakTimeDisplay'] = $formatTime($totalBreakMinutes);
-                
                 // 退勤時間が記録されているか、かつ出勤時間と同じ値ではないかチェック
                 $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time;
-                
+
                 if ($hasClockedOut) {
                     // 退勤時間のフォーマット
                     $dayData['clockOutTime'] = Carbon::parse($attendance->clock_out_time)->format('H:i');
-                    
                     // 合計勤務時間 (退勤打刻があれば表示)
                     $dayData['workTimeDisplay'] = $formatTime($attendance->work_time);
                 } else {
@@ -316,13 +284,12 @@ class AdminAttendantManagerController extends Controller
                     $dayData['workTimeDisplay'] = '';
                 }
             }
-            
+
             $monthlyAttendanceData[] = $dayData;
         }
 
         // 今日の日付を取得 (比較に使用)
         $today = Carbon::now()->startOfDay();
-
         $viewData = [
             'date' => $date,
             'prevMonth' => $prevMonth,
@@ -343,7 +310,6 @@ class AdminAttendantManagerController extends Controller
     {
         // 'pending'というクエリパラメータを取得。存在しない場合は'true'をデフォルト値とする
         $status = $request->query('pending', 'true');
-
         // Applicationモデルのクエリを開始
         $query = Application::query();
 
@@ -356,6 +322,8 @@ class AdminAttendantManagerController extends Controller
             $query->where('pending', false);
         }
 
+                // 💡 修正点: 対象日時（checkin_date）を基準に昇順（古い順）でソート
+        $query->orderBy('checkin_date', 'asc');
         // フィルタリングされた結果を取得
         $applications = $query->get();
 
@@ -379,7 +347,6 @@ class AdminAttendantManagerController extends Controller
         // 休憩時間の準備 (JSONカラム 'break_time' から取得)
         // ----------------------------------------------------
         $breakTimes = [];
-        
         // JSONカラム 'break_time' から休憩データを取得
         // Applicationモデルで break_time が配列としてキャストされていることを想定
         $breakTimeData = $application->break_time ?? [];
@@ -456,14 +423,11 @@ class AdminAttendantManagerController extends Controller
             $checkoutTime = trim($request->input('clock_out_time'));
             $breakTimes = $request->input('break_times', []);
             $reason = trim($request->input('reason'));
-
             // 出勤・退勤時間を設定 (Carbonインスタンスを作成)
             $clockInCarbon = !empty($checkinTime) ? Carbon::parse($date . ' ' . $checkinTime) : null;
             $clockOutCarbon = !empty($checkoutTime) ? Carbon::parse($date . ' ' . $checkoutTime) : null;
-            
             $attendance->clock_in_time = $clockInCarbon;
             $attendance->clock_out_time = $clockOutCarbon;
-
 
             // 💡 修正点1: 退勤時間が出勤時間より前の場合、日付を翌日に補正 (日跨ぎ対応)
             if ($clockInCarbon && $clockOutCarbon) {
@@ -491,7 +455,7 @@ class AdminAttendantManagerController extends Controller
                     if ($endCarbon->lt($startCarbon)) {
                         $endCarbon = $endCarbon->addDay();
                     }
-                    
+
                     // 休憩終了が休憩開始よりも後であることを確認してから計算
                     if ($endCarbon->gt($startCarbon)) {
                         // JSON配列に追加
@@ -499,7 +463,7 @@ class AdminAttendantManagerController extends Controller
                             'start' => $startCarbon->toDateTimeString(),
                             'end' => $endCarbon->toDateTimeString(),
                         ];
-                        
+
                         // 合計休憩時間（秒）を計算
                         $totalBreakSeconds += $endCarbon->timestamp - $startCarbon->timestamp;
                     }
@@ -509,7 +473,6 @@ class AdminAttendantManagerController extends Controller
             // break_time JSONカラムに設定
             $attendance->break_time = $breakTimeJsonArray;
             // --- 修正箇所2: 終了 ---
-
             // 総労働時間（秒）を計算
             $totalWorkSeconds = 0;
             if ($clockInCarbon && $clockOutCarbon) {
@@ -524,7 +487,6 @@ class AdminAttendantManagerController extends Controller
             $attendance->work_time = round($finalWorkSeconds / 60);
             $attendance->break_total_time = round($totalBreakSeconds / 60);
             $attendance->reason = $reason;
-
             // 勤怠レコードを保存して更新を確定
             $attendance->save();
 
@@ -573,12 +535,9 @@ class AdminAttendantManagerController extends Controller
             $attendance->clock_out_time = $application->clock_out_time;
             $attendance->break_time = $application->break_time; // JSONカラムをそのままコピー
             $attendance->reason = $application->reason;
-
             $totalWorkSeconds = 0;
             $totalBreakSeconds = 0;
-
             // --- 修正箇所: Carbonを使って労働時間と休憩時間を正確に計算 ---
-
             $clockIn = $application->clock_in_time ? Carbon::parse($application->clock_in_time) : null;
             $clockOut = $application->clock_out_time ? Carbon::parse($application->clock_out_time) : null;
 
@@ -606,22 +565,16 @@ class AdminAttendantManagerController extends Controller
                 }
             }
             // --- 修正箇所終了 ---
-
             // 最終的な労働時間（秒）を計算し、マイナスにならないようにする
             $finalWorkSeconds = max(0, $totalWorkSeconds - $totalBreakSeconds);
-
             // 労働時間を分単位に変換して代入
             $attendance->work_time = round($finalWorkSeconds / 60);
-
             // 休憩時間を分単位に変換して代入
             $attendance->break_total_time = round($totalBreakSeconds / 60);
-
             // 勤怠レコードを保存
             $attendance->save();
-
             // applicationsテーブルの`pending`を`false`に更新
             $application->update(['pending' => false]);
-
             // トランザクションをコミット
             DB::commit();
 
@@ -660,11 +613,9 @@ class AdminAttendantManagerController extends Controller
         // 2. 期間の設定とデータ取得
         $startDate = Carbon::create($year, $month, 1)->startOfMonth();
         $endDate = Carbon::create($year, $month, 1)->endOfMonth();
-
         // ユーザー名を取得（ファイル名やCSV内容に使用）
         $user = User::find($userId);
         $userName = $user ? $user->name : 'UnknownUser';
-
         // 勤怠データを取得（画面表示時と同じロジックを使用）
         $attendances = Attendance::where('user_id', $userId)
             ->whereDate('checkin_date', '>=', $startDate->format('Y-m-d'))
@@ -674,7 +625,6 @@ class AdminAttendantManagerController extends Controller
 
         // 3. CSV生成ロジック
         $fileName = $userName . '_勤怠_' . $year . '年' . $month . '月.csv';
-        
         // ----------------------------------------------------
         // 分単位の時間を HH:MM 形式に変換するヘルパー関数
         $formatMinutes = function ($minutes) {
@@ -684,7 +634,6 @@ class AdminAttendantManagerController extends Controller
             return $hours . ':' . str_pad($remainingMinutes, 2, '0', STR_PAD_LEFT);
         };
         // ----------------------------------------------------
-
         // StreamedResponseでCSVダウンロードをストリーム配信
         $response = new StreamedResponse(function () use ($userName, $year, $month, $attendances, $formatMinutes) {
             $stream = fopen('php://output', 'w');
