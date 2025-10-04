@@ -45,7 +45,7 @@ class Id07Test extends TestCase
         // --- 勤務中状態の初期確認 ---
         $this->get(route('user.stamping.index'))
              ->assertStatus(200)
-             ->assertSee('勤務中') 
+             ->assertSee('出勤中') 
              ->assertSee('休憩入')
              ->assertDontSee('休憩戻'); 
 
@@ -105,7 +105,7 @@ class Id07Test extends TestCase
         // 4. --- 最終状態 (勤務中) の確認 (UI: 休憩入) ---
         $this->get(route('user.stamping.index'))
              ->assertStatus(200)
-             ->assertSee('勤務中')
+             ->assertSee('出勤中')
              ->assertSee('休憩入')
              ->assertDontSee('休憩戻');
 
@@ -181,9 +181,9 @@ class Id07Test extends TestCase
 
             // UI確認: 勤務中 (休憩入ボタンが表示されていること)
             $this->get(route('user.stamping.index'))
-                 ->assertSee('勤務中')
+                 ->assertSee('出勤中')
                  ->assertSee('休憩入')
-                 ->assertDontSee('休憩戻', '勤務中は休憩戻ボタンが表示されないことを保証します。');
+                 ->assertDontSee('休憩戻', '出勤中は休憩戻ボタンが表示されないことを保証します。');
 
             // 次のサイクルの開始時刻を計算（勤務時間を進める）
             $currentTime = $breakEndTime->copy()->addMinutes($workDurationMinutes);

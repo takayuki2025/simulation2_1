@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\AttendantManagerController;
+use App\Http\Controllers\UserAttendantManagerController;
+use App\Http\Controllers\AdminAttendantManagerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,27 +54,27 @@ Route::middleware(['auth'])->group(function () {
 
 // ユーザーの勤怠管理のルート
 Route::middleware(['verified'])->group(function () {
-    Route::get('/attendance', [AttendantManagerController::class, 'user_stamping_index'])->name('user.stamping.index');
-    Route::post('/stamping/clock-in', [AttendantManagerController::class, 'clockIn'])->name('attendance.clock_in');
-    Route::post('/stamping/clock-out', [AttendantManagerController::class, 'attendance_create'])->name('attendance.create');
-    Route::post('/stamping/break-start', [AttendantManagerController::class, 'breakStart'])->name('attendance.break_start');
-    Route::post('/stamping/break-end', [AttendantManagerController::class, 'breakEnd'])->name('attendance.break_end');
-    Route::get('/attendance/list', [AttendantManagerController::class, 'user_month_index'])->name('user.month.index');
-    Route::get('/attendance/detail/{id?}', [AttendantManagerController::class, 'user_attendance_detail_index'])->name('user.attendance.detail.index');
-    Route::post('/attendance/update', [AttendantManagerController::class, 'application_create'])->name('application.create');
+    Route::get('/attendance', [UserAttendantManagerController::class, 'user_stamping_index'])->name('user.stamping.index');
+    Route::post('/stamping/clock-in', [UserAttendantManagerController::class, 'clockIn'])->name('attendance.clock_in');
+    Route::post('/stamping/clock-out', [UserAttendantManagerController::class, 'attendance_create'])->name('attendance.create');
+    Route::post('/stamping/break-start', [UserAttendantManagerController::class, 'breakStart'])->name('attendance.break_start');
+    Route::post('/stamping/break-end', [UserAttendantManagerController::class, 'breakEnd'])->name('attendance.break_end');
+    Route::get('/attendance/list', [UserAttendantManagerController::class, 'user_month_index'])->name('user.month.index');
+    Route::get('/attendance/detail/{id?}', [UserAttendantManagerController::class, 'user_attendance_detail_index'])->name('user.attendance.detail.index');
+    Route::post('/attendance/update', [UserAttendantManagerController::class, 'application_create'])->name('application.create');
 });
 
 
 // 管理者の勤怠管理ルート
 Route::middleware(['admin'])->group(function () {
-    Route::get('/admin/attendance/list', [AttendantManagerController::class, 'admin_staff_daily_index'])->name('admin.attendance.list.index');
-    Route::get('/admin/attendance/{id}', [AttendantManagerController::class, 'admin_user_attendance_detail_index'])->name('admin.user.attendance.detail.index');
-    Route::post('/admin/attendance/approve', [AttendantManagerController::class, 'admin_attendance_approve'])->name('admin.attendance.approve');
-    Route::get('/admin/staff/list', [AttendantManagerController::class, 'admin_staff_list_index'])->name('admin.staff.list.index');
-    Route::get('/admin/attendance/staff/{id?}', [AttendantManagerController::class, 'admin_staff_month_index'])->name('admin.staff.month.index');
-    Route::get('/stamp_correction_request/approve/{attendance_correct_request_id}', [AttendantManagerController::class, 'admin_apply_judgement_index'])->name('admin.apply.judgement.index');
-    Route::post('/admin/apply/attendance/approve', [AttendantManagerController::class, 'admin_apply_attendance_approve'])->name('admin.apply.attendance.approve');
-    Route::post('/admin/staff/attendance/export', [AttendantManagerController::class, 'export'])->name('admin.staff.attendance.export');
+    Route::get('/admin/attendance/list', [AdminAttendantManagerController::class, 'admin_staff_daily_index'])->name('admin.attendance.list.index');
+    Route::get('/admin/attendance/{id}', [AdminAttendantManagerController::class, 'admin_user_attendance_detail_index'])->name('admin.user.attendance.detail.index');
+    Route::post('/admin/attendance/approve', [AdminAttendantManagerController::class, 'admin_attendance_approve'])->name('admin.attendance.approve');
+    Route::get('/admin/staff/list', [AdminAttendantManagerController::class, 'admin_staff_list_index'])->name('admin.staff.list.index');
+    Route::get('/admin/attendance/staff/{id?}', [AdminAttendantManagerController::class, 'admin_staff_month_index'])->name('admin.staff.month.index');
+    Route::get('/stamp_correction_request/approve/{attendance_correct_request_id}', [AdminAttendantManagerController::class, 'admin_apply_judgement_index'])->name('admin.apply.judgement.index');
+    Route::post('/admin/apply/attendance/approve', [AdminAttendantManagerController::class, 'admin_apply_attendance_approve'])->name('admin.apply.attendance.approve');
+    Route::post('/admin/staff/attendance/export', [AdminAttendantManagerController::class, 'export'])->name('admin.staff.attendance.export');
 });
 
 
@@ -83,10 +84,10 @@ Route::get('/stamp_correction_request/list', function (Request $request) {
     if ($request->user()->role === 'admin') {
         // 管理者であれば、管理者のコントローラーを呼び出す
         // ★修正点: $request を渡す
-        return app(AttendantManagerController::class)->admin_apply_list_index($request);
+        return app(AdminAttendantManagerController::class)->admin_apply_list_index($request);
     } else {
         // ユーザーが管理者でなければ、通常ユーザーのコントローラーを呼び出す
         // ★修正点: $request を渡す
-        return app(AttendantManagerController::class)->user_apply_index($request);
+        return app(UserAttendantManagerController::class)->user_apply_index($request);
     }
 })->middleware(['auth', 'verified'])->name('apply.list');

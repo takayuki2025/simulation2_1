@@ -54,16 +54,6 @@ class Id04Test extends TestCase
 
         // 5. HTMLコンテンツ内の初期値が含まれていることを、モックされた時刻から動的に計算して検証
 
-        // 5-1. 挨拶文の検証 (設定時刻10:30に基づき「おはようございます」を期待)
-        // コントローラーのロジックを再現: 6時〜12時未満なら「おはようございます」
-        $expectedGreeting = 'こんばんは、'; // デフォルト値
-        if ($testTime->hour >= 6 && $testTime->hour < 12) {
-            $expectedGreeting = 'おはようございます、';
-        } elseif ($testTime->hour >= 12 && $testTime->hour < 18) {
-            $expectedGreeting = 'こんにちは、';
-        }
-        $response->assertSeeText("{$expectedGreeting}{$userName}さん");
-
         // 5-2. 日付と曜日の検証 (ControllerがCarbonを使用している前提で動的に生成)
         // コントローラーで使用されている日付フォーマットと曜日マップを再現
         $dayOfWeekMap = ['日', '月', '火', '水', '木', '金', '土'];

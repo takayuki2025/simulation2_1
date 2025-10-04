@@ -8,8 +8,6 @@
 
 <div class="container">
 
-<h3>{{ $greeting }}</h3>
-
     <div class="stamping-container">
         <div class="stamping-container-inner">
     {{-- メール認証が完了していない場合 --}}
@@ -39,7 +37,7 @@
                 <input type="submit" class="submit-primary" value="休憩戻">
             </form>
         @else
-            <h3 class="status">勤務中</h3><br>
+            <h3 class="status">出勤中</h3><br>
                 <p class="day-and-week" id="currentDayOfWeek">{{ $currentDate }} ({{ $currentDay }})</p>
                 <p class="time-only" id="currentTime">{{ $currentTime }}</p>
             <div class="submit-out-or-break">

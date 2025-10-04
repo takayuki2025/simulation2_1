@@ -72,7 +72,7 @@ class Id05Test extends TestCase
 
         // 検証: ステータスが「勤務中」であることを確認
         $response->assertStatus(200)
-            ->assertSee('<h3 class="status">勤務中</h3>', false);
+            ->assertSee('<h3 class="status">出勤中</h3>', false);
         
         Carbon::setTestNow(null);
     }

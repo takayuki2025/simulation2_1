@@ -43,7 +43,7 @@ class Id08Test extends TestCase
         Carbon::setTestNow($fixedClockInTime);
         $this->get(route('user.stamping.index'))
              ->assertStatus(200)
-             ->assertSee('勤務中')
+             ->assertSee('出勤中')
              ->assertSee('退勤'); 
 
         // === 2. 退勤処理の実行 (attendance_create関数を実行) ===
