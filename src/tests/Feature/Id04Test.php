@@ -60,12 +60,12 @@ class Id04Test extends TestCase
         $expectedDate = $testTime->format('Y年m月d日');
         $expectedDay = $dayOfWeekMap[$testTime->dayOfWeek];
         $expectedDateOfWeekText = "{$expectedDate} ({$expectedDay})";
-        
+
         $response->assertSeeText($expectedDateOfWeekText);
-        
+
         // 5-3. 時刻の検証 (ControllerがCarbonを使用している前提で動的に生成)
         $expectedTime = $testTime->format('H:i');
-        $response->assertSeeText($expectedTime); 
+        $response->assertSeeText($expectedTime);
 
         // 6. テスト終了後、固定時刻設定を解除
         Carbon::setTestNow(null);

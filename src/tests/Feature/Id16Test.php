@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use Illuminate\Support\Facades\Route; // Routeファサードは、最後のテストでモックするために残します
@@ -44,7 +43,7 @@ class Id16Test extends TestCase
             [$user], VerifyEmail::class
         );
     }
-    
+
     /**
      * ID16-1(２)未認証ユーザーが認証通知ページにアクセスできることをテストします。
      * @return void
@@ -110,7 +109,7 @@ class Id16Test extends TestCase
     public function test_unverified_user_redirects_to_login_page()
     {
         // 認証なしで、'auth'ミドルウェアでガードされたページ（/attendance）にアクセスします。
-        $response = $this->get('/attendance'); 
+        $response = $this->get('/attendance');
 
         // 実際のリダイレクト先 'http://localhost/email/verify' にアサーションを修正します。
         $response->assertRedirect('http://localhost/email/verify');
@@ -127,13 +126,13 @@ class Id16Test extends TestCase
 
         // ログイン処理をモック
         $response = $this->actingAs($user)
-                         ->post('/login', [
+            ->post('/login', [
                             'email' => $user->email,
                             'password' => 'password',
-                         ]);
+        ]);
 
         // 勤怠ページ（/attendance）にリダイレクトされることを確認
-        $response->assertRedirect('/attendance'); 
+        $response->assertRedirect('/attendance');
     }
 
     /**
@@ -147,10 +146,8 @@ class Id16Test extends TestCase
 
         // ログイン処理をモック
         $response = $this->actingAs($admin)
-                         ->post('/login', [
-                            'email' => $admin->email,
-                            'password' => 'password',
-                         ]);
+            ->post('/login', ['email' => $admin->email,'password' => 'password',
+            ]);
 
         // 管理者用のトップページ（管理者勤怠一覧）にリダイレクトされることを確認
         // routes/web.phpで定義された実際のルート名を使用
@@ -169,12 +166,12 @@ class Id16Test extends TestCase
         // 認証ルートをモック (このモックは、Laravelの標準的な認証完了後のリダイレクト処理をオーバーライドするために必要です)
         Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
             $request->fulfill();
-            
+
             // fresh()を使ってデータベースから最新（認証済み）のユーザーを取得し、セッションを更新する
-            auth()->login($request->user()->fresh()); 
-            
+            auth()->login($request->user()->fresh());
+
             // routes/web.php の定義に合わせて /attendance にリダイレクト
-            return redirect('/attendance'); 
+            return redirect('/attendance');
         })->name('verification.verify');
 
         // メール認証リンクにアクセス
@@ -185,6 +182,6 @@ class Id16Test extends TestCase
         ]));
 
         // routes/web.php の定義通り、/attendance にリダイレクトされることを確認
-        $response->assertRedirect('/attendance'); 
+        $response->assertRedirect('/attendance');
     }
 }

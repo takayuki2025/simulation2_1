@@ -44,7 +44,7 @@ class Id14Test extends TestCase
                 'dateString' => $dateString,
                 'application' => $application, // 申請データ
                 'attendance' => Attendance::where('user_id', $staffUser->id)->where('checkin_date', $dateString)->first(), // 勤怠データ
-            ])); 
+            ]));
         })
             ->name('admin.user.attendance.detail.index');
 
@@ -52,18 +52,18 @@ class Id14Test extends TestCase
         // ----------------------------------------------------
         // 2. テストデータの準備
         // ----------------------------------------------------
-        
-        // 管理者ユーザー 
+
+        // 管理者ユーザー
         // Bladeビューがロールフィルタリングに変わったため、IDを任意の大きな値に戻します。
         $this->adminUser = User::factory()->create(['role' => 'admin', 'name' => '管理者X', 'id' => 100]);
-        
-        // スタッフユーザー 
+
+        // スタッフユーザー
         $this->staffUser1 = User::factory()->create(['role' => 'staff', 'name' => 'テストスタッフA', 'email' => 'test_a@example.com', 'id' => 2]);
         $this->staffUser2 = User::factory()->create(['role' => 'staff', 'name' => 'テストスタッフB', 'email' => 'test_b@example.com', 'id' => 3]);
-        
+
         // 勤怠データ（テスト対象の日付は過去の日付を使用）
-        $this->testDatePast = '2025-09-25'; 
-        
+        $this->testDatePast = '2025-09-25';
+
         // 勤怠レコード（スタッフA）
         $this->attendanceA = Attendance::factory()->create([
             'user_id' => $this->staffUser1->id,
@@ -72,7 +72,7 @@ class Id14Test extends TestCase
             'clock_out_time' => '18:00:00',
             'break_total_time' => 60, // 1時間 = 60分
             // HTML出力に合わせて、work_timeの値を8時間(480分)に設定
-            'work_time' => 480, 
+            'work_time' => 480,
         ]);
 
         // 申請レコード（スタッフA - 勤怠データを上書きする内容）
@@ -91,26 +91,26 @@ class Id14Test extends TestCase
     public function test_admin_staff_list_index_displays_all_staff()
     {
         $response = $this->actingAs($this->adminUser)
-                         ->get(route('admin.staff.list.index'));
+            ->get(route('admin.staff.list.index'));
 
         $response->assertStatus(200);
         $response->assertSee('スタッフ一覧');
-        
+
         // スタッフAの情報が表示されていること
         $response->assertSee($this->staffUser1->name);
         $response->assertSee($this->staffUser1->email);
-        
+
         // スタッフBの情報が表示されていること
         $response->assertSee($this->staffUser2->name);
         $response->assertSee($this->staffUser2->email);
-        
+
         // スタッフAの月次勤怠へのリンクが存在すること
         $response->assertSee(route('admin.staff.month.index', ['id' => $this->staffUser1->id]));
         $response->assertSee('詳細');
-        
+
         // ログイン中の管理者自身の情報は一覧に含まれないことを確認
         // Blade側でロール('admin')でフィルタリングされるため、管理者Xは表示されないことを確認します。
-        $response->assertDontSee($this->adminUser->name); 
+        $response->assertDontSee($this->adminUser->name);
     }
 
     /**
@@ -122,27 +122,27 @@ class Id14Test extends TestCase
         $targetDate = Carbon::parse($this->testDatePast);
         $year = $targetDate->year;
         $month = $targetDate->month;
-        
+
         // Bladeテンプレートの出力がゼロパディング (09) されていると仮定
-        $expectedMonthDisplay = $targetDate->format('Y/m'); 
+        $expectedMonthDisplay = $targetDate->format('Y/m');
 
         $response = $this->actingAs($this->adminUser)
-                         ->get(route('admin.staff.month.index', [
-                             'id' => $this->staffUser1->id,
-                             'year' => $year,
-                             'month' => $month
-                         ]));
+            ->get(route('admin.staff.month.index', [
+            'id' => $this->staffUser1->id,
+            'year' => $year,
+            'month' => $month
+            ]));
 
         $response->assertStatus(200);
-        
+
         // スタッフ名がタイトルに表示されていること
         $response->assertSee("{$this->staffUser1->name}さんの勤怠一覧");
-        
+
         // 日付ナビゲーションが表示されていること
-        $response->assertSee($expectedMonthDisplay); 
+        $response->assertSee($expectedMonthDisplay);
         $response->assertSee('前 月');
         $response->assertSee('翌 月');
-        
+
         // CSV出力ボタンのフォームが正しく設定されていること
         $response->assertSee('name="user_id" value="' . $this->staffUser1->id . '"', false);
         $response->assertSee('name="year" value="' . $year . '"', false);
@@ -150,17 +150,17 @@ class Id14Test extends TestCase
         // 💡 修正箇所: テストエラーのHTML出力に合わせて、ボタンのクラス名のアサーションを修正。
         // HTML出力にクラス名 ('class="csv-submit"') が含まれていないため、ボタンのテキストで検証します。
         $response->assertSee('CSV出力</button>', false);
-        
+
         // 勤怠データがある日の出勤時刻を検証 (HTML出力の25日のデータ)
-        $response->assertSee('<td>09:00</td>', false); 
-        $response->assertSee('<td>18:00</td>', false); 
+        $response->assertSee('<td>09:00</td>', false);
+        $response->assertSee('<td>18:00</td>', false);
 
         // 勤怠データがある日の詳細ボタン（テストデータの日付 2025-09-25）のリンクを検証
         $expectedQuery = "admin/attendance/{$this->staffUser1->id}?date={$this->testDatePast}&amp;redirect_to=";
         $response->assertSee($expectedQuery, false);
         $response->assertSee('class="detail-button">詳細</a>', false);
     }
-    
+
     /**
      * 【フェーズ3】日次勤怠詳細ページ (admin.user.attendance.detail.index) の表示を検証する。
      */
@@ -168,42 +168,42 @@ class Id14Test extends TestCase
     {
         $testDate = $this->testDatePast; // 勤怠/申請データが両方ある日付
         $staffId = $this->staffUser1->id;
-        
+
         // 戻り先URLを構築 (テストデータの日付から年月を取得)
         $year = Carbon::parse($testDate)->year;
         $month = Carbon::parse($testDate)->month;
         $redirectUrl = route('admin.staff.month.index', ['id' => $staffId, 'year' => $year, 'month' => $month]);
 
         $response = $this->actingAs($this->adminUser)
-                         ->get(route('admin.user.attendance.detail.index', [
-                             'id' => $staffId, 
-                             'date' => $testDate,
-                             'redirect_to' => $redirectUrl, 
-                         ]));
+            ->get(route('admin.user.attendance.detail.index', [
+            'id' => $staffId,
+            'date' => $testDate,
+            'redirect_to' => $redirectUrl,
+            ]));
 
         $response->assertStatus(200);
-        
+
         // ページタイトルが '勤怠詳細' であることを検証
-        $response->assertSee('勤怠詳細'); 
-        
+        $response->assertSee('勤怠詳細');
+
         // 優先されるべき申請データの内容がフォームに表示されていることを検証
-        
+
         // 申請データ: 09:15:00
         $response->assertSee('name="clock_in_time"', false);
         $response->assertSee('value="09:15"', false);
-        
+
         // 申請データ: 18:15:00
         $response->assertSee('name="clock_out_time"', false);
         $response->assertSee('value="18:15"', false);
 
         // 申請データ: 理由
         $response->assertSee('申請による修正');
-        
+
         // ユーザー名が表示されていること
         $response->assertSee('テストスタッフA');
 
         // 戻り先URLがhidden fieldに正しく設定されていること
-        $response->assertSee('name="redirect_to"', false); 
+        $response->assertSee('name="redirect_to"', false);
         $response->assertSee('value="' . htmlspecialchars($redirectUrl) . '"', false);
     }
 }

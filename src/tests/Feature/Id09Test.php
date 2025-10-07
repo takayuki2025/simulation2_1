@@ -27,7 +27,7 @@ class Id09Test extends TestCase
         // このテストは一般ユーザーの勤怠一覧を対象とします。
         $this->user = User::factory()->create();
     }
-    
+
     /**
      * テスト後のクリーンアップ（テストで設定した現在時刻の固定を解除）
      */
@@ -69,7 +69,7 @@ class Id09Test extends TestCase
         // 3. 月ナビゲーションのタイトルが存在することをアサート
         $response->assertSee($expectedDisplayDate); // 2025/09が表示されていること
         $response->assertSee('勤怠一覧');
-        
+
         // 【堅牢性向上】ターゲットではない月が表示されていないことを確認
         $response->assertDontSee('2025/08');
         $response->assertDontSee('2025/10');
@@ -78,16 +78,16 @@ class Id09Test extends TestCase
         // (日、月、火、水、木)
         $daysOfWeek = ['月', '火', '水', '木', '金'];
         $expectedOrder = [];
-        
+
         for ($i = 0; $i < 5; $i++) {
             $dayMinute = $i + 1; // 1, 2, 3, 4, 5
             $dayOfWeek = $daysOfWeek[$i];
-            
+
             // 日付表示のチェック
             $expectedOrder[] = "9/0{$dayMinute}({$dayOfWeek})";
-            
+
             // 出勤時間 (例: 09:01)
-            $expectedOrder[] = sprintf('09:%02d', $dayMinute); 
+            $expectedOrder[] = sprintf('09:%02d', $dayMinute);
             // 退勤時間 (例: 18:01)
             $expectedOrder[] = sprintf('18:%02d', $dayMinute);
             // 休憩時間 (1:00)
@@ -100,7 +100,7 @@ class Id09Test extends TestCase
 
         // 連続するデータ行全体をチェック
         $response->assertSeeInOrder($expectedOrder);
-        
+
         // ナビゲーションリンクのチェック
         $response->assertSee('href="?year=2025&month=8"', false);
         $response->assertSee('前 月', false);
@@ -123,7 +123,7 @@ class Id09Test extends TestCase
 
         // 2. ユーザーを作成し認証する
         $user = User::factory()->create();
-        
+
         // 3. クエリパラメータなしで勤怠一覧ページにアクセス ( /attendance/list )
         $response = $this->actingAs($user)->get('/attendance/list');
 
@@ -159,7 +159,7 @@ class Id09Test extends TestCase
         $targetDisplay = "{$targetYear}/{$targetMonth}"; // 2025/10
 
         // 以前の月 (2025年9月) - これが残留していないことを確認
-        $previousDisplay = '2025/09'; 
+        $previousDisplay = '2025/09';
 
         $response = $this->get("/attendance/list?year={$targetYear}&month={$targetMonth}");
 
@@ -178,7 +178,7 @@ class Id09Test extends TestCase
         $response->assertSee('前 月', false);
         $response->assertSee('翌 月', false);
     }
-    
+
     /**
      * 前月へのナビゲーションリンクが正しく機能するかをテストします。
      */
@@ -191,7 +191,7 @@ class Id09Test extends TestCase
         // 期待される前月 (2024年4月) をCarbonで計算
         $expectedPrevMonth = Carbon::create($startYear, $startMonth)->subMonth();
         $expectedPrevQuery = "?year={$expectedPrevMonth->year}&month={$expectedPrevMonth->month}";
-        $expectedPrevDisplay = $expectedPrevMonth->format('Y/m'); 
+        $expectedPrevDisplay = $expectedPrevMonth->format('Y/m');
 
         // 2. ログインユーザーとして基準月のページにアクセス
         $response = $this->actingAs($this->user)->get("/attendance/list?year={$startYear}&month={$startMonth}");
@@ -263,7 +263,7 @@ class Id09Test extends TestCase
 
         $expectedCheckIn = '09:00';
         $expectedCheckOut = '18:00';
-        
+
         $expectedBreakTimesArray = [
             ['start' => '12:00:00', 'end' => '13:00:00'], // 休憩1 (60分)
             ['start' => '15:00:00', 'end' => '15:15:00'], // 休憩2 (15分)
@@ -290,7 +290,7 @@ class Id09Test extends TestCase
         // アプリケーションが絶対URL (http://localhost...) をレンダリングしているため、期待する文字列を修正します
         $expectedPathWithId = route('user.attendance.detail.index', ['id' => $attendance->id, 'date' => $targetDate->toDateString()], false);
         $expectedFullUrlWithId = 'http://localhost' . $expectedPathWithId;
-        
+
         // レンダリングされたHTMLに、ルート名のURLが含まれていることをアサート
         $expectedAnchorWithId = '<a href="' . $expectedFullUrlWithId . '" class="detail-button">詳細</a>';
         $response->assertSee($expectedAnchorWithId, false);
@@ -308,10 +308,10 @@ class Id09Test extends TestCase
         $detailResponse = $this->actingAs($this->user)->get($expectedPathWithId);
 
         $detailResponse->assertStatus(200);
-        
+
         // 7. 詳細ページに、作成した勤怠情報がフォームのvalueとして正しく表示されていることを確認
         $detailResponse->assertSee('勤怠詳細・修正申請', 'h2');
-        
+
         // 元のアサーション: $detailResponse->assertSee($targetDate->format('Y年m月d日'));
         // HTMLのレンダリングに余分な空白文字が含まれているため、年と月日を分けてアサートするよう修正
         $detailResponse->assertSee($targetDate->format('Y年'));
@@ -320,10 +320,10 @@ class Id09Test extends TestCase
         // 出勤・退勤時刻、休憩時間がフォームに正しく初期値としてセットされていることを検証
         $detailResponse->assertSee('value="' . $expectedCheckIn . '"', false);
         $detailResponse->assertSee('value="' . $expectedCheckOut . '"', false);
-        
+
         $detailResponse->assertSee('value="12:00"', false); // 休憩1 開始
         $detailResponse->assertSee('value="13:00"', false); // 休憩1 終了
-        
+
         $detailResponse->assertSee('value="15:00"', false); // 休憩2 開始
         $detailResponse->assertSee('value="15:15"', false); // 休憩2 終了
     }

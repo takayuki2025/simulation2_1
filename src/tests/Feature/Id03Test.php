@@ -99,11 +99,11 @@ class Id03Test extends TestCase
     public function test_general_user_cannot_login_via_admin_page(): void
     {
         // 1. 一般ユーザーをセットアップ
-        $password = 'general_pass';
+        $password = 'employee_pass';
         $generalUser = User::factory()->create([
-            'email' => 'general@example.com',
+            'email' => 'employee@example.com',
             'password' => Hash::make($password),
-            'role' => 'general', // 一般ユーザーロール
+            'role' => 'employee', // 一般ユーザーロール
         ]);
 
         // 2. 管理者ログインURLでログインを試みる

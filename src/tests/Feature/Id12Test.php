@@ -28,7 +28,7 @@ class Id12Test extends TestCase
         // 管理者ユーザーを作成 (role: 'admin'を仮定)
         $this->adminUser = User::factory()->create(['role' => 'admin']);
         // 一般スタッフユーザーを作成 (role: 'user'を仮定)
-        $this->staffUser = User::factory()->create(['role' => 'user']);
+        $this->staffUser = User::factory()->create(['role' => 'employee']);
     }
 
     /**
@@ -50,7 +50,7 @@ class Id12Test extends TestCase
         // 1. 現在日時を固定 (2025-10-15)
         $today = Carbon::create(2025, 10, 15, 10, 0, 0);
         Carbon::setTestNow($today);
-        
+
         // ターゲット日（昨日）
         $targetDate = $today->copy()->subDay(); // 2025-10-14
         $dateString = $targetDate->toDateString();
@@ -72,7 +72,7 @@ class Id12Test extends TestCase
 
         // 4. 表示内容の検証
         $response->assertSee($targetDate->format('Y年m月d日') . 'の勤怠');
-        $response->assertSee($this->staffUser->name); 
+        $response->assertSee($this->staffUser->name);
         $response->assertSee('09:30'); // 出勤時間
         $response->assertSee('17:30'); // 退勤時間
         $response->assertSee('1:30');  // 休憩時間
@@ -84,7 +84,7 @@ class Id12Test extends TestCase
         $response->assertSee('redirect_to', false);
         $response->assertSee('class="detail-button">詳細</a>', false);
     }
-    
+
     /**
      * 【追加テスト】管理者が今日の日付を閲覧し、勤怠データが正しく反映されていることをテストします。
      *
@@ -103,8 +103,8 @@ class Id12Test extends TestCase
             'checkin_date' => $dateString,
             'clock_in_time' => '09:00:00',
             // 退勤時間は未打刻（null）をシミュレート
-            'clock_out_time' => null, 
-            'break_total_time' => 0, 
+            'clock_out_time' => null,
+            'break_total_time' => 0,
             'work_time' => 60, // 10:00の時点で1時間（60分）経過
         ]);
 
@@ -115,10 +115,10 @@ class Id12Test extends TestCase
 
         // 4. 表示内容の検証
         $response->assertSee($today->format('Y年m月d日') . 'の勤怠');
-        $response->assertSee($this->staffUser->name); 
+        $response->assertSee($this->staffUser->name);
         $response->assertSee('09:00'); // 出勤時間
         // 退勤がないため空欄 (<td></td>)
-        $response->assertSeeInOrder(['<td>', '</td>', '<td>0:00</td>', '<td>1:00</td>'], false); 
+        $response->assertSeeInOrder(['<td>', '</td>', '<td>0:00</td>', '<td>1:00</td>'], false);
 
         // 5. 詳細ボタンの検証（今日の日付なので表示されるはず）
         // ★修正: URLの主要部分と、redirect_toの存在をチェックする
@@ -137,7 +137,7 @@ class Id12Test extends TestCase
         // 1. 現在日時を固定 (2025-10-15)
         $today = Carbon::create(2025, 10, 15, 10, 0, 0);
         Carbon::setTestNow($today);
-        
+
         // ターゲット日（明日）
         $targetDate = $today->copy()->addDay(); // 2025-10-16
         $dateString = $targetDate->toDateString();
@@ -151,16 +151,16 @@ class Id12Test extends TestCase
 
         // 4. 表示内容の検証
         $response->assertSee($targetDate->format('Y年m月d日') . 'の勤怠');
-        $response->assertSee($this->staffUser->name); 
-        
+        $response->assertSee($this->staffUser->name);
+
         // 勤務情報はすべて空欄であることを確認
         $response->assertSeeInOrder([$this->staffUser->name, '<td></td>', '<td></td>', '<td></td>', '<td></td>'], false);
-        
+
         // 5. 詳細ボタンの検証（未来の日付なので表示されないはず）
         $response->assertDontSee('class="detail-button"');
-        
+
         // 6. 代わりに &nbsp; が表示されていることを検証（未来日付の場合）
-        $response->assertSee('&nbsp;', false); 
+        $response->assertSee('&nbsp;', false);
     }
 
     // --- 既存のテストメソッド（修正あり） ---
@@ -175,7 +175,7 @@ class Id12Test extends TestCase
         // 1. 現在日時を固定 (2025-10-15)
         $today = Carbon::create(2025, 10, 15, 10, 0, 0);
         Carbon::setTestNow($today);
-        
+
         // ターゲット日（昨日）
         $targetDate = $today->copy()->subDay(); // 2025-10-14
         $dateString = $targetDate->toDateString();
@@ -190,17 +190,17 @@ class Id12Test extends TestCase
         // 4. 表示内容の検証
         $response->assertSee($targetDate->format('Y年m月d日') . 'の勤怠');
         $response->assertSee($this->staffUser->name); // スタッフの名前は表示される
-        
+
         // 勤務情報はすべて空欄であることを確認（<td></td>が順序通りに出現する）
         $response->assertSeeInOrder([$this->staffUser->name, '<td></td>', '<td></td>', '<td></td>', '<td></td>'], false);
-        
+
         // 5. 詳細ボタンの検証（過去の日付なので表示されるはず）
         // ★修正: URLの主要部分と、redirect_toの存在をチェックする
         $response->assertSee('/admin/attendance/' . $this->staffUser->id . '?date=' . $dateString, false);
         $response->assertSee('redirect_to', false);
         $response->assertSee('class="detail-button">詳細</a>', false);
     }
-    
+
     /**
      * 前日へのナビゲーションリンクが正しく機能するかをテストします。
      */
@@ -210,15 +210,15 @@ class Id12Test extends TestCase
         $today = Carbon::create(2025, 10, 15, 10, 0, 0);
         Carbon::setTestNow($today);
         $dateString = $today->toDateString();
-        
+
         // 2. 管理者として今日のページにアクセス
         $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
         $response->assertStatus(200);
-        
+
         // 3. 「前日」リンクのhref属性をチェック (2025-10-14)
         $prevDay = $today->copy()->subDay();
         $expectedPrevQuery = '?date=' . $prevDay->toDateString();
-        
+
         // 修正: 相対パス（クエリ部分）のみをチェック
         $response->assertSee('href="' . $expectedPrevQuery . '"', false);
         $response->assertSee('前 日', false);
@@ -240,15 +240,15 @@ class Id12Test extends TestCase
         $today = Carbon::create(2025, 10, 15, 10, 0, 0);
         Carbon::setTestNow($today);
         $dateString = $today->toDateString();
-        
+
         // 2. 管理者として今日のページにアクセス
         $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
         $response->assertStatus(200);
-        
+
         // 3. 「翌日」リンクのhref属性をチェック (2025-10-16)
         $nextDay = $today->copy()->addDay();
         $expectedNextQuery = '?date=' . $nextDay->toDateString();
-        
+
         // 修正: 相対パス（クエリ部分）のみをチェック
         $response->assertSee('href="' . $expectedNextQuery . '"', false);
         $response->assertSee('翌 日', false);
@@ -270,7 +270,7 @@ class Id12Test extends TestCase
         // 1. 現在日時を固定 (2025-10-15)
         $today = Carbon::create(2025, 10, 15, 10, 0, 0);
         Carbon::setTestNow($today);
-        
+
         // ターゲット日（明日）
         $futureDate = $today->copy()->addDay(); // 2025-10-16
         $dateString = $futureDate->toDateString();
@@ -282,12 +282,12 @@ class Id12Test extends TestCase
 
         // 3. 表示内容の検証
         $response->assertSee($futureDate->format('Y年m月d日') . 'の勤怠');
-        $response->assertSee($this->staffUser->name); 
+        $response->assertSee($this->staffUser->name);
 
         // 4. 詳細ボタンのHTML（href属性）が存在しないことをアサート
         $response->assertDontSee('class="detail-button"');
-        
+
         // 5. 代わりに &nbsp; が表示されていることを検証（未来日付の場合）
-        $response->assertSee('&nbsp;', false); 
+        $response->assertSee('&nbsp;', false);
     }
 }
