@@ -17,8 +17,6 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             EmployeesUserSeeder::class,
             AttendancesTableSeeder::class,
-            // ApplicationsTableSeeder::class,
-
         ]);
     }
 }
