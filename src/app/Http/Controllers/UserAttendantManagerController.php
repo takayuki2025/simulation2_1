@@ -409,11 +409,11 @@ class UserAttendantManagerController extends Controller
             }
 
             // break_time JSONカラムを配列として取得
-            $breakTimes = is_array($attendance->break_time) ? $attendance->break_time : json_decode($attendance->break_time, true) ?? []; 
+            $breakTimes = is_array($attendance->break_time) ? $attendance->break_time : json_decode($attendance->break_time, true) ?? [];
             // 1. 総休憩時間（秒）をJSON配列から計算
             $totalBreakSeconds = 0;
             foreach ($breakTimes as $break) {
-                if (!empty($break['start']) && !empty($break['end'])) { 
+                if (!empty($break['start']) && !empty($break['end'])) {
                     $start = Carbon::parse($break['start']);
                     $end = Carbon::parse($break['end']);
 
@@ -470,7 +470,7 @@ class UserAttendantManagerController extends Controller
                 // 新しい休憩開始を追加
                 $breakTimes[] = [
                     'start' => Carbon::now()->toDateTimeString(),
-                    'end' => null, 
+                    'end' => null,
                 ];
 
                 $attendance->update([
@@ -610,13 +610,13 @@ class UserAttendantManagerController extends Controller
         $application->break_time = $breakTimeJsonArray;
         // --- 修正箇所2: 終了 ---
         $application->reason = $reason;
-        
+
         // ★修正箇所: break_total_time, work_time の代入を削除。
         //   これらの値は申請データに含まれるべきではないため、マイグレーションから削除したことに伴い、
         //   代入処理も削除します。承認時に計算されるという設計思想に合致します。
         // $application->work_time = 0;
         // $application->break_total_time = 0;
-        
+
         $application->save();
 
         // ----------------------------------------------------------------------

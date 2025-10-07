@@ -148,17 +148,10 @@ class ApplicationAndAttendantRequest extends FormRequest
      */
     public function messages(): array
     {
-        // ログインユーザーが管理者 ('admin') であるかチェック (実際の認証ロジックに合わせて調整してください)
-        $isAdmin = $this->user() && $this->user()->role === 'admin';
-        // 管理者用の共通メッセージ
-        $adminTimeError = '出勤時間もしくは退勤時間が不適切な値です。';
-        // 一般ユーザー用の個別メッセージ
-        $userClockInError = '出勤時間もしくは退勤時間が不適切な値です。';
-        $userClockOutError = '出勤時間もしくは退勤時間が不適切な値です。';
+
         return [
-            // 1. 出勤・退勤の順序エラー (ロールによってメッセージを分岐)
-            'clock_in_time.before' => $isAdmin ? $adminTimeError : $userClockInError,
-            'clock_out_time.after' => $isAdmin ? $adminTimeError : $userClockOutError,
+            'clock_in_time.before' => '出勤時間もしくは退勤時間が不適切な値です。',
+            'clock_out_time.after' => '出勤時間もしくは退勤時間が不適切な値です。',
             // 2. 休憩時間のエラー (共通)
             // 汎用メッセージ
             'break_times.*.start_time.before' => '休憩時間が不適切な値です。',
