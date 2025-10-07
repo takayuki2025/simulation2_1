@@ -75,7 +75,7 @@ body {
 /* .time-inputs input[type="text"], */
 .time-inputs span {
     width: 80px;
-    padding: 5px;
+    /* padding: 5px; */
     font-size: 15px;
     margin: 0 5px;
         color: #000000;
@@ -90,10 +90,10 @@ td>span {
 }
 
 td>span:last-child {
-    white-space: pre-wrap;
-    /* word-wrap: break-word; */
+    /* white-space: pre-wrap; */
     overflow-wrap: break-word;
-    word-break: break-all;
+    word-break: break-word;
+    /* word-break: break-all; */
 }
 
 .button-container {
@@ -102,7 +102,7 @@ td>span:last-child {
 }
 
 .button {
-    padding: 10px 20px;
+    padding: 10px 30px;
     font-weight: 800;
     border: none;
     border-radius: 5px;

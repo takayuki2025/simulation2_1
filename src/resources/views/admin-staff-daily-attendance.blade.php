@@ -41,7 +41,7 @@
         <tbody>
         @foreach ($dailyAttendanceData as $data)
             <tr>
-                <td class="daily-user-name">{{ $data['user_name'] }}</td>
+                <td>{{ $data['user_name'] }}</td>
                 <td>{{ $data['clockInTime'] }}</td>
                 <td>{{ $data['clockOutTime'] }}</td>
                 <td>{{ $data['breakTimeDisplay'] }}</td>

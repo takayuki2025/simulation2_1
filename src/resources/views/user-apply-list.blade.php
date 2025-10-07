@@ -32,7 +32,7 @@
             <td><span style="font-weight: bold;">{{ $application['status_text'] }}</span></td>
             <td>{{ $application['user_name'] }}</td>
             <td>{{ $application['target_date_display'] }}</td>
-            <td class="user-apply-reason">{{ $application['reason'] }}</td>
+            <td>{{ $application['reason'] }}</td>
             <td>{{ $application['created_at_display'] }}</td>
             <td>
 {{-- 日付が有効な場合のみリンクを表示 --}}

@@ -27,7 +27,7 @@
             <h4 class="status">退勤済</h4><br>
                 <p class="day-and-week" id="currentDayOfWeek">{{ $currentDate }} ({{ $currentDay }})</p>
                 <p class="time-only" id="currentTime">{{ $currentTime }}</p>
-            <h3>お疲れ様でした。</h3>
+            <p class="finish-message">お疲れ様でした。</p>
         @elseif($isBreaking)
             <h4 class="status">休憩中</h4><br>
                 <p class="day-and-week" id="currentDayOfWeek">{{ $currentDate }} ({{ $currentDay }})</p>

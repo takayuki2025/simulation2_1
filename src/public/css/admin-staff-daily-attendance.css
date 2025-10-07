@@ -107,28 +107,59 @@ body {
     font-weight: 600;
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .attendance-table th {
-    padding: 10px;
+    padding: 10px 5px;
     text-align: center;
     border-bottom: 3px solid #e1e1e1;
 }
 
 .attendance-table td {
     height: 47px;
-    padding: 10px;
+    padding: 10px 5px;
     text-align: center;
     border-bottom: 2px solid #e1e1e1;
     white-space: nowrap;
     letter-spacing: 2px;
 }
 
-.daily-user-name {
+.attendance-table th:nth-child(1),
+.attendance-table td:nth-child(1) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 130px;
+    /* max-width: 130px; */
+    width: 24%;
+    padding-left: 26px;
+}
+
+/* 2. 時刻、休憩、合計のカラム (2番目から5番目) */
+.attendance-table th:nth-child(2),
+.attendance-table td:nth-child(2),
+.attendance-table th:nth-child(3),
+.attendance-table td:nth-child(3),
+.attendance-table th:nth-child(4),
+.attendance-table td:nth-child(4),
+.attendance-table th:nth-child(5),
+.attendance-table td:nth-child(5) {
+    width: 14%;
+    /* 👈 4カラム x 15% = 60% */
+}
+
+/* 3. 最後のカラム (詳細) */
+.attendance-table th:nth-child(6),
+.attendance-table td:nth-child(6) {
+    width: 20%;
+    /* 👈 残りの 20% */
+}
+
+.daily-user-name {
+    /* white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px; */
 }
 
 .attendance-table tr:last-child th {
@@ -138,7 +169,7 @@ body {
 }
 
 .attendance-table tr:last-child td {
-    min-width: 85px;
+    /* min-width: 100px; */
     /* min-height: 35px; */
     /* max-inline-size:   14px; */
     /* display: inline-block; */

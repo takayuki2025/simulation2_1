@@ -30,8 +30,8 @@ class AttendancesTableSeeder extends Seeder
                     continue;
                 }
 
-                // 平日にランダムで休みを取る（約15%の確率でスキップ）
-                if (rand(1, 100) <= 15) {
+                // 平日にランダムで休みを取る（約10%の確率でスキップ）
+                if (rand(1, 100) <= 10) {
                     continue;
                 }
 

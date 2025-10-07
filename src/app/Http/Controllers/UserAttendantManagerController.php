@@ -106,6 +106,11 @@ class UserAttendantManagerController extends Controller
         // ★追加: 今日の日付を取得 (比較に使用)
         $today = Carbon::now()->startOfDay();
 
+        // ------------------ 修正点: 月のフォーマット ------------------
+        // 月の表示を「01, 02, ..., 12」形式に統一するために、Carbonの'm'フォーマットを使用
+        $formattedMonth = $date->format('m');
+        // -------------------------------------------------------------
+
         for ($i = 1; $i <= $daysInMonth; $i++) {
             $currentDay = Carbon::createFromDate($year, $month, $i);
             $dateKey = $currentDay->format('Y-m-d');
@@ -114,7 +119,8 @@ class UserAttendantManagerController extends Controller
             $dayOfWeek = $dayOfWeekMap[$currentDay->dayOfWeek];
 
             $data = [
-                'day_label' => "{$month}/{$currentDay->format('d')}({$dayOfWeek})",
+                // ★修正箇所: $month の代わりに $formattedMonth を使用し、常に'09'のように表示
+                'day_label' => "{$formattedMonth}/{$currentDay->format('d')}({$dayOfWeek})",
                 'is_weekend' => $currentDay->dayOfWeek == 0 || $currentDay->dayOfWeek == 6,
                 'date_key' => $dateKey, // ★追加: 日付文字列をBladeに渡す
                 'clock_in' => '',

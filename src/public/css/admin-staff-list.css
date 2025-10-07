@@ -34,9 +34,11 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    table-layout: fixed;
 }
 
 .staff-table th {
+    
     padding: 10px;
     text-align: center;
     border-bottom: 3px solid #e1e1e1;
@@ -49,15 +51,73 @@ body {
     letter-spacing: 2px;
 }
 
+
+/* 1. 最初の th の左側のスペースを広げる */
+.staff-table th:first-child {
+
+    /* padding-left: 20px; */
+    /* padding-right: 10px; */
+
+}
+
+
+.staff-table th:last-child {
+
+    /* padding-right: 20px; */
+    /* padding-left: 10px; */
+
+}
+
+
+.staff-table td:first-child {
+    /* padding-left: 20px; */
+    /* padding-right: 10px; */
+
+}
+
+
+.staff-table td:last-child {
+    /* padding-right: 20px; */
+    /* padding-left: 10px; */
+
+}
+
+.staff-table th:nth-child(1),
+.staff-table td:nth-child(1) {
+    white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        /* max-width: 130px; */
+        width: 23%;
+            padding-left: 20px;
+}
+
+.staff-table th:nth-child(2),
+.staff-table td:nth-child(2) {
+    /* 1. テキストを強制的に一行に保つ */
+    /* max-width: 220px; */
+    white-space: normal;
+    word-break: break-all;
+        overflow-wrap: break-word;
+        width: 60%;
+}
+
+.staff-table th:nth-child(3),
+.staff-table td:nth-child(3) {
+    width: 17%;
+        padding-right: 20px;
+}
+
 .staff-table tr:last-child td {
-    border-bottom: none;
+    /* border-bottom: none; */
 }
 
 .list-user-name {
-    white-space: nowrap;
+    
+    /* white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 130px;
+    max-width: 130px; */
 }
 
 .detail-button {
