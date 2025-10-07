@@ -68,7 +68,7 @@ body {
 }
 
 .model-1-button:hover {
-    color: rgb(66, 30, 186);
+    /* color: rgb(66, 30, 186); */
 }
 
 .model-2-button:hover {}

@@ -31,7 +31,6 @@ Route::middleware(['guest'])->group(function () {
 });
 
 
-
 // ログイン済みのユーザーのみアクセスできるルート
 Route::middleware(['auth'])->group(function () {
     // メール認証ルート
