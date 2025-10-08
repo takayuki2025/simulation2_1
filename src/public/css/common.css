@@ -66,13 +66,3 @@ body {
     padding: 10px 0;
     vertical-align: middle;
 }
-
-.model-1-button:hover {
-    /* color: rgb(66, 30, 186); */
-}
-
-.model-2-button:hover {}
-
-.apply-list-button:hover {}
-
-.logout-button:hover {}

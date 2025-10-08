@@ -18,8 +18,6 @@ class Application extends Model
         'clock_in_time',
         'clock_out_time',
         'break_time',
-        // 'break_total_time',
-        // 'work_time',
         'reason',
         'pending',
     ];

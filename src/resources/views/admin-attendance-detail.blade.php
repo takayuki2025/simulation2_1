@@ -31,7 +31,7 @@
         <tbody>
             <tr>
                 <th>名前</th>
-                <td class="detail-user-name">{{ $attendance ? $attendance->user->name : $user->name }}</td>
+                <td>{{ $attendance ? $attendance->user->name : $user->name }}</td>
             </tr>
             <tr>
                 <th>日付</th>
@@ -106,7 +106,6 @@
             <button type="submit" class="button approve-button">修 正</button>
         </div>
     </form>
-<!-- {{-- 元のページに戻るためのリンク --}}
-<a href="{{ request()->input('redirect_to') }}" class="button back-button">戻る</a> -->
+
 </div>
 @endsection

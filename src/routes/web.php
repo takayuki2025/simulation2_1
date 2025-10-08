@@ -47,7 +47,6 @@ Route::middleware(['auth'])->group(function () {
         $request->fulfill();
         return redirect('/attendance');
     })->middleware(['signed'])->name('verification.verify');
-
 });
 
 

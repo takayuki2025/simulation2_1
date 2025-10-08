@@ -6,10 +6,6 @@
 
 body {
     background-color: #f0eff2;
-    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
-    /* margin: 0 auto;
-    max-width: 1400px;
-    min-height: 1000px; */
 }
 
 .container {
@@ -56,30 +52,15 @@ body {
 
 .detail-table td {
     color: #000000;
-    /* font-size: 19px; */
     letter-spacing: 2px;
-    
-}
-
-
-.detail-table .last-row {
-    /* border-bottom: none; */
-}
-
-.detail-table .last-row td,
-.detail-table .last-row th {
-    /* padding-top: 20px;
-    padding-bottom: 20px; */
 }
 
 /* .time-inputs input[type="text"], */
 .time-inputs span {
     width: 80px;
-    /* padding: 5px; */
     font-size: 15px;
     margin: 0 5px;
-        color: #000000;
-    /* color: #000000; */
+    color: #000000;
 }
 
 td>span {
@@ -90,10 +71,8 @@ td>span {
 }
 
 td>span:last-child {
-    /* white-space: pre-wrap; */
     overflow-wrap: break-word;
     word-break: break-word;
-    /* word-break: break-all; */
 }
 
 .button-container {

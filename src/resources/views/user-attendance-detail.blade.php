@@ -29,7 +29,7 @@
         <tbody>
             <tr>
                 <th>名前</th>
-                <td class="detail-user-name">{{ $user->name }}</td>
+                <td>{{ $user->name }}</td>
             </tr>
             <tr>
                 <th>日付</th>
@@ -120,9 +120,6 @@
     </div>
 
     </form>
-
-<!-- {{-- 元のページに戻るためのリンク --}}
-<a href="{{ request()->input('redirect_to') }}" class="button back-button">戻る</a> -->
 
 </div>
 

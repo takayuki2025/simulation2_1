@@ -6,11 +6,6 @@
 
 body {
     background-color: #f0eff2;
-    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
-    /* margin: 0 auto; */
-    /* padding: 20px; */
-    /* max-width: 1400px;
-    min-height: 1000px; */
 }
 
 .container {
@@ -38,7 +33,6 @@ body {
 }
 
 .staff-table th {
-    
     padding: 10px;
     text-align: center;
     border-bottom: 3px solid #e1e1e1;
@@ -51,73 +45,27 @@ body {
     letter-spacing: 2px;
 }
 
-
-/* 1. 最初の th の左側のスペースを広げる */
-.staff-table th:first-child {
-
-    /* padding-left: 20px; */
-    /* padding-right: 10px; */
-
-}
-
-
-.staff-table th:last-child {
-
-    /* padding-right: 20px; */
-    /* padding-left: 10px; */
-
-}
-
-
-.staff-table td:first-child {
-    /* padding-left: 20px; */
-    /* padding-right: 10px; */
-
-}
-
-
-.staff-table td:last-child {
-    /* padding-right: 20px; */
-    /* padding-left: 10px; */
-
-}
-
 .staff-table th:nth-child(1),
 .staff-table td:nth-child(1) {
     white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        /* max-width: 130px; */
-        width: 23%;
-            padding-left: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 23%;
+    padding-left: 20px;
 }
 
 .staff-table th:nth-child(2),
 .staff-table td:nth-child(2) {
-    /* 1. テキストを強制的に一行に保つ */
-    /* max-width: 220px; */
     white-space: normal;
     word-break: break-all;
-        overflow-wrap: break-word;
-        width: 60%;
+    overflow-wrap: break-word;
+    width: 60%;
 }
 
 .staff-table th:nth-child(3),
 .staff-table td:nth-child(3) {
     width: 17%;
-        padding-right: 20px;
-}
-
-.staff-table tr:last-child td {
-    /* border-bottom: none; */
-}
-
-.list-user-name {
-    
-    /* white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 130px; */
+    padding-right: 20px;
 }
 
 .detail-button {

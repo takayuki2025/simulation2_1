@@ -6,10 +6,6 @@
 
 body {
     background-color: #f0eff2;
-    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; */
-    /* margin: 0 auto;
-    max-width: 1400px;
-    min-height: 1000px; */
 }
 
 .container {
@@ -130,12 +126,10 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    /* max-width: 130px; */
     width: 24%;
     padding-left: 26px;
 }
 
-/* 2. 時刻、休憩、合計のカラム (2番目から5番目) */
 .attendance-table th:nth-child(2),
 .attendance-table td:nth-child(2),
 .attendance-table th:nth-child(3),
@@ -145,35 +139,11 @@ body {
 .attendance-table th:nth-child(5),
 .attendance-table td:nth-child(5) {
     width: 14%;
-    /* 👈 4カラム x 15% = 60% */
 }
 
-/* 3. 最後のカラム (詳細) */
 .attendance-table th:nth-child(6),
 .attendance-table td:nth-child(6) {
     width: 20%;
-    /* 👈 残りの 20% */
-}
-
-.daily-user-name {
-    /* white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 130px; */
-}
-
-.attendance-table tr:last-child th {
-    /* margin: 0 auto; */
-    /* min-height: 50px; */
-    /* border-bottom: none; */
-}
-
-.attendance-table tr:last-child td {
-    /* min-width: 100px; */
-    /* min-height: 35px; */
-    /* max-inline-size:   14px; */
-    /* display: inline-block; */
-    /* border-bottom: none; */
 }
 
 .detail-button {
@@ -193,37 +163,4 @@ body {
     color: white;
 }
 
-/* .no-attendance-message {
-    text-align: center;
-    padding: 40px 0;
-    margin-top: 20px;
-    background-color: #f7f7f7;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1.1em;
-    color: #555;
-} */
 
-/* .attendance-table-frame {
-    width: 100%;
-    overflow-x: auto;
-} */
-
-/* .disabled-nav {
-    color: #a0a0a0;
-    opacity: 0.7;
-    pointer-events: none;
-    cursor: default;
-}
-
-.disabled-detail-button {
-    display: inline-block;
-    padding: 8px 12px;
-    border-radius: 4px;
-    background-color: #e0e0e0;
-    color: #888;
-    text-align: center;
-    cursor: default;
-    text-decoration: none;
-    line-height: 1;
-} */
