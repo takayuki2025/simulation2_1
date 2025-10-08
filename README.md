@@ -114,6 +114,7 @@ laravel環境構築
 
 # URL<br>
   - ユーザー登録： http://localhost/register/
+  - 一般ユーザー用ログイン： http://localhost/login
   - 管理者用ログイン： http://localhost/admin/login
   - phpMyAdmin:http://localhost:8080/
   - meilhog： http://localhost:8025/
