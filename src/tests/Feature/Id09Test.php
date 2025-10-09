@@ -23,8 +23,6 @@ class Id09Test extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // 後続のナビゲーションテストのためにユーザーを作成
-        // このテストは一般ユーザーの勤怠一覧を対象とします。
         $this->user = User::factory()->create();
     }
 
@@ -37,21 +35,15 @@ class Id09Test extends TestCase
         Carbon::setTestNow(null);
     }
 
-    /**
-     * 認証されたユーザーが、複数データと共に勤怠一覧ページを閲覧できることをテストします。
-     *
-     * @return void
-     */
+    // ID09-1 自分が行った勤怠情報が全て表示されている（複数データと共に勤怠一覧ページを閲覧できる）ことのテスト。
     public function test_authenticated_user_can_view_attendance_list_with_data()
     {
-        // ユーザーを作成
         $user = User::factory()->create();
 
-        // テスト対象月（2025年9月）を定義
         $targetDate = Carbon::create(2025, 9, 1);
         $expectedDisplayDate = '2025/09';
 
-        // 1. Attendanceファクトリを使用して、2025/09/01から連続した5日分のデータを一括作成
+        // Attendanceファクトリを使用して、2025/09/01から連続した5日分のデータを一括作成
         $attendances = Attendance::factory()->count(5)->sequence(fn ($sequence) => [
             'user_id' => $user->id,
             'checkin_date' => $targetDate->copy()->addDays($sequence->index)->format('Y-m-d'),
@@ -61,12 +53,12 @@ class Id09Test extends TestCase
             'work_time' => 480,        // 8時間 (480分) の実働
         ])->create();
 
-        // 2. 2025年9月の勤怠一覧ページにアクセス
+        // 2025年9月の勤怠一覧ページにアクセス
         $response = $this->actingAs($user)->get('/attendance/list?year=2025&month=9');
 
         $response->assertStatus(200);
 
-        // 3. 月ナビゲーションのタイトルが存在することをアサート
+        // 月ナビゲーションのタイトルが存在することをアサート
         $response->assertSee($expectedDisplayDate); // 2025/09が表示されていること
         $response->assertSee('勤怠一覧');
 
@@ -74,8 +66,7 @@ class Id09Test extends TestCase
         $response->assertDontSee('2025/08');
         $response->assertDontSee('2025/10');
 
-        // 4. 動的にレンダリングされた勤怠データが複数存在し、内容も正しいことをアサート
-        // (日、月、火、水、木)
+        // 動的にレンダリングされた勤怠データが複数存在し、内容も正しいことをアサート
         $daysOfWeek = ['月', '火', '水', '木', '金'];
         $expectedOrder = [];
 
@@ -108,11 +99,7 @@ class Id09Test extends TestCase
         $response->assertSee('翌 月', false);
     }
 
-    /**
-     * 認証されたユーザーがクエリなしでアクセスしたとき、現在月がデフォルトで表示されることをテストします。
-     *
-     * @return void
-     */
+    // ID09-2 認証されたユーザーがクエリなしでアクセスしたとき、現在月がデフォルトで表示されることをテストします。
     public function test_authenticated_user_views_current_month_by_default()
     {
         // ログの出力（2025/10）に合わせるため、テスト用の「現在日時」を固定（2025年10月に設定）
@@ -121,39 +108,88 @@ class Id09Test extends TestCase
 
         $expectedDisplayDate = $fixedDate->format('Y/m'); // 2025/10
 
-        // 2. ユーザーを作成し認証する
         $user = User::factory()->create();
 
-        // 3. クエリパラメータなしで勤怠一覧ページにアクセス ( /attendance/list )
+        // クエリパラメータなしで勤怠一覧ページにアクセス
         $response = $this->actingAs($user)->get('/attendance/list');
 
         $response->assertStatus(200);
 
-        // 4. 月ナビゲーションのタイトルが固定した「現在月」（2025/10）であることを確認
         $response->assertSee($expectedDisplayDate);
 
-        // 5. ナビゲーションリンクのチェック (前月: 9月, 翌月: 11月)
+        // ナビゲーションリンクのチェック (前月: 9月, 翌月: 11月)
         $response->assertSee('href="?year=2025&month=9"', false);
         $response->assertSee('前 月', false);
         $response->assertSee('href="?year=2025&month=11"', false);
         $response->assertSee('翌 月', false);
     }
 
-    /**
-     * 特定の月にアクセスしたとき、意図しない他の月の表示が残っていないことをテストします。
-     *
-     * 【重要】このテストは、HTMLレンダリング時に以前の月の情報（例: 2025/09）が残留するバグを
-     * 検出するために存在します。失敗している場合、アプリケーション側の修正が必要です。
-     *
-     * @return void
-     */
+    // ID09-3 前月へのナビゲーションリンクが正しく機能するかをテストします。
+    public function test_can_navigate_to_previous_month(): void
+    {
+        $startYear = 2024;
+        $startMonth = 5;
+
+        // 期待される前月 (2024年4月) をCarbonで計算
+        $expectedPrevMonth = Carbon::create($startYear, $startMonth)->subMonth();
+        $expectedPrevQuery = "?year={$expectedPrevMonth->year}&month={$expectedPrevMonth->month}";
+        $expectedPrevDisplay = $expectedPrevMonth->format('Y/m');
+
+        // ログインユーザーとして基準月のページにアクセス
+        $response = $this->actingAs($this->user)->get("/attendance/list?year={$startYear}&month={$startMonth}");
+
+        $response->assertStatus(200);
+
+        // 基準月（2024/05）が表示されていることと、「前月」リンクのhref属性を確認
+        $response->assertSee("{$startYear}/0{$startMonth}");
+        $response->assertSee('href="' . $expectedPrevQuery . '"', false);
+        $response->assertSee('前 月', false);
+
+        // 「前月」リンクが示すURLに遷移 (完全なパスを構築)
+        $prevMonthResponse = $this->actingAs($this->user)->get("/attendance/list{$expectedPrevQuery}");
+
+        // 前月のページが正しく表示され、期待される月が表示されていることを確認
+        $prevMonthResponse->assertStatus(200);
+        $prevMonthResponse->assertSee($expectedPrevDisplay);
+        $prevMonthResponse->assertDontSee("{$startYear}/0{$startMonth}"); // 基準月が表示されていないことを確認
+    }
+
+    // ID09-4 翌月へのナビゲーションリンクが正しく機能するかをテストします。
+    public function test_can_navigate_to_next_month(): void
+    {
+        $startYear = 2024;
+        $startMonth = 5;
+
+        // 期待される翌月 (2024年6月) をCarbonで計算
+        $expectedNextMonth = Carbon::create($startYear, $startMonth)->addMonth();
+        $expectedNextQuery = "?year={$expectedNextMonth->year}&month={$expectedNextMonth->month}";
+        $expectedNextDisplay = $expectedNextMonth->format('Y/m');
+
+        // ログインユーザーとして基準月のページにアクセス
+        $response = $this->actingAs($this->user)->get("/attendance/list?year={$startYear}&month={$startMonth}");
+
+        $response->assertStatus(200);
+
+        // 基準月（2024/05）が表示されていることと、「翌月」リンクのhref属性を確認
+        $response->assertSee("{$startYear}/0{$startMonth}");
+        $response->assertSee('href="' . $expectedNextQuery . '"', false);
+        $response->assertSee('翌 月', false);
+
+        // 「翌月」リンクが示すURLに遷移 (完全なパスを構築)
+        $nextMonthResponse = $this->actingAs($this->user)->get("/attendance/list{$expectedNextQuery}");
+
+        // 翌月のページが正しく表示され、期待される月が表示されていることを確認
+        $nextMonthResponse->assertStatus(200);
+        $nextMonthResponse->assertSee($expectedNextDisplay);
+        $nextMonthResponse->assertDontSee("{$startYear}/0{$startMonth}"); // 基準月が表示されていないことを確認
+    }
+
+    // ID09-3,4(追加) 特定の月にアクセスしたとき、意図しない他の月の表示が残っていないことをテストします。
     public function test_explicitly_navigating_to_a_month_does_not_show_previous_month()
     {
-        // 1. ユーザーを認証
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        // 2. 基準月 (2025年10月) にアクセス
         $targetYear = 2025;
         $targetMonth = 10;
         $targetDisplay = "{$targetYear}/{$targetMonth}"; // 2025/10
@@ -165,101 +201,28 @@ class Id09Test extends TestCase
 
         $response->assertStatus(200);
 
-        // 3. 【重要】正しい月 (2025/10) が表示されていることを確認
+        //　正しい月 (2025/10) が表示されていることを確認
         $response->assertSee($targetDisplay);
 
-        // 4. 【バグ検出】前の月の文字列 (2025/09) がページに存在しないことを確認
-        // テストが失敗する原因となっている行です。アプリケーション側でHTMLの残留がないか確認してください。
+        // 前の月の文字列 (2025/09) がページに存在しないことを確認
         $response->assertDontSee($previousDisplay);
 
-        // 5. ナビゲーションリンクが正しい月を指していることを確認
+        // ナビゲーションリンクが正しい月を指していることを確認
         $response->assertSee('href="?year=2025&month=9"', false); // 前月へのリンク
         $response->assertSee('href="?year=2025&month=11"', false); // 翌月へのリンク
         $response->assertSee('前 月', false);
         $response->assertSee('翌 月', false);
     }
 
-    /**
-     * 前月へのナビゲーションリンクが正しく機能するかをテストします。
-     */
-    public function test_can_navigate_to_previous_month(): void
-    {
-        // 1. テストの基準月を固定します（例: 2024年5月）
-        $startYear = 2024;
-        $startMonth = 5;
-
-        // 期待される前月 (2024年4月) をCarbonで計算
-        $expectedPrevMonth = Carbon::create($startYear, $startMonth)->subMonth();
-        $expectedPrevQuery = "?year={$expectedPrevMonth->year}&month={$expectedPrevMonth->month}";
-        $expectedPrevDisplay = $expectedPrevMonth->format('Y/m');
-
-        // 2. ログインユーザーとして基準月のページにアクセス
-        $response = $this->actingAs($this->user)->get("/attendance/list?year={$startYear}&month={$startMonth}");
-
-        $response->assertStatus(200);
-
-        // 3. 基準月（2024/05）が表示されていることと、「前月」リンクのhref属性を確認
-        $response->assertSee("{$startYear}/0{$startMonth}");
-        $response->assertSee('href="' . $expectedPrevQuery . '"', false);
-        $response->assertSee('前 月', false);
-
-        // 4. 「前月」リンクが示すURLに遷移 (完全なパスを構築)
-        $prevMonthResponse = $this->actingAs($this->user)->get("/attendance/list{$expectedPrevQuery}");
-
-        // 5. 前月のページが正しく表示され、期待される月が表示されていることを確認
-        $prevMonthResponse->assertStatus(200);
-        $prevMonthResponse->assertSee($expectedPrevDisplay);
-        $prevMonthResponse->assertDontSee("{$startYear}/0{$startMonth}"); // 基準月が表示されていないことを確認
-    }
-
-    /**
-     * 翌月へのナビゲーションリンクが正しく機能するかをテストします。
-     */
-    public function test_can_navigate_to_next_month(): void
-    {
-        // 1. テストの基準月を固定します（例: 2024年5月）
-        $startYear = 2024;
-        $startMonth = 5;
-
-        // 期待される翌月 (2024年6月) をCarbonで計算
-        $expectedNextMonth = Carbon::create($startYear, $startMonth)->addMonth();
-        $expectedNextQuery = "?year={$expectedNextMonth->year}&month={$expectedNextMonth->month}";
-        $expectedNextDisplay = $expectedNextMonth->format('Y/m');
-
-        // 2. ログインユーザーとして基準月のページにアクセス
-        $response = $this->actingAs($this->user)->get("/attendance/list?year={$startYear}&month={$startMonth}");
-
-        $response->assertStatus(200);
-
-        // 3. 基準月（2024/05）が表示されていることと、「翌月」リンクのhref属性を確認
-        $response->assertSee("{$startYear}/0{$startMonth}");
-        $response->assertSee('href="' . $expectedNextQuery . '"', false);
-        $response->assertSee('翌 月', false);
-
-        // 4. 「翌月」リンクが示すURLに遷移 (完全なパスを構築)
-        $nextMonthResponse = $this->actingAs($this->user)->get("/attendance/list{$expectedNextQuery}");
-
-        // 5. 翌月のページが正しく表示され、期待される月が表示されていることを確認
-        $nextMonthResponse->assertStatus(200);
-        $nextMonthResponse->assertSee($expectedNextDisplay);
-        $nextMonthResponse->assertDontSee("{$startYear}/0{$startMonth}"); // 基準月が表示されていないことを確認
-    }
-
-    /**
-     * 詳細ページへ遷移できること、および勤怠情報がフォームの初期値として正しく表示されることをテストします。
-     * 出勤・退勤時刻と、記録されている全ての休憩時間がフォームのvalue属性として表示されることを検証します。
-     *
-     * @return void
-     */
+    // ID09-5 詳細ページへ遷移できること、および勤怠情報がフォームの初期値として正しく表示されることをテストします。
     public function test_can_navigate_to_attendance_detail_page_and_see_data(): void
     {
-        // 1. 現在日を2025年10月31日に固定
         $fixedDate = Carbon::create(2025, 10, 31, 10, 0, 0);
         Carbon::setTestNow($fixedDate);
 
-        // 2. ユーザーの勤怠データを作成（テスト対象日: 2025/10/10）
+        // ユーザーの勤怠データを作成（テスト対象日: 2025/10/10）
         $targetDate = Carbon::create(2025, 10, 10);
-        $unpunchedDate = Carbon::create(2025, 10, 31); // 比較用：レコードのない日（ただし今日）
+        $unpunchedDate = Carbon::create(2025, 10, 31);
 
         $expectedCheckIn = '09:00';
         $expectedCheckOut = '18:00';
@@ -281,13 +244,12 @@ class Id09Test extends TestCase
             'work_time' => $expectedWorkMinutes,
         ]);
 
-        // 3. 勤怠一覧ページ（2025年10月）にアクセス
+        // 勤怠一覧ページ（2025年10月）にアクセス
         $response = $this->actingAs($this->user)->get('/attendance/list?year=2025&month=10');
 
         $response->assertStatus(200);
 
-        // 4. 勤怠データが**存在する**日 (2025/10/10) の詳細ボタンをチェック
-        // アプリケーションが絶対URL (http://localhost...) をレンダリングしているため、期待する文字列を修正します
+        // 勤怠データが**存在する**日 (2025/10/10) の詳細ボタンをチェック
         $expectedPathWithId = route('user.attendance.detail.index', ['id' => $attendance->id, 'date' => $targetDate->toDateString()], false);
         $expectedFullUrlWithId = 'http://localhost' . $expectedPathWithId;
 
@@ -295,7 +257,7 @@ class Id09Test extends TestCase
         $expectedAnchorWithId = '<a href="' . $expectedFullUrlWithId . '" class="detail-button">詳細</a>';
         $response->assertSee($expectedAnchorWithId, false);
 
-        // 5. 勤怠データが**存在しない**日 (2025/10/31) の詳細ボタンをチェック
+        // 勤怠データが**存在しない**日 (2025/10/31) の詳細ボタンをチェック
         // アプリケーションが絶対URL (http://localhost...) をレンダリングしているため、期待する文字列を修正します
         $expectedPathWithoutId = route('user.attendance.detail.index', ['date' => $unpunchedDate->toDateString()], false);
         $expectedFullUrlWithoutId = 'http://localhost' . $expectedPathWithoutId;
@@ -303,17 +265,15 @@ class Id09Test extends TestCase
         $response->assertSee($expectedAnchorWithoutId, false);
 
 
-        // 6. その詳細URL（IDあり）にアクセスし、成功することを確認
+        // その詳細URL（IDあり）にアクセスし、成功することを確認
         // Laravelの route() は相対パスを返すため、そのままgetに渡します。
         $detailResponse = $this->actingAs($this->user)->get($expectedPathWithId);
 
         $detailResponse->assertStatus(200);
 
-        // 7. 詳細ページに、作成した勤怠情報がフォームのvalueとして正しく表示されていることを確認
+        // 詳細ページに、作成した勤怠情報がフォームのvalueとして正しく表示されていることを確認
         $detailResponse->assertSee('勤怠詳細・修正申請', 'h2');
 
-        // 元のアサーション: $detailResponse->assertSee($targetDate->format('Y年m月d日'));
-        // HTMLのレンダリングに余分な空白文字が含まれているため、年と月日を分けてアサートするよう修正
         $detailResponse->assertSee($targetDate->format('Y年'));
         $detailResponse->assertSee($targetDate->format('m月d日'));
 

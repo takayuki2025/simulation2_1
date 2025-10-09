@@ -15,21 +15,15 @@ class Id07Test extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * [前回のテスト] 休憩開始し、UIが正しく「休憩中」に更新されることをテストします。
-     *
-     * @return void
-     */
+    // ID07-1 休憩ボタンが正しく機能する（休憩開始し、UIが正しく「休憩中」に更新されること）のテスト。
     public function test_user_can_start_break_and_ui_updates()
     {
-        // === 1. 時間固定のセットアップ ===
         $fixedNow = Carbon::create(2025, 9, 29, 10, 0, 0, 'Asia/Tokyo');
         Carbon::setTestNow($fixedNow);
 
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);
         $this->actingAs($user);
 
-        // 勤怠レコードの作成（出勤済み状態）
         $clockInTime = $fixedNow->copy()->subHour();
         $todayDate = $fixedNow->toDateString();
 
@@ -42,18 +36,15 @@ class Id07Test extends TestCase
             'break_total_time' => 0,
         ]);
 
-        // --- 勤務中状態の初期確認 ---
         $this->get(route('user.stamping.index'))
             ->assertStatus(200)
             ->assertSee('出勤中')
             ->assertSee('休憩入')
             ->assertDontSee('休憩戻');
 
-        // 休憩開始アクションの実行
         $this->post(route('attendance.break_start'))
             ->assertRedirect(route('user.stamping.index'));
 
-        // --- 休憩中状態への切り替え確認 ---
         $this->get(route('user.stamping.index'))
             ->assertStatus(200)
             ->assertSee('休憩中')
@@ -63,21 +54,15 @@ class Id07Test extends TestCase
         Carbon::setTestNow();
     }
 
-    /**
-     * [前回のテスト] 休憩開始→休憩終了のサイクル全体と、それに伴うUIの更新をテストします。
-     *
-     * @return void
-     */
+    // ID07-3 休憩戻るボタンが正しく機能する（休憩開始→休憩終了のサイクル全体と、それに伴うUIの更新）のテスト。
     public function test_user_can_start_and_end_break_cycle()
     {
-        // 時間固定は各ステップで調整するため、ここでは初期設定のみ
         $initialTime = Carbon::create(2025, 9, 29, 10, 0, 0, 'Asia/Tokyo');
         Carbon::setTestNow($initialTime);
 
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);
         $this->actingAs($user);
 
-        // 勤務開始時刻 (09:00:00)
         $clockInTime = $initialTime->copy()->subHour();
         $todayDate = $initialTime->toDateString();
 
@@ -90,26 +75,21 @@ class Id07Test extends TestCase
             'break_total_time' => 0,
         ]);
 
-        // 1. --- 休憩開始 (10:00:00) ---
         $this->post(route('attendance.break_start'));
-        // UI: 休憩戻
+
         $this->get(route('user.stamping.index'))->assertSee('休憩戻');
 
-        // 2. 休憩時間をシミュレーション (10:30:00 に進める)
         $breakEndTime = $initialTime->copy()->addMinutes(30);
         Carbon::setTestNow($breakEndTime);
 
-        // 3. --- 休憩終了 (10:30:00) ---
         $this->post(route('attendance.break_end'));
 
-        // 4. --- 最終状態 (勤務中) の確認 (UI: 休憩入) ---
         $this->get(route('user.stamping.index'))
             ->assertStatus(200)
             ->assertSee('出勤中')
             ->assertSee('休憩入')
             ->assertDontSee('休憩戻');
 
-        // データベースの状態確認
         $attendance = Attendance::where('user_id', $user->id)
             ->whereDate('checkin_date', $todayDate)
             ->first();
@@ -120,30 +100,23 @@ class Id07Test extends TestCase
         Carbon::setTestNow();
     }
 
-    /**
-     * 休憩の開始と終了をループで複数回繰り返し、UIとDBの状態が常に正しいことを動的にテストします。
-     *
-     * @return void
-     */
+    // ID07-2,4 休憩の開始と終了をループで複数回繰り返し、UIとDBの状態が常に正しいことを動的にテストします。
     public function test_dynamic_break_cycles_verify_button_toggling()
     {
-        // === 1. 初期設定 ===
-        $cycles = 5; // 繰り返す休憩サイクルの回数
-        $breakDurationMinutes = 10; // 休憩時間
-        $workDurationMinutes = 10; // 休憩間の勤務時間
+        $cycles = 5;
+        $breakDurationMinutes = 10;
+        $workDurationMinutes = 10;
 
-        // 初期時刻とユーザー設定
         $initialTime = Carbon::create(2025, 9, 29, 9, 0, 0, 'Asia/Tokyo');
         Carbon::setTestNow($initialTime); // 09:00:00
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);
         $this->actingAs($user);
         $todayDate = $initialTime->toDateString();
 
-        // 勤怠レコードの作成（出勤済み状態）
         Attendance::create([
             'user_id' => $user->id,
             'checkin_date' => $todayDate,
-            'clock_in_time' => $initialTime->toDateTimeString(), // 09:00:00 出勤
+            'clock_in_time' => $initialTime->toDateTimeString(),
             'checkout_time' => null,
             'break_time' => '[]',
             'break_total_time' => 0,
@@ -157,15 +130,12 @@ class Id07Test extends TestCase
         // ----------------------------------------------------
         for ($i = 0; $i < $cycles; $i++) {
 
-            // 現在時刻を休憩開始時刻にセット
             Carbon::setTestNow($currentTime);
             $breakStartTime = $currentTime->copy();
 
-            // A. 休憩開始アクションの実行
             $this->post(route('attendance.break_start'))
                 ->assertRedirect(route('user.stamping.index'));
 
-            // UI確認: 休憩中 (休憩戻ボタンが表示されていること)
             $this->get(route('user.stamping.index'))
                 ->assertSee('休憩中')
                 ->assertSee('休憩戻')
@@ -175,11 +145,9 @@ class Id07Test extends TestCase
             $breakEndTime = $currentTime->copy()->addMinutes($breakDurationMinutes);
             Carbon::setTestNow($breakEndTime);
 
-            // B. 休憩終了アクションの実行
             $this->post(route('attendance.break_end'))
                 ->assertRedirect(route('user.stamping.index'));
 
-            // UI確認: 勤務中 (休憩入ボタンが表示されていること)
             $this->get(route('user.stamping.index'))
                 ->assertSee('出勤中')
                 ->assertSee('休憩入')
@@ -201,22 +169,16 @@ class Id07Test extends TestCase
 
             // 最後に終了した休憩の時刻が正しいこと
             $latestBreak = $breakTimes[$i];
-            $this->assertEquals($breakStartTime->toDateTimeString(), $latestBreak['start'], "【{$i}回目】休憩開始時刻が不正です。"); 
-            $this->assertEquals($breakEndTime->toDateTimeString(), $latestBreak['end'], "【{$i}回目】休憩終了時刻が不正です。"); 
+            $this->assertEquals($breakStartTime->toDateTimeString(), $latestBreak['start'], "【{$i}回目】休憩開始時刻が不正です。");
+            $this->assertEquals($breakEndTime->toDateTimeString(), $latestBreak['end'], "【{$i}回目】休憩終了時刻が不正です。");
         }
 
         Carbon::setTestNow();
     }
 
-    /**
-     * ステータスが勤務中のユーザーが、複数回の休憩後、
-     * 月次勤怠リスト（user_month_index）ページで総休憩時間が正しく表示されることをテストします。
-     *
-     * @return void
-     */
+    // ID07-5 休憩時刻が勤怠一覧画面で確認できる（複数回の休憩後月次勤怠リスト（user_month_index）ページで総休憩時間が正しく表示される）ことのテスト。
     public function test_total_break_time_is_displayed_on_monthly_list()
     {
-        // === 1. 初期設定と勤務開始時刻の準備 ===
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);
         $this->actingAs($user);
 
@@ -224,7 +186,6 @@ class Id07Test extends TestCase
         Carbon::setTestNow($initialTime); // 09:00:00 出勤
         $todayDate = $initialTime->toDateString();
 
-        // 勤怠レコードの作成（出勤済み状態）
         Attendance::create([
             'user_id' => $user->id,
             'checkin_date' => $todayDate,
@@ -267,7 +228,6 @@ class Id07Test extends TestCase
         // 3. --- 月次勤怠リストページへのアクセスと表示確認 ---
         // ----------------------------------------------------
 
-        // 現在の年月のリストページにアクセス
         $response = $this->get(route('user.month.index', [
             'year' => $initialTime->year,
             'month' => $initialTime->month
@@ -276,7 +236,6 @@ class Id07Test extends TestCase
         $response->assertStatus(200);
 
         // ページビュー内で、計算された「0:25」が表示されていることを確認
-        // この値は、勤怠データテーブルの「休憩時間」列に表示されることを想定
         $response->assertSee($expectedFormattedTime,
             "月次勤怠リストに総休憩時間 ({$expectedFormattedTime}) が正しく表示されていません。"
         );

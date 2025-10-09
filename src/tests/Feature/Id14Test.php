@@ -16,66 +16,52 @@ class Id14Test extends TestCase
 {
     use RefreshDatabase;
 
+    protected $adminUser;
+    protected $staffUser1;
+    protected $staffUser2;
+    protected $testDatePast;
+    protected $testDatePreviousMonth;
+    protected $attendanceA;
+    protected $attendanceA_prev_month;
+    protected $applicationA;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // ----------------------------------------------------
-        // 1. テスト用ルートの定義
-        // ----------------------------------------------------
-
-        // 日次勤怠詳細ページ
-        // URLの使用法に合わせて id と date をパラメータとして定義
-        // ※ 実際のビューがレンダリングされるように暫定的に定義。
-        Route::get('/admin/attendance/{id}/{date}', function () {
-            // ページ内容の確認に必要な最小限のデータをモックまたは取得
-            $staffUser = User::find(request('id'));
-            $dateString = request('date');
-
-            // 勤怠/申請データの取得ロジック（テスト用にはApplicationデータのみモック）
-            $application = Application::where('user_id', $staffUser->id)
-                                    ->where('checkin_date', $dateString)
-                                    ->first();
-
-            // ビューの構造上必要なデータ（例としてスタッフ名と日付、そして修正データ）を渡す
-            return response(view('admin_attendance_detail', [
-                'staffUser' => $staffUser,
-                'dateString' => $dateString,
-                'application' => $application, // 申請データ
-                'attendance' => Attendance::where('user_id', $staffUser->id)->where('checkin_date', $dateString)->first(), // 勤怠データ
-            ]));
-        })
-            ->name('admin.user.attendance.detail.index');
-
-
-        // ----------------------------------------------------
-        // 2. テストデータの準備
-        // ----------------------------------------------------
-
         // 管理者ユーザー
-        // Bladeビューがロールフィルタリングに変わったため、IDを任意の大きな値に戻します。
         $this->adminUser = User::factory()->create(['role' => 'admin', 'name' => '管理者X', 'id' => 100]);
 
-        // スタッフユーザー
-        $this->staffUser1 = User::factory()->create(['role' => 'staff', 'name' => 'テストスタッフA', 'email' => 'test_a@example.com', 'id' => 2]);
-        $this->staffUser2 = User::factory()->create(['role' => 'staff', 'name' => 'テストスタッフB', 'email' => 'test_b@example.com', 'id' => 3]);
+        // スタッフユーザー (role: employee)
+        $this->staffUser1 = User::factory()->create(['role' => 'employee', 'name' => 'テストスタッフA', 'email' => 'test_a@example.com', 'id' => 2]);
+        $this->staffUser2 = User::factory()->create(['role' => 'employee', 'name' => 'テストスタッフB', 'email' => 'test_b@example.com', 'id' => 3]);
 
-        // 勤怠データ（テスト対象の日付は過去の日付を使用）
+        // 勤怠データ（テスト対象の基準日: 2025-09-25）
         $this->testDatePast = '2025-09-25';
+        // 前月の日付: 2025-08-20
+        $this->testDatePreviousMonth = '2025-08-20';
 
-        // 勤怠レコード（スタッフA）
+        // 勤怠レコード（スタッフA, 9月25日 - 基準となるデータ）
         $this->attendanceA = Attendance::factory()->create([
             'user_id' => $this->staffUser1->id,
             'checkin_date' => $this->testDatePast,
             'clock_in_time' => '09:00:00',
             'clock_out_time' => '18:00:00',
-            'break_total_time' => 60, // 1時間 = 60分
-            // HTML出力に合わせて、work_timeの値を8時間(480分)に設定
+            'break_total_time' => 60,
             'work_time' => 480,
         ]);
 
-        // 申請レコード（スタッフA - 勤怠データを上書きする内容）
+        // 前月の勤怠レコード（スタッフA, 8月20日）
+        $this->attendanceA_prev_month = Attendance::factory()->create([
+            'user_id' => $this->staffUser1->id,
+            'checkin_date' => $this->testDatePreviousMonth,
+            'clock_in_time' => '08:30:00', // 9月とは異なる時刻
+            'clock_out_time' => '17:30:00',
+            'break_total_time' => 60,
+            'work_time' => 480,
+        ]);
+
+        // 申請レコード（スタッフA - 勤怠データを上書きする内容, 9月25日）
         $this->applicationA = Application::factory()->create([
             'user_id' => $this->staffUser1->id,
             'checkin_date' => $this->testDatePast,
@@ -85,9 +71,7 @@ class Id14Test extends TestCase
         ]);
     }
 
-    /**
-     * 【フェーズ1】管理者スタッフ一覧ページ (admin.staff.list.index) の表示を検証する。
-     */
+    // ID14-1 管理者スタッフ一覧ページ (admin.staff.list.index) の表示を検証する。
     public function test_admin_staff_list_index_displays_all_staff()
     {
         $response = $this->actingAs($this->adminUser)
@@ -109,22 +93,17 @@ class Id14Test extends TestCase
         $response->assertSee('詳細');
 
         // ログイン中の管理者自身の情報は一覧に含まれないことを確認
-        // Blade側でロール('admin')でフィルタリングされるため、管理者Xは表示されないことを確認します。
         $response->assertDontSee($this->adminUser->name);
     }
 
-    /**
-     * 【フェーズ2】スタッフ月次勤怠ページ (admin.staff.month.index) の表示を検証する。
-     */
+    // ID14-2 スタッフ月次勤怠ページ (admin.staff.month.index) の表示を検証する。
     public function test_admin_staff_month_index_displays_correct_data_and_links()
     {
-        // テスト日付 '2025-09-25' に基づく年月を取得
         $targetDate = Carbon::parse($this->testDatePast);
         $year = $targetDate->year;
         $month = $targetDate->month;
 
-        // Bladeテンプレートの出力がゼロパディング (09) されていると仮定
-        $expectedMonthDisplay = $targetDate->format('Y/m');
+        $expectedMonthDisplay = $targetDate->format('Y/m'); // 2025/09
 
         $response = $this->actingAs($this->adminUser)
             ->get(route('admin.staff.month.index', [
@@ -147,11 +126,9 @@ class Id14Test extends TestCase
         $response->assertSee('name="user_id" value="' . $this->staffUser1->id . '"', false);
         $response->assertSee('name="year" value="' . $year . '"', false);
         $response->assertSee('name="month" value="' . $month . '"', false);
-        // 💡 修正箇所: テストエラーのHTML出力に合わせて、ボタンのクラス名のアサーションを修正。
-        // HTML出力にクラス名 ('class="csv-submit"') が含まれていないため、ボタンのテキストで検証します。
         $response->assertSee('CSV出力</button>', false);
 
-        // 勤怠データがある日の出勤時刻を検証 (HTML出力の25日のデータ)
+        // 勤怠データがある日の出勤時刻を検証 (9月25日のデータ)
         $response->assertSee('<td>09:00</td>', false);
         $response->assertSee('<td>18:00</td>', false);
 
@@ -161,9 +138,76 @@ class Id14Test extends TestCase
         $response->assertSee('class="detail-button">詳細</a>', false);
     }
 
-    /**
-     * 【フェーズ3】日次勤怠詳細ページ (admin.user.attendance.detail.index) の表示を検証する。
-     */
+    // ID14-3 前月へのナビゲーション（admin.staff.month.index）を検証する。
+    public function test_admin_staff_month_index_navigation_to_previous_month()
+    {
+        // 基準日 2025-09-25 から前月 (2025年8月) のデータをリクエスト
+        $targetDate = Carbon::parse($this->testDatePast)->subMonth(); // 2025-08-25
+        $year = $targetDate->year;
+        $month = $targetDate->month;
+
+        $expectedMonthDisplay = $targetDate->format('Y/m'); // 2025/08
+
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.staff.month.index', [
+                'id' => $this->staffUser1->id,
+                'year' => $year,
+                'month' => $month
+            ]));
+
+        $response->assertStatus(200);
+
+        // 表示されている年月が前月であることを検証 (2025/08)
+        $response->assertSee("{$this->staffUser1->name}さんの勤怠一覧");
+        $response->assertSee($expectedMonthDisplay);
+
+        // 翌月へのナビゲーションリンクが存在することを確認
+        $response->assertSee('翌 月');
+
+        // 勤怠データ（2025-09-25）が表示されていないことを検証
+        $response->assertDontSee('<td>09:00</td>', false);
+        $response->assertDontSee('<td>18:00</td>', false);
+
+        // 追加: 前月の勤怠データ（2025-08-20）が正しく表示されていることを検証
+        $response->assertSee('<td>08:30</td>', false);
+        $response->assertSee('<td>17:30</td>', false);
+    }
+
+    // ID14-4 翌月へのナビゲーション（admin.staff.month.index）を検証する。
+    public function test_admin_staff_month_index_navigation_to_next_month()
+    {
+        $targetDate = Carbon::parse($this->testDatePast)->addMonth(); // 2025-10-25
+        $year = $targetDate->year;
+        $month = $targetDate->month;
+
+        $expectedMonthDisplay = $targetDate->format('Y/m'); // 2025/10
+
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.staff.month.index', [
+                'id' => $this->staffUser1->id,
+                'year' => $year,
+                'month' => $month
+            ]));
+
+        $response->assertStatus(200);
+
+        // 表示されている年月が翌月であることを検証 (2025/10)
+        $response->assertSee("{$this->staffUser1->name}さんの勤怠一覧");
+        $response->assertSee($expectedMonthDisplay);
+
+        // 前月へのナビゲーションリンクが存在することを確認
+        $response->assertSee('前 月');
+
+        // 勤怠データ（2025-09-25）が表示されていないことを検証
+        $response->assertDontSee('<td>09:00</td>', false);
+        $response->assertDontSee('<td>18:00</td>', false);
+
+        // 前月の勤怠データ（2025-08-20）も表示されていないことを検証
+        $response->assertDontSee('<td>08:30</td>', false);
+        $response->assertDontSee('<td>17:30</td>', false);
+    }
+
+    // ID14-5 日次勤怠詳細ページ (admin.user.attendance.detail.index) の表示を検証する。
     public function test_admin_user_attendance_detail_index_prefers_application_data()
     {
         $testDate = $this->testDatePast; // 勤怠/申請データが両方ある日付
@@ -176,14 +220,13 @@ class Id14Test extends TestCase
 
         $response = $this->actingAs($this->adminUser)
             ->get(route('admin.user.attendance.detail.index', [
-            'id' => $staffId,
-            'date' => $testDate,
-            'redirect_to' => $redirectUrl,
+                'id' => $staffId, // ルートパラメータとしてユーザーIDを渡す
+                'date' => $testDate, // クエリパラメータとして日付を渡す
+                'redirect_to' => $redirectUrl, // クエリパラメータとしてリダイレクト先を渡す
             ]));
 
         $response->assertStatus(200);
 
-        // ページタイトルが '勤怠詳細' であることを検証
         $response->assertSee('勤怠詳細');
 
         // 優先されるべき申請データの内容がフォームに表示されていることを検証
