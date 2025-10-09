@@ -10,6 +10,12 @@
 
     <h2 class="page-title">申請一覧</h2>
 
+    @if (session('error'))
+        <div class="alert error-alert">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="tab-container">
         <a href="?pending=true" class="tab-link {{ request('pending', 'true') == 'true' ? 'active' : '' }}">承認待ち</a>
         <a href="?pending=false" class="tab-link {{ request('pending') == 'false' ? 'active' : '' }}">承認済み</a>

@@ -10,6 +10,13 @@
 
     <div class="stamping-container">
         <div class="stamping-container-inner">
+
+        @if (session('error'))
+            <div class="alert error-alert">
+                {{ session('error') }}
+            </div>
+        @endif
+
     {{-- メール認証が完了していない場合 --}}
         @if(is_null(Auth::user()->email_verified_at))
             <h3>メール認証処理が完了しませんでした。</h3>

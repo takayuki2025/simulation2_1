@@ -23,14 +23,8 @@ class LoginController extends Controller
     }
 
 
-
-    /**
-     * ログイン処理を実行する
-     * このメソッドは、通常ユーザーと管理者、両方のログイン処理を共通で扱っています。
-     */
     public function login(LoginRequest $request)
     {
-        // フォームリクエストによってバリデーションは完了しています
         $credentials = $request->only('email', 'password');
 
         // 管理者ログインページからのリクエストか確認
@@ -44,7 +38,6 @@ class LoginController extends Controller
             $route = $isAdminLogin ? 'admin.login' : 'login';
             return redirect()->route($route)
                 ->withErrors([
-                    // Fortifyのデフォルト動作に合わせて、認証失敗時のエラーは email に表示させるのが一般的
                     'email' => 'ログイン情報が登録されていません。',
                 ])->onlyInput('email');
         }
@@ -57,7 +50,6 @@ class LoginController extends Controller
                     ->withErrors(['email' => 'ログイン情報が登録されていません。'])
                     ->onlyInput('email');
             }
-            // 管理者として認証
             Auth::login($user);
             $request->session()->regenerate();
             return redirect()->intended('/admin/attendance/list');
@@ -68,7 +60,6 @@ class LoginController extends Controller
                     ->withErrors(['email' => 'ログイン情報が登録されていません。'])
                     ->onlyInput('email');
             }
-            // 一般ユーザーとして認証
             Auth::login($user);
             $request->session()->regenerate();
             return redirect()->intended('/attendance');
