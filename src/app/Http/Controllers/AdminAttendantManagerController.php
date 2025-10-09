@@ -551,7 +551,6 @@ class AdminAttendantManagerController extends Controller
      */
     public function export(Request $request)
     {
-        // リクエストからパラメータを取得
         $userId = $request->input('user_id');
         $year = $request->input('year');
         $month = $request->input('month');
@@ -591,16 +590,26 @@ class AdminAttendantManagerController extends Controller
 
             // Excelなどの文字化け対策（BOMを付与）
             fwrite($stream, "\xEF\xBB\xBF");
+            // 総計計算用の変数
+            $totalWorkMinutes = 0;          // 総労働時間（H:iの表示用として保持）
+            $totalBreakMinutes = 0;
+            $totalOvertimeMinutes = 0;      // 総残業時間(分)
+            $totalWorkDays = 0;             // 総出勤日数
+            $totalScheduledWorkMinutes = 0; // 新規追加：総定時勤務時間(分)
+            // 法定労働時間（8時間 = 480分）
+            $legalWorkMinutes = 480;
 
-            // ヘッダー行
+            // ヘッダー行 (定時勤務時間(分)と残業時間(分)を追加し、労働時間(分)を削除)
             $header = [
-                'ユーザー名',
                 '日付',
                 '曜日',
                 '出勤時刻',
                 '退勤時刻',
                 '休憩時間(H:i)',
-                '労働時間(H:i)'
+                '労働時間(H:i)',
+                '定時勤務時間(分)',
+                '残業時間(分)',
+                '備考/申請理由'
             ];
             fputcsv($stream, $header);
 
@@ -615,28 +624,59 @@ class AdminAttendantManagerController extends Controller
                 $attendance = $attendances->firstWhere('checkin_date', $date->format('Y-m-d'));
 
                 if ($attendance) {
+                    $breakMinutes = $attendance->break_total_time ?? 0;
+                    $workMinutes = $attendance->work_time ?? 0;
                     $hasClockedOut = $attendance->clock_out_time !== null && $attendance->clock_out_time !== $attendance->clock_in_time;
+                    // 定時勤務時間(分)の計算 (最大480分)
+                    $scheduledWorkMinutes = min($workMinutes, $legalWorkMinutes);
+                    // 残業時間(分)の計算 (480分を超えた分)
+                    $overtimeMinutes = max(0, $workMinutes - $legalWorkMinutes);
+                    // 総計を更新
+                    $totalWorkMinutes += $workMinutes; // 労働時間(H:i)の表示のために合計を保持
+                    $totalBreakMinutes += $breakMinutes;
+                    $totalScheduledWorkMinutes += $scheduledWorkMinutes;
+                    $totalOvertimeMinutes += $overtimeMinutes;
+
+                    // 出勤日のカウント (労働時間が0より大きい日をカウント)
+                    if ($workMinutes > 0) {
+                        $totalWorkDays++;
+                    }
 
                     $row = [
-                        $userName,
                         $date->format('Y-m-d'),
                         $dayOfWeek,
                         $attendance->clock_in_time ? Carbon::parse($attendance->clock_in_time)->format('H:i') : '',
                         $hasClockedOut ? Carbon::parse($attendance->clock_out_time)->format('H:i') : '',
-                        $formatMinutes($attendance->break_total_time ?? 0),
-                        $formatMinutes($attendance->work_time ?? 0),
+                        $formatMinutes($breakMinutes),
+                        $formatMinutes($workMinutes),
+                        $scheduledWorkMinutes,          // 定時勤務時間(分)
+                        $overtimeMinutes,               // 残業時間(分)
+                        $attendance->reason ?? '',      // 備考/申請理由
                     ];
                 } else {
                     // 勤怠記録がない日
                     $row = [
-                        $userName,
                         $date->format('Y-m-d'),
                         $dayOfWeek,
-                        '-', '-', '0:00', '0:00'
+                        '-', '-', '0:00', '0:00', 0, 0, ''
                     ];
                 }
                 fputcsv($stream, $row);
             }
+
+            // 列構成：ユーザー名, 空, 空, 総出勤数, 総休憩時間(H:i), 総労働時間(H:i), 総定時(分), 総残業(分), 総計
+            $footer = [
+                '月次総計（' . $userName . '）',
+                '',
+                '',
+                '(月)出勤数: ' . $totalWorkDays . '日',
+                $formatMinutes($totalBreakMinutes),
+                $formatMinutes($totalWorkMinutes),
+                $totalScheduledWorkMinutes,
+                $totalOvertimeMinutes,
+                '(総計)'
+            ];
+            fputcsv($stream, $footer);
 
             fclose($stream);
         }, 200, [
