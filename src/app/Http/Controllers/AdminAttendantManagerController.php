@@ -607,9 +607,9 @@ class AdminAttendantManagerController extends Controller
                 '退勤時刻',
                 '休憩時間(H:i)',
                 '労働時間(H:i)',
-                '定時勤務時間(分)',
+                '所定労働時間(分)',
                 '残業時間(分)',
-                '備考/申請理由'
+                '申請/修正理由'
             ];
             fputcsv($stream, $header);
 

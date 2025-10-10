@@ -448,13 +448,13 @@ class Id11Test extends TestCase
             'id' => $attendanceBase->id,
             'date' => $targetDate->toDateString()
         ]);
-        $updateButtonHtml = '<button type="submit" class="button update-button">修正</button>';
+        $updateButtonHtml = '<button type="submit" class="button update-button">修 正</button>';
 
         // 申請データなし (データ表示と「修正」ボタンの表示検証)
         $detailResponse = $this->actingAs($this->user)->get($detailRouteWithParams);
 
         $detailResponse->assertStatus(200);
-        $detailResponse->assertSee('勤怠詳細・修正申請', 'h2');
+        $detailResponse->assertSee('勤怠詳細', 'h2');
 
         $detailResponse->assertSee($targetDate->year);
         $detailResponse->assertSee($targetDate->month . '月' . $targetDate->day . '日', false);
@@ -508,7 +508,7 @@ class Id11Test extends TestCase
         $detailResponse2->assertDontSee('value="' . $originalCheckIn . '"', false);
 
         // ボタン表示ロジックの検証（承認待ち => 修正ボタンが非表示になり、メッセージが表示される）★★★
-        $detailResponse2->assertDontSee('修正</button>', false);
+        $detailResponse2->assertDontSee('修 正</button>', false);
         $detailResponse2->assertSee('＊承認待ちのため修正はできません。');
         $detailResponse2->assertDontSee('＊この日は一度承認されたので修正できません。');
 
@@ -548,7 +548,7 @@ class Id11Test extends TestCase
         $detailResponse3->assertDontSee('value="' . $originalCheckIn . '"', false);
 
         // ボタン表示ロジックの検証（承認済み => 修正ボタンが非表示になり、メッセージが表示される）
-        $detailResponse3->assertDontSee('修正</button>', false);
+        $detailResponse3->assertDontSee('修 正</button>', false);
         $detailResponse3->assertDontSee('＊承認待ちのため修正はできません。');
         $detailResponse3->assertSee('＊この日は一度承認されたので修正できません。');
     }

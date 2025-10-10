@@ -8,7 +8,7 @@
 
 <div class="container">
 
-    <h2 class="page-title">{{$staffUser->name}}さんの勤怠一覧</h2>
+    <h2 class="page-title">{{$staffUser->name}}さんの勤怠</h2>
 
     <div class="date-nav-frame">
         <div class="calendar-title">

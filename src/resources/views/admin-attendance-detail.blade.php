@@ -31,11 +31,11 @@
         <tbody>
             <tr>
                 <th>名前</th>
-                <td>{{ $attendance ? $attendance->user->name : $user->name }}</td>
+                <td>　{{ $attendance ? $attendance->user->name : $user->name }}</td>
             </tr>
             <tr>
                 <th>日付</th>
-                <td>{{ \Carbon\Carbon::parse($date)->format('　 Y年　　　　 n月j日') }}</td>
+                <td>{{ \Carbon\Carbon::parse($date)->format('　Y年　　　　　　n月j日') }}</td>
             </tr>
             <tr>
                 <th>出勤・退勤</th>

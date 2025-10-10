@@ -37,9 +37,8 @@ body {
 
 .detail-table tr:not(.last-row) th,
 .detail-table tr:not(.last-row) td {
-    padding: 25px 80px;
+    padding: 30px 80px;
     text-align: left;
-    border-bottom: none;
 }
 
 .detail-table tr {
@@ -56,13 +55,7 @@ body {
     letter-spacing: 2px;
 }
 
-.detail-table .last-row {
-    border-bottom: none;
-}
-
 .detail-table tr:first-child td {
-    position: relative;
-    left: 23px;
     max-width: 420px;
     display: inline-block;
     white-space: pre-wrap;
@@ -78,11 +71,12 @@ body {
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
+    height: 30px;
 }
 
 textarea {
-    width: 54%;
-    height: 60px;
+    width: 58%;
+    height: 70px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
@@ -92,32 +86,30 @@ textarea {
 .detail-table tr:last-child th {
     padding: 15px 80px;
     text-align: left;
-    border-bottom: none;
+}
+
+.detail-table tr:last-child td {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 .button-container {
     text-align: right;
-    margin-top: 45px;
+    margin-top: 40px;
 }
 
 .button {
-    padding: 10px 20px;
-    width: 120px;
-    height: 50px;
+    padding: 8px 34px;
     font-weight: 800;
     border: none;
-    border-radius: 5px;
+    border-radius: 3px;
     cursor: pointer;
     font-size: 16px;
     text-decoration: none;
     display: inline-block;
-    color: #fff;
-    text-align: center;
     transition: background-color 0.2s, transform 0.2s;
-}
-
-.button:hover {
-    transform: translateY(-2px);
 }
 
 .approve-button {
@@ -128,6 +120,7 @@ textarea {
 .approve-button:hover {
     background-color: #ffffff;
     color: #000000;
+    transform: translateY(-2px);
 }
 
 /* --- バリデーションエラー表示用スタイル --- */
@@ -142,12 +135,10 @@ textarea.is-invalid {
 
 /* 4. エラーメッセージのスタイル調整 (小さく、下部に表示) */
 .error-message {
-    color: #e3342f !important;
+    color: #e3342f ;
     font-size: 0.60rem;
-    margin-top: 2px;
     font-weight: 500;
     width: 100%;
-    white-space: normal;
 }
 
 /* 3. テーブルセルのレイアウト調整（time-inputs） */
@@ -155,7 +146,7 @@ textarea.is-invalid {
     display: flex;
     align-items: flex-start;
     flex-wrap: nowrap;
-    gap: 10px;
+    gap: 31px;
 }
 
 /* Inputとそのエラーメッセージをセットで縦に並べるためのコンテナ */
@@ -164,7 +155,7 @@ textarea.is-invalid {
     flex-direction: column;
     flex-grow: 0;
     flex-shrink: 0;
-    width: 110px;
+    width: 100px;
 }
 
 /* time-inputs内の入力フィールドの幅調整 */
@@ -178,11 +169,4 @@ textarea.is-invalid {
     margin: 0 5px;
     align-self: center;
     flex-shrink: 0;
-}
-
-/* 備考欄のtextareaのエラーメッセージ */
-.detail-table tr.last-row td>.error-message {
-    display: block;
-    width: 100%;
-    margin-top: 5px;
 }

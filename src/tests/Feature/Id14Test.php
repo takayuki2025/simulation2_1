@@ -115,7 +115,7 @@ class Id14Test extends TestCase
         $response->assertStatus(200);
 
         // スタッフ名がタイトルに表示されていること
-        $response->assertSee("{$this->staffUser1->name}さんの勤怠一覧");
+        $response->assertSee("{$this->staffUser1->name}さんの勤怠");
 
         // 日付ナビゲーションが表示されていること
         $response->assertSee($expectedMonthDisplay);
@@ -158,7 +158,7 @@ class Id14Test extends TestCase
         $response->assertStatus(200);
 
         // 表示されている年月が前月であることを検証 (2025/08)
-        $response->assertSee("{$this->staffUser1->name}さんの勤怠一覧");
+        $response->assertSee("{$this->staffUser1->name}さんの勤怠");
         $response->assertSee($expectedMonthDisplay);
 
         // 翌月へのナビゲーションリンクが存在することを確認
@@ -192,7 +192,7 @@ class Id14Test extends TestCase
         $response->assertStatus(200);
 
         // 表示されている年月が翌月であることを検証 (2025/10)
-        $response->assertSee("{$this->staffUser1->name}さんの勤怠一覧");
+        $response->assertSee("{$this->staffUser1->name}さんの勤怠");
         $response->assertSee($expectedMonthDisplay);
 
         // 前月へのナビゲーションリンクが存在することを確認

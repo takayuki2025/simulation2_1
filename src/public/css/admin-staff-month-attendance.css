@@ -149,23 +149,25 @@ body {
 
 .csv-area {
     text-align: right;
-    margin: 20px 20px 0 0;
+    margin-top: 40px;
 }
 
 .csv-button button {
-    padding: 10px 20px;
+    padding: 5px 27px;
     margin-bottom: 20px;
-    font-size: 1em;
+    font-size: 17px;
+    letter-spacing: 3px;
+    font-weight: 500;
     background-color: #000000;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 3px;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
 }
 
 .csv-button button:hover {
-    background-color: #d1d1d1;
+    background-color: #ffffff;
     color: #000000;
     font-weight: 800;
     transform: translateY(-3px);

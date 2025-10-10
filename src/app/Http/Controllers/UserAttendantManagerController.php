@@ -53,7 +53,7 @@ class UserAttendantManagerController extends Controller
         // 現在の日時情報を取得 (ビューの初期表示用)
         date_default_timezone_set('Asia/Tokyo');
         $now = Carbon::now();
-        $currentDate = $now->format('Y年m月d日');
+        $currentDate = $now->format('Y年n月j日');
         $dayOfWeek = $now->dayOfWeek; // Carbon::dayOfWeek は 0(日)～6(土) を返す
         $dayOfWeekMap = ['日', '月', '火', '水', '木', '金', '土'];
         $currentDay = $dayOfWeekMap[$dayOfWeek];

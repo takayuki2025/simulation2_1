@@ -72,7 +72,7 @@
             </form>
         @else
         {{-- 修正: no_update-button -> no-update-button --}}
-                <button type="button" class="button no-approve-button" disabled>承認済み</button>
+                <button type="button" class="button no-approve-button" disabled>承 認 済 み</button>
         @endif
     </div>
 

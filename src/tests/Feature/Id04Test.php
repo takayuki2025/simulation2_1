@@ -43,7 +43,7 @@ class Id04Test extends TestCase
         $response->assertStatus(200);
 
         $dayOfWeekMap = ['日', '月', '火', '水', '木', '金', '土'];
-        $expectedDate = $testTime->format('Y年m月d日');
+        $expectedDate = $testTime->format('Y年n月j日');
         $expectedDay = $dayOfWeekMap[$testTime->dayOfWeek];
         $expectedDateOfWeekText = "{$expectedDate} ({$expectedDay})";
 

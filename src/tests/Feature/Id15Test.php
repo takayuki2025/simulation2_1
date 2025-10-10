@@ -200,7 +200,7 @@ class Id15Test extends TestCase
         $response->assertDontSee('承 認</button>', false);
 
         // HTMLログから、承認済みボタンのHTMLを確認し、アサーションを調整
-        $response->assertSee('承認済み</button>', false);
+        $response->assertSee('承 認 済 み</button>', false);
         $response->assertSee('disabled', false);
     }
 

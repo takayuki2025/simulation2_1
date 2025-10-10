@@ -8,7 +8,7 @@
 
 <div class="container">
 
-    <h2 class="page-title">{{ $currentDate->format('Y年m月d日') }}の勤怠</h2>
+    <h2 class="page-title">{{ $currentDate->format('Y年n月j日') }}の勤怠</h2>
 
     <div class="date-nav-frame">
         <div class="calendar-title">

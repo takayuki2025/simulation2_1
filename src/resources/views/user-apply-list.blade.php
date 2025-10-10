@@ -8,7 +8,7 @@
 
 <div class="container">
 
-    <h2 class="page-title">申請履歴</h2>
+    <h2 class="page-title">申請一覧</h2>
 
     <div class="tab-container">
         <a href="?pending=true" class="tab-link {{ request('pending', 'true') == 'true' ? 'active' : '' }}">承認待ち</a>

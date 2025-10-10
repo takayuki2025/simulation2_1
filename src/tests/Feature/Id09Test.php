@@ -272,7 +272,7 @@ class Id09Test extends TestCase
         $detailResponse->assertStatus(200);
 
         // 詳細ページに、作成した勤怠情報がフォームのvalueとして正しく表示されていることを確認
-        $detailResponse->assertSee('勤怠詳細・修正申請', 'h2');
+        $detailResponse->assertSee('勤怠詳細', 'h2');
 
         $detailResponse->assertSee($targetDate->format('Y年'));
         $detailResponse->assertSee($targetDate->format('m月d日'));

@@ -8,7 +8,7 @@
 
 <div class="container">
 
-    <h2 class="page-title">勤怠詳細・修正申請</h2>
+    <h2 class="page-title">勤怠詳細</h2>
 
     <div class="attendance-detail-frame">
         <form action="{{ route('application.create') }}" method="POST" id="attendance-form">
@@ -29,11 +29,11 @@
         <tbody>
             <tr>
                 <th>名前</th>
-                <td>{{ $user->name }}</td>
+                <td>　{{ $user->name }}</td>
             </tr>
             <tr>
                 <th>日付</th>
-                <td>{{ \Carbon\Carbon::parse($date)->format('　 Y年　　　　 n月j日') }}</td>
+                <td>{{ \Carbon\Carbon::parse($date)->format('　Y年　　　　　　n月j日') }}</td>
             </tr>
             <tr>
                 <th>出勤・退勤</th>
@@ -115,7 +115,7 @@
         @endif
         @else
         <!-- 勤怠申請データが存在しない場合は修正ボタンを表示 -->
-        <button type="submit" class="button update-button">修正</button>
+        <button type="submit" class="button update-button">修 正</button>
         @endif
     </div>
 
