@@ -121,7 +121,6 @@ class Id16Test extends TestCase
             ]);
 
         // 管理者用のトップページ（管理者勤怠一覧）にリダイレクトされることを確認
-        // routes/web.phpで定義された実際のルート名を使用
         $response->assertRedirect(route('admin.attendance.list.index'));
     }
 }

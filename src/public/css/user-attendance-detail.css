@@ -134,7 +134,7 @@ textarea {
 .is-invalid,
 input[type="text"].is-invalid,
 textarea.is-invalid {
-    border: 1px solid #e3342f !important;
+    border: 1px solid #e3342f;
     box-shadow: 0 0 0 0.1rem rgba(227, 52, 47, 0.4);
 }
 

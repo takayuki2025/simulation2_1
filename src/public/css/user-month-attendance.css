@@ -126,7 +126,6 @@ body {
 
 .attendance-table tr:last-child td {
     min-width: 85px;
-    /* border-bottom: none; */
 }
 
 .day-column-th {

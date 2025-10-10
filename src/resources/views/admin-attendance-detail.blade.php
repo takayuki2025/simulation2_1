@@ -10,6 +10,12 @@
 
     <h2 class="page-title">勤怠詳細</h2>
 
+    @if (session('error'))
+        <div class="alert error-alert">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="attendance-detail-frame">
     <form action="{{ route('admin.attendance.approve') }}" method="POST" id="attendance-form">
         @csrf

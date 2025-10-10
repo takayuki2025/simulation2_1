@@ -26,9 +26,7 @@ class Id09Test extends TestCase
         $this->user = User::factory()->create();
     }
 
-    /**
-     * テスト後のクリーンアップ（テストで設定した現在時刻の固定を解除）
-     */
+    // テスト後のクリーンアップ（テストで設定した現在時刻の固定を解除）
     protected function tearDown(): void
     {
         parent::tearDown();
@@ -39,7 +37,6 @@ class Id09Test extends TestCase
     public function test_authenticated_user_can_view_attendance_list_with_data()
     {
         $user = User::factory()->create();
-
         $targetDate = Carbon::create(2025, 9, 1);
         $expectedDisplayDate = '2025/09';
 
@@ -55,14 +52,13 @@ class Id09Test extends TestCase
 
         // 2025年9月の勤怠一覧ページにアクセス
         $response = $this->actingAs($user)->get('/attendance/list?year=2025&month=9');
-
         $response->assertStatus(200);
 
         // 月ナビゲーションのタイトルが存在することをアサート
         $response->assertSee($expectedDisplayDate); // 2025/09が表示されていること
         $response->assertSee('勤怠一覧');
 
-        // 【堅牢性向上】ターゲットではない月が表示されていないことを確認
+        // ターゲットではない月が表示されていないことを確認
         $response->assertDontSee('2025/08');
         $response->assertDontSee('2025/10');
 
@@ -105,18 +101,14 @@ class Id09Test extends TestCase
         // ログの出力（2025/10）に合わせるため、テスト用の「現在日時」を固定（2025年10月に設定）
         $fixedDate = Carbon::create(2025, 10, 20, 10, 0, 0);
         Carbon::setTestNow($fixedDate);
-
         $expectedDisplayDate = $fixedDate->format('Y/m'); // 2025/10
-
         $user = User::factory()->create();
 
         // クエリパラメータなしで勤怠一覧ページにアクセス
         $response = $this->actingAs($user)->get('/attendance/list');
-
         $response->assertStatus(200);
 
         $response->assertSee($expectedDisplayDate);
-
         // ナビゲーションリンクのチェック (前月: 9月, 翌月: 11月)
         $response->assertSee('href="?year=2025&month=9"', false);
         $response->assertSee('前 月', false);
@@ -137,7 +129,6 @@ class Id09Test extends TestCase
 
         // ログインユーザーとして基準月のページにアクセス
         $response = $this->actingAs($this->user)->get("/attendance/list?year={$startYear}&month={$startMonth}");
-
         $response->assertStatus(200);
 
         // 基準月（2024/05）が表示されていることと、「前月」リンクのhref属性を確認
@@ -167,7 +158,6 @@ class Id09Test extends TestCase
 
         // ログインユーザーとして基準月のページにアクセス
         $response = $this->actingAs($this->user)->get("/attendance/list?year={$startYear}&month={$startMonth}");
-
         $response->assertStatus(200);
 
         // 基準月（2024/05）が表示されていることと、「翌月」リンクのhref属性を確認
@@ -194,11 +184,10 @@ class Id09Test extends TestCase
         $targetMonth = 10;
         $targetDisplay = "{$targetYear}/{$targetMonth}"; // 2025/10
 
-        // 以前の月 (2025年9月) - これが残留していないことを確認
+        // 以前の月 (2025年9月)が残留していないことを確認
         $previousDisplay = '2025/09';
 
         $response = $this->get("/attendance/list?year={$targetYear}&month={$targetMonth}");
-
         $response->assertStatus(200);
 
         //　正しい月 (2025/10) が表示されていることを確認
@@ -246,7 +235,6 @@ class Id09Test extends TestCase
 
         // 勤怠一覧ページ（2025年10月）にアクセス
         $response = $this->actingAs($this->user)->get('/attendance/list?year=2025&month=10');
-
         $response->assertStatus(200);
 
         // 勤怠データが**存在する**日 (2025/10/10) の詳細ボタンをチェック
@@ -257,23 +245,18 @@ class Id09Test extends TestCase
         $expectedAnchorWithId = '<a href="' . $expectedFullUrlWithId . '" class="detail-button">詳細</a>';
         $response->assertSee($expectedAnchorWithId, false);
 
-        // 勤怠データが**存在しない**日 (2025/10/31) の詳細ボタンをチェック
-        // アプリケーションが絶対URL (http://localhost...) をレンダリングしているため、期待する文字列を修正します
+        // 勤怠データが**存在しない**日 (2025/10/31) の詳細ボタンをチェック,絶対URL (http://localhost...) をレンダリングしているため、期待する文字列を修正します
         $expectedPathWithoutId = route('user.attendance.detail.index', ['date' => $unpunchedDate->toDateString()], false);
         $expectedFullUrlWithoutId = 'http://localhost' . $expectedPathWithoutId;
         $expectedAnchorWithoutId = '<a href="' . $expectedFullUrlWithoutId . '" class="detail-button">詳細</a>';
         $response->assertSee($expectedAnchorWithoutId, false);
 
-
-        // その詳細URL（IDあり）にアクセスし、成功することを確認
-        // Laravelの route() は相対パスを返すため、そのままgetに渡します。
+        // その詳細URL（IDあり）にアクセスし、成功することを確認,Laravelの route() は相対パスを返すため、そのままgetに渡します。
         $detailResponse = $this->actingAs($this->user)->get($expectedPathWithId);
-
         $detailResponse->assertStatus(200);
 
         // 詳細ページに、作成した勤怠情報がフォームのvalueとして正しく表示されていることを確認
         $detailResponse->assertSee('勤怠詳細', 'h2');
-
         $detailResponse->assertSee($targetDate->format('Y年'));
         $detailResponse->assertSee($targetDate->format('m月d日'));
 

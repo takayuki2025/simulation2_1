@@ -19,7 +19,6 @@ class Id10Test extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // テスト用のユーザーを作成
         $this->user = User::factory()->create();
     }
 
@@ -27,7 +26,6 @@ class Id10Test extends TestCase
     public function test_attendance_data_is_correctly_loaded_into_form_values(): void
     {
         $targetDate = Carbon::create(2025, 10, 15);
-
         $expectedCheckIn = '09:00';
         $expectedCheckOut = '18:30';
 
@@ -54,12 +52,10 @@ class Id10Test extends TestCase
         // 詳細ページURL（IDと日付を含む）にアクセス
         $detailPath = "/attendance/detail/{$attendance->id}?date={$targetDate->toDateString()}";
         $response = $this->actingAs($this->user)->get($detailPath);
-
         $response->assertStatus(200);
 
         // ユーザー名と日付の表示を確認
         $response->assertSee($this->user->name);
-
         $response->assertSee($targetDate->format('Y年'));
         $response->assertSee($targetDate->format('m月d日'));
 

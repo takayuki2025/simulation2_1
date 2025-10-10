@@ -19,8 +19,6 @@ class Id06Test extends TestCase
     {
         Carbon::setTestNow(Carbon::today());
         $today = Carbon::today()->toDateString();
-
-        // 認証済みのメール認証済みユーザーを作成
         $user = User::factory()->create([
             'email_verified_at' => now(),
         ]);
@@ -31,12 +29,10 @@ class Id06Test extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get('/attendance');
-
         $response->assertStatus(200);
 
         $response->assertSee('勤務外');
         $response->assertSee('出勤');
-
         $response->assertDontSee('休憩戻');
         $response->assertDontSee('退勤');
         $response->assertDontSee('休憩入');
@@ -49,13 +45,11 @@ class Id06Test extends TestCase
         Carbon::setTestNow($now);
         $today = $now->toDateString();
         $clockInTime = $now->toDateTimeString();
-
         $user = User::factory()->create([
             'email_verified_at' => now(),
         ]);
 
         $response = $this->actingAs($user)->post(route('attendance.clock_in'));
-
         $response->assertSessionHasNoErrors();
         $response->assertRedirect();
 
@@ -77,7 +71,6 @@ class Id06Test extends TestCase
     {
         Carbon::setTestNow(Carbon::today()->endOfDay()->subMinute());
         $today = Carbon::today()->toDateString();
-
         $user = User::factory()->create([
             'email_verified_at' => now(),
         ]);
@@ -90,12 +83,10 @@ class Id06Test extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get('/attendance');
-
         $response->assertStatus(200);
 
         $response->assertSee('退勤済');
         $response->assertSee('お疲れ様でした。');
-
         $response->assertDontSee('出勤');
         $response->assertDontSee('休憩入');
         $response->assertDontSee('休憩戻');
@@ -107,9 +98,7 @@ class Id06Test extends TestCase
         $now = Carbon::create(2025, 2, 10, 9, 15, 0, 'Asia/Tokyo');
         Carbon::setTestNow($now);
         $today = $now->toDateString();
-
         $user = User::factory()->create(['email_verified_at' => now()]);
-
         $this->actingAs($user)->post(route('attendance.clock_in'));
 
         $this->assertDatabaseHas('attendances', [
@@ -119,7 +108,6 @@ class Id06Test extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(route('user.month.index', ['year' => 2025, 'month' => 2]));
-
         $response->assertStatus(200);
 
         $expectedClockInTime = '09:15';

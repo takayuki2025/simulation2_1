@@ -30,10 +30,7 @@ class Id05Test extends TestCase
     {
         $user = $this->setupTestUserAndDate();
 
-        // /attendanceページにアクセス
         $response = $this->actingAs($user)->get('/attendance');
-
-        // 検証: ステータスが「勤務外」であることを確認
         $response->assertStatus(200)
             ->assertSee('<h4 class="status">勤務外</h4>', false);
 
@@ -55,9 +52,8 @@ class Id05Test extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get('/attendance');
-
         $response->assertStatus(200)
-            ->assertSee('<h3 class="status">出勤中</h3>', false);
+            ->assertSee('<h4 class="status">出勤中</h4>', false);
 
         Carbon::setTestNow(null);
     }
@@ -81,7 +77,6 @@ class Id05Test extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get('/attendance');
-
         $response->assertStatus(200)
             ->assertSee('<h4 class="status">休憩中</h4>', false);
 
@@ -107,7 +102,6 @@ class Id05Test extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get('/attendance');
-
         $response->assertStatus(200)
             ->assertSee('<h4 class="status">退勤済</h4>', false);
 

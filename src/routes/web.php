@@ -18,13 +18,11 @@ use App\Http\Controllers\AdminAttendantManagerController;
 */
 
 
-// ゲストユーザー向けの認証ルート
-// ログイン済みユーザーはアクセスできません。
+// ゲストユーザー向けの認証ルート、ログイン済みユーザーはアクセスできません。
 Route::middleware(['guest'])->group(function () {
     // 通常ユーザーログイン
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-
     // 管理者ログイン専用ルート
     Route::get('/admin/login', [LoginController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/admin/login', [LoginController::class, 'login'])->name('admin.login.post');
@@ -80,12 +78,10 @@ Route::middleware(['admin'])->group(function () {
 Route::get('/stamp_correction_request/list', function (Request $request) {
     // ユーザーの`role`が`admin`かどうかをチェックします
     if ($request->user()->role === 'admin') {
-        // 管理者であれば、管理者のコントローラーを呼び出す
-        // ★修正点: $request を渡す
+        // 管理者であれば、管理者のコントローラーを呼び出す、$request を渡す
         return app(AdminAttendantManagerController::class)->admin_apply_list_index($request);
     } else {
-        // ユーザーが管理者でなければ、通常ユーザーのコントローラーを呼び出す
-        // ★修正点: $request を渡す
+        // ユーザーが管理者でなければ、通常ユーザーのコントローラーを呼び出す、$request を渡す
         return app(UserAttendantManagerController::class)->user_apply_index($request);
     }
 })->middleware(['auth', 'verified'])->name('apply.list');

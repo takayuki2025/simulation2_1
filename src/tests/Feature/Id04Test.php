@@ -17,13 +17,9 @@ class Id04Test extends TestCase
     // ID04(追加) 認証済みの一般ユーザーがアクセスできることを確認します。
     public function test_authenticated_user_can_access_attendance_page(): void
     {
-        // 1. 認証済みユーザーを作成（メール認証済みを想定）
         $user = User::factory()->create(['email_verified_at' => now()]);
 
-        // 2. ユーザーとして/attendanceページにアクセス
         $response = $this->actingAs($user)->get('/attendance');
-
-        // 3. 検証
         $response->assertStatus(200);
     }
 
@@ -39,16 +35,13 @@ class Id04Test extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get('/attendance');
-
         $response->assertStatus(200);
 
         $dayOfWeekMap = ['日', '月', '火', '水', '木', '金', '土'];
         $expectedDate = $testTime->format('Y年n月j日');
         $expectedDay = $dayOfWeekMap[$testTime->dayOfWeek];
         $expectedDateOfWeekText = "{$expectedDate} ({$expectedDay})";
-
         $response->assertSeeText($expectedDateOfWeekText);
-
         $expectedTime = $testTime->format('H:i');
         $response->assertSeeText($expectedTime);
 

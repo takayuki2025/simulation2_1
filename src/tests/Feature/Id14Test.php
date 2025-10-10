@@ -31,7 +31,6 @@ class Id14Test extends TestCase
 
         // 管理者ユーザー
         $this->adminUser = User::factory()->create(['role' => 'admin', 'name' => '管理者X', 'id' => 100]);
-
         // スタッフユーザー (role: employee)
         $this->staffUser1 = User::factory()->create(['role' => 'employee', 'name' => 'テストスタッフA', 'email' => 'test_a@example.com', 'id' => 2]);
         $this->staffUser2 = User::factory()->create(['role' => 'employee', 'name' => 'テストスタッフB', 'email' => 'test_b@example.com', 'id' => 3]);
@@ -76,22 +75,18 @@ class Id14Test extends TestCase
     {
         $response = $this->actingAs($this->adminUser)
             ->get(route('admin.staff.list.index'));
-
         $response->assertStatus(200);
         $response->assertSee('スタッフ一覧');
 
         // スタッフAの情報が表示されていること
         $response->assertSee($this->staffUser1->name);
         $response->assertSee($this->staffUser1->email);
-
         // スタッフBの情報が表示されていること
         $response->assertSee($this->staffUser2->name);
         $response->assertSee($this->staffUser2->email);
-
         // スタッフAの月次勤怠へのリンクが存在すること
         $response->assertSee(route('admin.staff.month.index', ['id' => $this->staffUser1->id]));
         $response->assertSee('詳細');
-
         // ログイン中の管理者自身の情報は一覧に含まれないことを確認
         $response->assertDontSee($this->adminUser->name);
     }
@@ -102,7 +97,6 @@ class Id14Test extends TestCase
         $targetDate = Carbon::parse($this->testDatePast);
         $year = $targetDate->year;
         $month = $targetDate->month;
-
         $expectedMonthDisplay = $targetDate->format('Y/m'); // 2025/09
 
         $response = $this->actingAs($this->adminUser)
@@ -111,27 +105,22 @@ class Id14Test extends TestCase
             'year' => $year,
             'month' => $month
             ]));
-
         $response->assertStatus(200);
 
         // スタッフ名がタイトルに表示されていること
         $response->assertSee("{$this->staffUser1->name}さんの勤怠");
-
         // 日付ナビゲーションが表示されていること
         $response->assertSee($expectedMonthDisplay);
         $response->assertSee('前 月');
         $response->assertSee('翌 月');
-
         // CSV出力ボタンのフォームが正しく設定されていること
         $response->assertSee('name="user_id" value="' . $this->staffUser1->id . '"', false);
         $response->assertSee('name="year" value="' . $year . '"', false);
         $response->assertSee('name="month" value="' . $month . '"', false);
         $response->assertSee('CSV出力</button>', false);
-
         // 勤怠データがある日の出勤時刻を検証 (9月25日のデータ)
         $response->assertSee('<td>09:00</td>', false);
         $response->assertSee('<td>18:00</td>', false);
-
         // 勤怠データがある日の詳細ボタン（テストデータの日付 2025-09-25）のリンクを検証
         $expectedQuery = "admin/attendance/{$this->staffUser1->id}?date={$this->testDatePast}&amp;redirect_to=";
         $response->assertSee($expectedQuery, false);
@@ -145,7 +134,6 @@ class Id14Test extends TestCase
         $targetDate = Carbon::parse($this->testDatePast)->subMonth(); // 2025-08-25
         $year = $targetDate->year;
         $month = $targetDate->month;
-
         $expectedMonthDisplay = $targetDate->format('Y/m'); // 2025/08
 
         $response = $this->actingAs($this->adminUser)
@@ -154,21 +142,17 @@ class Id14Test extends TestCase
                 'year' => $year,
                 'month' => $month
             ]));
-
         $response->assertStatus(200);
 
         // 表示されている年月が前月であることを検証 (2025/08)
         $response->assertSee("{$this->staffUser1->name}さんの勤怠");
         $response->assertSee($expectedMonthDisplay);
-
         // 翌月へのナビゲーションリンクが存在することを確認
         $response->assertSee('翌 月');
-
         // 勤怠データ（2025-09-25）が表示されていないことを検証
         $response->assertDontSee('<td>09:00</td>', false);
         $response->assertDontSee('<td>18:00</td>', false);
-
-        // 追加: 前月の勤怠データ（2025-08-20）が正しく表示されていることを検証
+        // 前月の勤怠データ（2025-08-20）が正しく表示されていることを検証
         $response->assertSee('<td>08:30</td>', false);
         $response->assertSee('<td>17:30</td>', false);
     }
@@ -179,7 +163,6 @@ class Id14Test extends TestCase
         $targetDate = Carbon::parse($this->testDatePast)->addMonth(); // 2025-10-25
         $year = $targetDate->year;
         $month = $targetDate->month;
-
         $expectedMonthDisplay = $targetDate->format('Y/m'); // 2025/10
 
         $response = $this->actingAs($this->adminUser)
@@ -188,20 +171,16 @@ class Id14Test extends TestCase
                 'year' => $year,
                 'month' => $month
             ]));
-
         $response->assertStatus(200);
 
         // 表示されている年月が翌月であることを検証 (2025/10)
         $response->assertSee("{$this->staffUser1->name}さんの勤怠");
         $response->assertSee($expectedMonthDisplay);
-
         // 前月へのナビゲーションリンクが存在することを確認
         $response->assertSee('前 月');
-
         // 勤怠データ（2025-09-25）が表示されていないことを検証
         $response->assertDontSee('<td>09:00</td>', false);
         $response->assertDontSee('<td>18:00</td>', false);
-
         // 前月の勤怠データ（2025-08-20）も表示されていないことを検証
         $response->assertDontSee('<td>08:30</td>', false);
         $response->assertDontSee('<td>17:30</td>', false);
@@ -212,7 +191,6 @@ class Id14Test extends TestCase
     {
         $testDate = $this->testDatePast; // 勤怠/申請データが両方ある日付
         $staffId = $this->staffUser1->id;
-
         // 戻り先URLを構築 (テストデータの日付から年月を取得)
         $year = Carbon::parse($testDate)->year;
         $month = Carbon::parse($testDate)->month;
@@ -224,27 +202,20 @@ class Id14Test extends TestCase
                 'date' => $testDate, // クエリパラメータとして日付を渡す
                 'redirect_to' => $redirectUrl, // クエリパラメータとしてリダイレクト先を渡す
             ]));
-
         $response->assertStatus(200);
-
         $response->assertSee('勤怠詳細');
 
         // 優先されるべき申請データの内容がフォームに表示されていることを検証
-
         // 申請データ: 09:15:00
         $response->assertSee('name="clock_in_time"', false);
         $response->assertSee('value="09:15"', false);
-
         // 申請データ: 18:15:00
         $response->assertSee('name="clock_out_time"', false);
         $response->assertSee('value="18:15"', false);
-
         // 申請データ: 理由
         $response->assertSee('申請による修正');
-
         // ユーザー名が表示されていること
         $response->assertSee('テストスタッフA');
-
         // 戻り先URLがhidden fieldに正しく設定されていること
         $response->assertSee('name="redirect_to"', false);
         $response->assertSee('value="' . htmlspecialchars($redirectUrl) . '"', false);

@@ -196,12 +196,12 @@ class UserAttendantManagerController extends Controller
             ->whereDate('checkin_date', $date)
             ->first();
 
-        // ★日跨ぎ対応の修正: 申請が見つからない場合、前日の申請が現在の$dateを跨いでいるか確認
+        // 申請が見つからない場合、前日の申請が現在の$dateを跨いでいるか確認
         if (!$application) {
             $prevDate = Carbon::parse($date)->subDay()->toDateString();
             $application = Application::where('user_id', $targetUser->id)
                 ->whereDate('checkin_date', $prevDate) // 前日の申請を検索
-                // ... AND その退勤時刻が現在の$dateの開始時刻（00:00:00）より後であること
+                // その退勤時刻が現在の$dateの開始時刻（00:00:00）より後であること
                 ->where('clock_out_time', '>', Carbon::parse($date)->startOfDay()->toDateTimeString())
                 ->first();
         }
@@ -441,7 +441,7 @@ class UserAttendantManagerController extends Controller
             }
 
             if ($updated) {
-                // 1. 総休憩時間（秒）をJSON配列から計算
+                // 総休憩時間（秒）をJSON配列から計算
                 $totalBreakSeconds = 0;
                 foreach ($breakTimes as $break) {
                     if (!empty($break['start']) && !empty($break['end'])) { 

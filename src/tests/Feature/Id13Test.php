@@ -22,9 +22,6 @@ class Id13Test extends TestCase
     /** @var \App\Models\User */
     protected $staffUser;
 
-    /**
-     * 各テスト実行前に必要なセットアップを実行
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -67,14 +64,12 @@ class Id13Test extends TestCase
 
         // 日別勤怠一覧ページからのアクセスをシミュレート
         $redirectUrl = '/admin/daily?date=' . $testDate;
-
         $response = $this->actingAs($this->adminUser)
             ->get(route('admin.user.attendance.detail.index', [
             'id' => $this->staffUser->id,
             'date' => $testDate,
                              'redirect_to' => $redirectUrl, // 戻り先URLを検証
             ]));
-
         $response->assertStatus(200);
 
         // フォーム内容が申請データと一致していることの検証
@@ -83,30 +78,23 @@ class Id13Test extends TestCase
         // 日付の表示形式を検証
         $response->assertSee(Carbon::parse($testDate)->format('Y年'));
         $response->assertSee(Carbon::parse($testDate)->format('n月j日'));
-
         // 出勤時刻
         $response->assertSee('name="clock_in_time"', false);
         $response->assertSee('value="09:15"', false);
-
         // 退勤時刻
         $response->assertSee('name="clock_out_time"', false);
         $response->assertSee('value="18:15"', false);
-
         // 休憩1 (既存データ - type="text" でアサート)
         $response->assertSee('name="break_times[0][start_time]"', false);
         $response->assertSee('value="12:30"', false);
-
         // 休憩2 (既存データ - type="text" でアサート)
         $response->assertSee('name="break_times[1][start_time]"', false);
         $response->assertSee('value="15:00"', false);
-
         // 休憩3 (空欄の確保 - type="text" でアサート)
         $response->assertSee('name="break_times[2][start_time]"', false);
         $response->assertSee('value=""', false);
-
         // 休憩4 (存在しないことを確認)
         $response->assertDontSee('name="break_times[3][start_time]"', false);
-
         // 備考
         $response->assertSee($application->reason);
 
@@ -119,7 +107,6 @@ class Id13Test extends TestCase
     public function test_admin_shows_attendance_data_when_no_application_exists()
     {
         $testDate = '2025-10-02';
-
         // 勤怠データ (Attendance) のみ作成
         $attendance = Attendance::factory()->create([
             'user_id' => $this->staffUser->id,
@@ -133,9 +120,7 @@ class Id13Test extends TestCase
 
         // 月別勤怠一覧ページからのアクセスをシミュレート
         $redirectUrl = '/admin/staff/' . $this->staffUser->id . '/month?year=2025&month=10';
-
-        // HTMLエンコードされた値 (& -> &amp;) を準備
-        // フォームのvalue属性では&が&amp;にエンコードされるため
+        // HTMLエンコードされた値 (& -> &amp;) を準備,フォームのvalue属性では&が&amp;にエンコードされるため
         $expectedEncodedRedirectValue = '/admin/staff/' . $this->staffUser->id . '/month?year=2025&amp;month=10';
 
         $response = $this->actingAs($this->adminUser)
@@ -144,7 +129,6 @@ class Id13Test extends TestCase
             'date' => $testDate,
                              'redirect_to' => $redirectUrl, // 戻り先URLを検証
             ]));
-
         $response->assertStatus(200);
 
         // 日付の表示形式を検証
@@ -180,7 +164,6 @@ class Id13Test extends TestCase
     public function test_admin_shows_application_if_attendance_is_missing()
     {
         $testDate = '2025-10-03';
-
         // 申請データ (Application) のみ作成
         $application = Application::factory()->create([
             'user_id' => $this->staffUser->id,
@@ -196,7 +179,6 @@ class Id13Test extends TestCase
             'id' => $this->staffUser->id,
             'date' => $testDate,
             ]));
-
         $response->assertStatus(200);
 
         // 申請データが表示されていることの検証 (type="text" でアサート)
@@ -222,21 +204,15 @@ class Id13Test extends TestCase
     public function test_admin_shows_empty_form_when_no_data_exists()
     {
         $testDate = '2025-10-04';
-
         // 勤怠データも申請データも作成しない
-
         $response = $this->actingAs($this->adminUser)
             ->get(route('admin.user.attendance.detail.index', [
             'id' => $this->staffUser->id,
             'date' => $testDate,
             ]));
-
         $response->assertStatus(200);
 
-        // 時刻と休憩欄が全て空であることの検証
-
-        // 出勤・退勤時刻がvalue=""で空であること (type="text" でアサート)
-        // ビュー側の改行や空白に影響されないよう、name属性とvalue=""属性が連続して存在することを確認します。
+        // 時刻と休憩欄が全て空であることの検証,出勤・退勤時刻がvalue=""で空であること (type="text" でアサート)
         $response->assertSeeInOrder(['name="clock_in_time"', 'value=""'], false);
         $response->assertSeeInOrder(['name="clock_out_time"', 'value=""'], false);
 
@@ -260,8 +236,7 @@ class Id13Test extends TestCase
     public function test_admin_time_order_validation_messages()
     {
         $testDate = '2025-10-05';
-
-        // 10:00 出勤, 09:00 退勤。日跨ぎではないと判定されるパターン
+        // 10:00 出勤, 09:00 退勤。日跨ぎ勤務ではないと判定されるパターン
         $invalidData = [
             'checkin_date' => $testDate,
             'user_id' => $this->staffUser->id,
@@ -272,10 +247,8 @@ class Id13Test extends TestCase
         ];
 
         $updateUrl = route('admin.attendance.approve');
-
         $response = $this->actingAs($this->adminUser)
             ->post($updateUrl, $invalidData);
-
         $response->assertRedirect();
 
         $expectedMessage = '出勤時間もしくは退勤時間が不適切な値です。';
@@ -285,14 +258,12 @@ class Id13Test extends TestCase
         ]);
     }
 
-    // ID13-3,4 【バリデーション検証】休憩時間の順序および勤務時間との境界チェックのエラーメッセージを検証する。
+    // ID13-3,4 休憩時間の順序および勤務時間との境界チェックのエラーメッセージを検証する。
     public function test_break_time_validation_messages()
     {
         $testDate = '2025-10-06';
-
         // 正しいPOSTルートを使用
         $updateUrl = route('admin.attendance.approve');
-
         // 正常な勤務時間 (10:00 - 19:00)
         $baseData = [
             'checkin_date' => $testDate,
@@ -316,9 +287,7 @@ class Id13Test extends TestCase
 
         $responseA = $this->actingAs($this->adminUser)
             ->post($updateUrl, $invalidBreakOrderData);
-
         $responseA->assertRedirect();
-
         $responseA->assertSessionHasErrorsIn('default', [
             'break_times.0.start_time' => $genericBreakTimeMessage,
         ]);
@@ -332,7 +301,6 @@ class Id13Test extends TestCase
 
         $responseB = $this->actingAs($this->adminUser)
             ->post($updateUrl, $invalidBreakStartBoundaryData);
-
         $responseB->assertRedirect();
         $responseB->assertSessionHasErrorsIn('default', [
             'break_times.0.start_time' => $genericBreakTimeMessage,
@@ -347,7 +315,6 @@ class Id13Test extends TestCase
 
         $responseC = $this->actingAs($this->adminUser)
             ->post($updateUrl, $invalidBreakEndBoundaryData);
-
         $responseC->assertRedirect();
         $responseC->assertSessionHasErrorsIn('default', [
             'break_times.0.end_time' => $breakTimeOrClockOutMessage,
@@ -358,7 +325,6 @@ class Id13Test extends TestCase
     public function test_reason_required_message()
     {
         $testDate = '2025-10-07';
-
         $invalidData = [
             'checkin_date' => $testDate,
             'user_id' => $this->staffUser->id,
@@ -369,11 +335,8 @@ class Id13Test extends TestCase
         ];
 
         $updateUrl = route('admin.attendance.approve');
-
         $response = $this->actingAs($this->adminUser)
-
             ->post($updateUrl, $invalidData);
-
         $response->assertRedirect();
         $response->assertSessionHasErrorsIn('default', [
             'reason' => '備考を記入してください。',

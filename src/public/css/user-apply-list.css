@@ -45,7 +45,7 @@ body {
 
 .tab-link.active {
     color: #000000;
-        font-weight: 900;
+    font-weight: 900;
 }
 
 .apply-table {
@@ -61,7 +61,6 @@ body {
 }
 
 .apply-table th {
-    /* width: 130px; */
     padding: 10px;
     text-align: left;
     padding-left: 50px;
@@ -69,7 +68,6 @@ body {
 }
 
 .apply-table td {
-    /* width: 130px; */
     padding: 10px;
     text-align: left;
     padding-left: 50px;
@@ -83,7 +81,6 @@ body {
 
 .apply-table th:nth-child(2) {
     width: 190px;
-    /* 2番目の幅を130pxに固定 */
 }
 
 .apply-table th:nth-child(3),
@@ -93,7 +90,6 @@ body {
 
 .apply-table th:nth-child(4) {
     width: 204px;
-    /* 2番目の幅を130pxに固定 */
 }
 
 .apply-table td:nth-child(2),
@@ -101,7 +97,6 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    /* max-width: 130px; */
 }
 
 

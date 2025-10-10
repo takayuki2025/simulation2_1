@@ -44,7 +44,7 @@
                 <input type="submit" class="submit-primary" value="休憩戻">
             </form>
         @else
-            <h3 class="status">出勤中</h3><br>
+            <h4 class="status">出勤中</h4><br>
                 <p class="day-and-week" id="currentDayOfWeek">{{ $currentDate }} ({{ $currentDay }})</p>
                 <p class="time-only" id="currentTime">{{ $currentTime }}</p>
             <div class="submit-out-or-break">

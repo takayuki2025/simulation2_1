@@ -8,12 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
-use App\Providers\RouteServiceProvider;
-
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Authenticated;
+// use App\Providers\RouteServiceProvider;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -56,8 +55,7 @@ class FortifyServiceProvider extends ServiceProvider
             return redirect()->intended('/attendance');
         });
 
-        // Fortifyがログインページを表示する際に、
-        // どのBladeテンプレートを使用するかを明示的に指定しています。
+        // Fortifyがログインページを表示する際に、どのBladeテンプレートを使用するかを明示的に指定しています。
         Fortify::loginView(function () {
             return view('auth.login');
         });

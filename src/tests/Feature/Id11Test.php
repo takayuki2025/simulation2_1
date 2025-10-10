@@ -193,17 +193,16 @@ class Id11Test extends TestCase
             'user_id' => $this->user->id,
             'checkin_date' => $date,
             'clock_in_time' => '22:00', // 出勤 (10/27 22:00)
-            'clock_out_time' => '06:00', // 退勤 (翌日10/28 06:00に補正されるはず)
+            'clock_out_time' => '06:00', // 退勤 (翌日10/28 06:00に補正される)
             'reason' => $reason,
             'break_times' => [
-                // 休憩も日跨ぎが考慮される (10/28 02:00 - 10/28 03:00に補正されるはず)
+                // 休憩も日跨ぎが考慮される (10/28 02:00 - 10/28 03:00に補正される)
                 ['start_time' => '02:00', 'end_time' => '03:00'],
             ],
         ];
 
         $response = $this->actingAs($this->user)->post(route('application.create'), $applicationData);
         $response->assertSessionHasNoErrors();
-
 
         // データベースにデータが正しく保存され、日跨ぎ補正されていることを確認
         $this->assertDatabaseHas('applications', [
@@ -264,11 +263,9 @@ class Id11Test extends TestCase
     public function test_employee_sees_only_their_pending_applications()
     {
         $otherUser = User::factory()->create(['role' => 'employee']);
-
         $date1 = '2025-11-01';
         $date2 = '2025-11-02';
         $date3 = '2025-11-03';
-
         $attendance1 = Attendance::factory()->create(['user_id' => $this->user->id, 'checkin_date' => $date1]);
         $attendance2 = Attendance::factory()->create(['user_id' => $this->user->id, 'checkin_date' => $date2]);
         $attendance3 = Attendance::factory()->create(['user_id' => $otherUser->id, 'checkin_date' => $date3]);
@@ -308,9 +305,7 @@ class Id11Test extends TestCase
 
         // 一般ユーザーとして認証し、承認待ち一覧にアクセス (route()ヘルパーを使用)
         $response = $this->actingAs($this->user)->get(route('apply.list', ['pending' => 'true']));
-
         $response->assertOk();
-
         $applicationsInView = $response->viewData('applications');
 
         // 自分の承認待ち申請が含まれていることを確認
@@ -343,11 +338,9 @@ class Id11Test extends TestCase
     public function test_employee_sees_only_their_approved_applications()
     {
         $otherUser = User::factory()->create(['role' => 'employee']);
-
         $date1 = '2025-11-01';
         $date2 = '2025-11-02';
         $date3 = '2025-11-03';
-
         $attendance1 = Attendance::factory()->create(['user_id' => $this->user->id, 'checkin_date' => $date1]);
         $attendance2 = Attendance::factory()->create(['user_id' => $this->user->id, 'checkin_date' => $date2]);
         $attendance3 = Attendance::factory()->create(['user_id' => $otherUser->id, 'checkin_date' => $date3]);
@@ -387,9 +380,7 @@ class Id11Test extends TestCase
 
         // 一般ユーザーとして認証し、承認済み一覧にアクセス (route()ヘルパーを使用)
         $response = $this->actingAs($this->user)->get(route('apply.list', ['pending' => 'false']));
-
         $response->assertOk();
-
         $applicationsInView = $response->viewData('applications');
 
         // 自分の承認済み申請が含まれていることを確認 (IDで検証)
@@ -422,10 +413,8 @@ class Id11Test extends TestCase
     public function test_attendance_detail_page_displays_data_and_correct_buttons_based_on_status(): void
     {
         $targetDate = Carbon::create(2025, 10, 10);
-
         $originalCheckIn = '09:00';
         $originalCheckOut = '18:00';
-
         $expectedBreakTimesArray = [
             ['start' => '12:00:00', 'end' => '13:00:00'], // 休憩1
             ['start' => '15:00:00', 'end' => '15:15:00'], // 休憩2
@@ -452,10 +441,8 @@ class Id11Test extends TestCase
 
         // 申請データなし (データ表示と「修正」ボタンの表示検証)
         $detailResponse = $this->actingAs($this->user)->get($detailRouteWithParams);
-
         $detailResponse->assertStatus(200);
         $detailResponse->assertSee('勤怠詳細', 'h2');
-
         $detailResponse->assertSee($targetDate->year);
         $detailResponse->assertSee($targetDate->month . '月' . $targetDate->day . '日', false);
 
@@ -471,7 +458,6 @@ class Id11Test extends TestCase
         $detailResponse->assertSee($updateButtonHtml, false);
         $detailResponse->assertDontSee('＊承認待ちのため修正はできません。');
         $detailResponse->assertDontSee('＊この日は一度承認されたので修正できません。');
-
 
         // 承認待ちの申請データが存在する場合
         $targetDate2 = $targetDate->copy()->addDay(); // Carbonオブジェクトをコピーして日付を進める
@@ -502,16 +488,14 @@ class Id11Test extends TestCase
             'date' => $attendance2->checkin_date
         ]);
         $detailResponse2 = $this->actingAs($this->user)->get($detailRoute2WithParams);
-
         $detailResponse2->assertStatus(200);
         $detailResponse2->assertSee('value="' . $pendingCheckIn . '"', false); // 申請値の 08:00 が表示される
         $detailResponse2->assertDontSee('value="' . $originalCheckIn . '"', false);
 
-        // ボタン表示ロジックの検証（承認待ち => 修正ボタンが非表示になり、メッセージが表示される）★★★
+        // ボタン表示ロジックの検証（承認待ち => 修正ボタンが非表示になり、メッセージが表示される）
         $detailResponse2->assertDontSee('修 正</button>', false);
         $detailResponse2->assertSee('＊承認待ちのため修正はできません。');
         $detailResponse2->assertDontSee('＊この日は一度承認されたので修正できません。');
-
 
         // 承認済みの申請データが存在する場合
         $targetDate3 = $targetDate->copy()->addDays(2);

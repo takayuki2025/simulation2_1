@@ -122,5 +122,4 @@ class Id01Test extends TestCase
 
         $this->assertCount(1, User::all());
     }
-
 }

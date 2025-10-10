@@ -19,7 +19,6 @@ class Id08Test extends TestCase
     {
         $fixedClockInTime = Carbon::create(2025, 10, 1, 9, 0, 0, 'Asia/Tokyo');
         $fixedClockOutTime = $fixedClockInTime->copy()->addHours(8); // 17:00:00
-
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);
         $this->actingAs($user);
 
@@ -72,7 +71,6 @@ class Id08Test extends TestCase
 
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);
         $this->actingAs($user);
-
         $targetDate = Carbon::create(2025, 11, 15, 0, 0, 0, 'Asia/Tokyo');
 
         // Carbonのロケールを日本語に設定（曜日表示を合わせるため）
@@ -97,9 +95,7 @@ class Id08Test extends TestCase
             ->first();
         $this->assertNotNull($attendance->clock_out_time, '退勤時刻が記録されていません。');
 
-        // 月別勤怠一覧ページへのアクセスと表示検証
-
-        //　URLクエリパラメータを渡し、2025年11月のデータを明示的に要求する。
+        // 月別勤怠一覧ページへのアクセスと表示検証,URLクエリパラメータを渡し、2025年11月のデータを明示的に要求する。
         $response = $this->get(route('user.month.index', [
             'year' => $targetDate->year,
             'month' => $targetDate->month

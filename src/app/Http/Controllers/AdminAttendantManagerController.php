@@ -146,7 +146,7 @@ class AdminAttendantManagerController extends Controller
                 }
             }
         }
-        // ★ 修正箇所: 常に1つの空の休憩フォームを無条件に追加する
+        // 常に1つの空の休憩フォームを無条件に追加する
         $formBreakTimes[] = [
             'start_time' => '',
             'end_time' => ''
@@ -336,7 +336,6 @@ class AdminAttendantManagerController extends Controller
 
         $data = [
             'name' => $application->user->name,
-            // 修正箇所: 'Y年' の後に半角スペースを追加 -> 'Y年 m月d日'
             'date' => Carbon::parse($application->checkin_date)->format('Y年　　　　n月j日'),
             'clock_in_time' => $application->clock_in_time ? Carbon::parse($application->clock_in_time)->format('H:i') : '-',
             'clock_out_time' => $application->clock_out_time ? Carbon::parse($application->clock_out_time)->format('H:i') : '-',
@@ -599,7 +598,6 @@ class AdminAttendantManagerController extends Controller
             // 法定労働時間（8時間 = 480分）
             $legalWorkMinutes = 480;
 
-            // ヘッダー行 (定時勤務時間(分)と残業時間(分)を追加し、労働時間(分)を削除)
             $header = [
                 '日付',
                 '曜日',

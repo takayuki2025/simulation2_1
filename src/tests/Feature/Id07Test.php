@@ -20,10 +20,8 @@ class Id07Test extends TestCase
     {
         $fixedNow = Carbon::create(2025, 9, 29, 10, 0, 0, 'Asia/Tokyo');
         Carbon::setTestNow($fixedNow);
-
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);
         $this->actingAs($user);
-
         $clockInTime = $fixedNow->copy()->subHour();
         $todayDate = $fixedNow->toDateString();
 
@@ -59,10 +57,8 @@ class Id07Test extends TestCase
     {
         $initialTime = Carbon::create(2025, 9, 29, 10, 0, 0, 'Asia/Tokyo');
         Carbon::setTestNow($initialTime);
-
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);
         $this->actingAs($user);
-
         $clockInTime = $initialTime->copy()->subHour();
         $todayDate = $initialTime->toDateString();
 
@@ -76,7 +72,6 @@ class Id07Test extends TestCase
         ]);
 
         $this->post(route('attendance.break_start'));
-
         $this->get(route('user.stamping.index'))->assertSee('休憩戻');
 
         $breakEndTime = $initialTime->copy()->addMinutes(30);
@@ -106,7 +101,6 @@ class Id07Test extends TestCase
         $cycles = 5;
         $breakDurationMinutes = 10;
         $workDurationMinutes = 10;
-
         $initialTime = Carbon::create(2025, 9, 29, 9, 0, 0, 'Asia/Tokyo');
         Carbon::setTestNow($initialTime); // 09:00:00
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);
@@ -125,9 +119,7 @@ class Id07Test extends TestCase
         // 最初の休憩サイクル開始時刻 (10:00:00からスタート)
         $currentTime = $initialTime->copy()->addHour(); // 10:00:00
 
-        // ----------------------------------------------------
-        // 2. --- N回 (5回) の休憩サイクルをループで実行 ---
-        // ----------------------------------------------------
+        // 5回 の休憩サイクルをループで実行
         for ($i = 0; $i < $cycles; $i++) {
 
             Carbon::setTestNow($currentTime);
@@ -156,9 +148,7 @@ class Id07Test extends TestCase
             // 次のサイクルの開始時刻を計算（勤務時間を進める）
             $currentTime = $breakEndTime->copy()->addMinutes($workDurationMinutes);
 
-            // ------------------------------------------------
             // データベース検証 (毎回、最後の休憩レコードが終了していることを確認)
-            // ------------------------------------------------
             $attendance = Attendance::where('user_id', $user->id)
                 ->whereDate('checkin_date', $todayDate)
                 ->first();
@@ -195,10 +185,7 @@ class Id07Test extends TestCase
             'break_total_time' => 0,
         ]);
 
-        // ----------------------------------------------------
-        // 2. --- 複数回休憩サイクルを実行し、合計25分の休憩を取得 ---
-        // ----------------------------------------------------
-
+        // 複数回休憩サイクルを実行し、合計25分の休憩を取得 ---
         // --- 1回目の休憩 (15分) ---
         Carbon::setTestNow($initialTime->copy()->addHour()); // 10:00:00
         $this->post(route('attendance.break_start'));
@@ -224,10 +211,7 @@ class Id07Test extends TestCase
             ->first();
         $this->assertEquals($expectedTotalBreakMinutes, $attendance->break_total_time, 'DBに記録された総休憩時間が不正です。');
 
-        // ----------------------------------------------------
-        // 3. --- 月次勤怠リストページへのアクセスと表示確認 ---
-        // ----------------------------------------------------
-
+        // 月次勤怠リストページへのアクセスと表示確認
         $response = $this->get(route('user.month.index', [
             'year' => $initialTime->year,
             'month' => $initialTime->month

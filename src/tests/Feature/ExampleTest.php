@@ -17,6 +17,6 @@ class ExampleTest extends TestCase
         $response = $this->get('/login');
 
         // アサーションを追加: トップページが正常に表示されることを確認
-        $response->assertStatus(200); 
+        $response->assertStatus(200);
     }
 }

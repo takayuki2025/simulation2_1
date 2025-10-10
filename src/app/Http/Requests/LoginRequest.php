@@ -29,7 +29,6 @@ class LoginRequest extends FormRequest
 
     public function messages()
     {
-        // 一般ユーザー、管理者共通のメッセージ
         $messages = [
             'email.required' => 'メールアドレスを入力してください。',
             'email.email' => '有効なメールアドレス形式で入力してください。',

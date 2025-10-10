@@ -129,7 +129,7 @@ textarea {
 .is-invalid,
 input[type="text"].is-invalid,
 textarea.is-invalid {
-    border: 1px solid #e3342f !important;
+    border: 1px solid #e3342f;
     box-shadow: 0 0 0 0.1rem rgba(227, 52, 47, 0.4);
 }
 
@@ -169,4 +169,18 @@ textarea.is-invalid {
     margin: 0 5px;
     align-self: center;
     flex-shrink: 0;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.error-alert {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }

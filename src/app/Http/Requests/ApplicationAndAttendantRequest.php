@@ -27,9 +27,8 @@ class ApplicationAndAttendantRequest extends FormRequest
             'reason' => ['required', 'string', 'max:191'],
         ];
     }
-    /**
-     * Carbonを使用して日跨ぎを考慮した時刻の順序検証を追加する
-     */
+
+
     public function withValidator(Validator $validator)
     {
         $validator->after(function ($validator) {
@@ -40,8 +39,7 @@ class ApplicationAndAttendantRequest extends FormRequest
             $clockInCarbon = null;
             $clockOutCarbon = null;
             $isCrossDayShift = false;
-            // 1. 出勤・退勤の順序チェック (日跨ぎ判定を含む)
-            // clock_in/out に形式エラーがないかチェック
+            // 出勤・退勤の順序チェック (日跨ぎ判定を含む)、clock_in/out に形式エラーがないかチェック
             $hasClockTimeFormatError = $validator->errors()->hasAny(['clock_in_time', 'clock_out_time']);
 
             if (!$hasClockTimeFormatError) {
@@ -72,7 +70,7 @@ class ApplicationAndAttendantRequest extends FormRequest
                     }
                 }
             }
-            // 2. 休憩時間の検証
+            // 休憩時間の検証
             foreach ($breakTimes as $index => $breakTime) {
                 $breakStartTime = $breakTime['start_time'] ?? null;
                 $breakEndTime = $breakTime['end_time'] ?? null;
@@ -81,7 +79,7 @@ class ApplicationAndAttendantRequest extends FormRequest
                 // 休憩時間の形式チェックエラー（このインデックスのみ）
                 $hasBreakFormatError = $validator->errors()->has("break_times.{$index}.start_time") ||
                                         $validator->errors()->has("break_times.{$index}.end_time");
-                // 2-a. 休憩の片方のみが入力された場合のチェック (必須チェック)
+                // 2-a. 休憩の片方のみが入力された場合のチェック
                 if ($hasStartTime XOR $hasEndTime) {
                     if (!$hasStartTime) {
                         $validator->errors()->add("break_times.{$index}.start_time", $this->messages()['break_times.*.start_time.required_with']);
@@ -89,7 +87,6 @@ class ApplicationAndAttendantRequest extends FormRequest
                     if (!$hasEndTime) {
                         $validator->errors()->add("break_times.{$index}.end_time", $this->messages()['break_times.*.end_time.required_with']);
                     }
-                    // ★ continue は削除し、必須エラーを追加しても、後の順序チェックを続行できるように変更
                 }
                 // 両方とも空欄の場合は、バリデーションをスキップ
                 if (!$hasStartTime && !$hasEndTime) {
@@ -108,7 +105,7 @@ class ApplicationAndAttendantRequest extends FormRequest
                 // Carbon オブジェクトの生成 (入力がある場合のみ生成し、ない場合は null)
                 $breakStartCarbon = $hasStartTime ? Carbon::parse($date . ' ' . $breakStartTime) : null;
                 $breakEndCarbon = $hasEndTime ? Carbon::parse($date . ' ' . $breakEndTime) : null;
-                // 2-c. 日跨ぎ休憩時刻補正 (境界チェックの前に適用)
+                // 2-c. 日跨ぎ休憩時刻補正
                 if ($isCrossDayShift) {
                     // 開始時刻の補正
                     if ($breakStartCarbon && $breakStartCarbon->lt($clockInCarbon) && $breakStartCarbon->isSameDay($clockInCarbon)) {
@@ -119,8 +116,7 @@ class ApplicationAndAttendantRequest extends FormRequest
                         $breakEndCarbon = $breakEndCarbon->addDay();
                     }
                 }
-                // 2-b. 休憩開始 >= 休憩終了 (休憩単体の順序チェック: 両方入力されている場合のみ)
-                // 補正後の時刻でチェック
+                // 2-b. 休憩開始 >= 休憩終了 (休憩単体の順序チェック: 両方入力されている場合のみ)補正後の時刻でチェック
                 if ($breakStartCarbon && $breakEndCarbon && $breakEndCarbon->lte($breakStartCarbon)) {
                     $validator->errors()->add("break_times.{$index}.start_time", $this->messages()['break_times.*.start_time.before']);
                 }
@@ -152,17 +148,12 @@ class ApplicationAndAttendantRequest extends FormRequest
         return [
             'clock_in_time.before' => '出勤時間もしくは退勤時間が不適切な値です。',
             'clock_out_time.after' => '出勤時間もしくは退勤時間が不適切な値です。',
-            // 2. 休憩時間のエラー (共通)
-            // 汎用メッセージ
             'break_times.*.start_time.before' => '休憩時間が不適切な値です。',
             'break_times.*.end_time.after' => '休憩時間が不適切な値です。',
-            // 個別メッセージ
             'break_times.*.start_time.after_or_equal' => '休憩時間が不適切な値です。',
             'break_times.*.end_time.before_or_equal' => '休憩時間もしくは退勤時間が不適切な値です。',
-            // 休憩の必須メッセージ (部分入力の場合にカスタムチェックで利用)
             'break_times.*.start_time.required_with' => '休憩開始時刻を入力してください。',    //
             'break_times.*.end_time.required_with' => '休憩終了時刻を入力してください。',      //
-            // 3. 形式・必須チェック (共通)
             'clock_in_time.required' => '出勤時刻を入力してください。',
             'clock_out_time.required' => '退勤時刻を入力してください。',
             'reason.required' => '備考を記入してください。',

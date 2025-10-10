@@ -42,7 +42,6 @@ class Id12Test extends TestCase
     {
         $today = Carbon::create(2025, 10, 15, 10, 0, 0);
         Carbon::setTestNow($today);
-
         // ターゲット日（昨日）
         $targetDate = $today->copy()->subDay(); // 2025-10-14
         $dateString = $targetDate->toDateString();
@@ -68,7 +67,6 @@ class Id12Test extends TestCase
         ]);
 
         $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
-
         $response->assertStatus(200);
 
         // 表示内容の検証
@@ -126,12 +124,10 @@ class Id12Test extends TestCase
 
         // 管理者として、クエリなし（今日）のページにアクセス
         $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index'));
-
         $response->assertStatus(200);
 
         // 表示されている日付が現在の日付であることを検証
         $response->assertSee($today->format('Y年m月d日') . 'の勤怠');
-
         // スタッフ1の情報が正確に表示されていることを検証
         $response->assertSee($this->staffUser1->name);
         $response->assertSeeInOrder([$this->staffUser1->name, '<td>09:00</td>', '<td></td>', '<td>0:00</td>', '<td>1:00</td>'], false);
@@ -139,7 +135,6 @@ class Id12Test extends TestCase
         // スタッフ2の情報が正確に表示されていることを検証
         $response->assertSee($this->staffUser2->name);
         $response->assertSeeInOrder([$this->staffUser2->name, '<td>08:30</td>', '<td></td>', '<td>0:30</td>', '<td>1:00</td>'], false);
-
 
         // 詳細ボタンの検証（今日の日付なので表示される）
         $response->assertSee('/admin/attendance/' . $this->staffUser1->id . '?date=' . $dateString, false);
@@ -167,7 +162,6 @@ class Id12Test extends TestCase
 
         // 前日ページに遷移し、日付を確認
         $prevResponse = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $prevDay->toDateString()]));
-
         $prevResponse->assertStatus(200);
         $prevResponse->assertSee($prevDay->format('Y年m月d日') . 'の勤怠');
         $prevResponse->assertDontSee($today->format('Y年m月d日'));
@@ -178,15 +172,12 @@ class Id12Test extends TestCase
     {
         $today = Carbon::create(2025, 10, 15, 10, 0, 0);
         Carbon::setTestNow($today);
-
         // ターゲット日（昨日）
         $targetDate = $today->copy()->subDay(); // 2025-10-14
         $dateString = $targetDate->toDateString();
 
-        // 2. スタッフの勤怠データは作成しない（未打刻をシミュレート）
-
+        // スタッフの勤怠データは作成しない（未打刻をシミュレート）
         $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
-
         $response->assertStatus(200);
 
         // 表示内容の検証
@@ -197,7 +188,7 @@ class Id12Test extends TestCase
         $response->assertSeeInOrder([$this->staffUser1->name, '<td></td>', '<td></td>', '<td></td>', '<td></td>'], false);
         $response->assertSeeInOrder([$this->staffUser2->name, '<td></td>', '<td></td>', '<td></td>', '<td></td>'], false);
 
-        // 詳細ボタンの検証（過去の日付なので表示されるはず）
+        // 詳細ボタンの検証（過去の日付なので表示される）
         $response->assertSee('/admin/attendance/' . $this->staffUser1->id . '?date=' . $dateString, false);
         $response->assertSee('/admin/attendance/' . $this->staffUser2->id . '?date=' . $dateString, false);
         $response->assertSee('redirect_to', false);
@@ -224,7 +215,6 @@ class Id12Test extends TestCase
 
         // 翌日ページに遷移し、日付を確認
         $nextResponse = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $nextDay->toDateString()]));
-
         $nextResponse->assertStatus(200);
         $nextResponse->assertSee($nextDay->format('Y年m月d日') . 'の勤怠');
         $nextResponse->assertDontSee($today->format('Y年m月d日'));
@@ -235,21 +225,16 @@ class Id12Test extends TestCase
     {
         $today = Carbon::create(2025, 10, 15, 10, 0, 0);
         Carbon::setTestNow($today);
-
         // ターゲット日（明日）
         $targetDate = $today->copy()->addDay(); // 2025-10-16
         $dateString = $targetDate->toDateString();
 
         // スタッフの勤怠データは作成しない（未来の日付なのでデータは存在しない）
-
         $response = $this->actingAs($this->adminUser)->get(route('admin.attendance.list.index', ['date' => $dateString]));
-
         $response->assertStatus(200);
-
         $response->assertSee($targetDate->format('Y年m月d日') . 'の勤怠');
         $response->assertSee($this->staffUser1->name);
         $response->assertSee($this->staffUser2->name);
-
         $response->assertSeeInOrder([$this->staffUser1->name, '<td></td>', '<td></td>', '<td></td>', '<td></td>'], false);
         $response->assertSeeInOrder([$this->staffUser2->name, '<td></td>', '<td></td>', '<td></td>', '<td></td>'], false);
 
