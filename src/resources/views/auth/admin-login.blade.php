@@ -29,7 +29,7 @@
             </div>
 
             <div class="button-container">
-                <input type="submit" class="login-button" value="ログインする">
+                <input type="submit" class="login-button" value="管理者ログインする">
             </div>
         </form>
 

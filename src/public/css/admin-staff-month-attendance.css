@@ -116,6 +116,7 @@ body {
     padding: 10px;
     text-align: center;
     border-bottom: 3px solid #e1e1e1;
+    letter-spacing: 1px;
 }
 
 .attendance-table td {
@@ -123,7 +124,7 @@ body {
     text-align: center;
     border-bottom: 2px solid #e1e1e1;
     white-space: nowrap;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
 .attendance-table tr:last-child td {

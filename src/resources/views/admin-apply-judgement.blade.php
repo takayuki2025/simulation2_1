@@ -26,8 +26,8 @@
                 <th>出勤・退勤</th>
                 <td class="time-inputs">
                     <span>{{ $data['clock_in_time'] }}</span>
-                    <span>　〜</span>
-                    <span>　{{ $data['clock_out_time'] }}</span>
+                    <span>　　〜</span>
+                    <span>　　{{ $data['clock_out_time'] }}</span>
                 </td>
             </tr>
                 {{-- $data['break_times']がJSONデコードされた配列であることを前提にループ表示 --}}
@@ -38,8 +38,8 @@
                 <td class="time-inputs">
                         {{-- null合体演算子 (??) で未定義の場合に備える --}}
                     <span>{{ $break['start_time'] ?? '-' }}</span>
-                    <span>　〜</span>
-                    <span>　{{ $break['end_time'] ?? '-' }}</span>
+                    <span>　　〜</span>
+                    <span>　　{{ $break['end_time'] ?? '-' }}</span>
                 </td>
             </tr>
         @empty

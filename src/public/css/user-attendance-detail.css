@@ -102,6 +102,7 @@ textarea {
 
 .button {
     padding: 8px 34px;
+    margin-bottom: 20px;
     font-weight: 800;
     border: none;
     border-radius: 3px;
@@ -126,6 +127,7 @@ textarea {
 .message-approved,
 .message-pending {
     color: #f44336;
+    letter-spacing: 2px;
 }
 
 /* --- バリデーションエラー表示用スタイル --- */

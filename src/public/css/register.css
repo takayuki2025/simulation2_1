@@ -30,24 +30,21 @@
 }
 
 .register-button {
-    position: relative;
-    top: 20px;
-    width: 500px;
-    height: 30px;
-    margin: 30px 0;
+    width: 510px;
+    height: 40px;
+    margin: 50px 0 25px 0;
     font-size: 18px;
-    font-weight: 600;
-    background-color: #ff5555;
+    font-weight: 700;
+    background-color: #000000;
     border: #ff5555;
     color: white;
 }
 
 .to-login {
-    position: relative;
-    top: 5px;
     color: #0173cc;
     text-decoration: none;
     display: block;
+    font-size: 15px;
 }
 
 .label-name {
@@ -55,6 +52,7 @@
     display: block;
     position: relative;
     right: 238px;
+    letter-spacing: 1px;
 }
 
 .label-email {
@@ -63,6 +61,7 @@
     display: block;
     position: relative;
     right: 200px;
+    letter-spacing: 1px;
 }
 
 .label-password {
@@ -71,6 +70,7 @@
     display: block;
     position: relative;
     right: 215px;
+    letter-spacing: 1px;
 }
 
 .label-conf-password {
@@ -79,6 +79,7 @@
     display: block;
     position: relative;
     right: 198px;
+    letter-spacing: 1px;
 }
 
 .error {

@@ -336,7 +336,7 @@ class AdminAttendantManagerController extends Controller
 
         $data = [
             'name' => $application->user->name,
-            'date' => Carbon::parse($application->checkin_date)->format('Y年　　　　n月j日'),
+            'date' => Carbon::parse($application->checkin_date)->format('Y年　　　　　 n月j日'),
             'clock_in_time' => $application->clock_in_time ? Carbon::parse($application->clock_in_time)->format('H:i') : '-',
             'clock_out_time' => $application->clock_out_time ? Carbon::parse($application->clock_out_time)->format('H:i') : '-',
             'break_times' => $breakTimes, // JSONから整形された休憩データ

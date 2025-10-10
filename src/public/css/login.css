@@ -30,10 +30,11 @@
     width: 510px;
     height: 40px;
     margin: 50px 0 25px 0;
-    background-color: #ff5555;
-    border: #ff5555;
+    background-color: #000000;
+    border: #000000;
     color: white;
     font-size: 17px;
+    letter-spacing: 1px;
     font-weight: 700;
 }
 
@@ -41,6 +42,7 @@
     color: #0173cc;
     text-decoration: none;
     display: block;
+    font-size: 15px;
 }
 
 .label-email {
@@ -49,6 +51,7 @@
     right: 200px;
     top: 10px;
     font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .label-password {
@@ -58,6 +61,7 @@
     right: 213px;
     top: 10px;
     font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .error {

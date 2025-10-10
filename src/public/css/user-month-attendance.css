@@ -110,13 +110,14 @@ body {
     text-align: center;
     font-weight: 800;
     border-bottom: 3px solid #e1e1e1;
+    letter-spacing: 1px;
 }
 
 .attendance-table td {
     padding: 10px;
     text-align: center;
     border-bottom: 2px solid #e1e1e1;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
 .attendance-table th:first-child,
@@ -137,7 +138,6 @@ body {
     font-size: 15px;
     font-weight: 800;
     white-space: nowrap;
-    letter-spacing: 4px;
 }
 
 .detail-button {

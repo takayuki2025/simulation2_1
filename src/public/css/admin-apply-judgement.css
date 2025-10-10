@@ -29,7 +29,7 @@ body {
 
 .detail-table {
     color: #737373;
-    font-weight: 800;
+    font-weight: 600;
     width: 100%;
     font-size: 16px;
     border-collapse: collapse;
@@ -37,7 +37,7 @@ body {
 
 .detail-table th,
 .detail-table td {
-    padding: 20px 80px;
+    padding: 30px 70px;
     text-align: left;
     border-bottom: none;
 }
@@ -57,8 +57,6 @@ body {
 
 .time-inputs span {
     width: 80px;
-    font-size: 15px;
-    margin: 0 5px;
     color: #000000;
 }
 
