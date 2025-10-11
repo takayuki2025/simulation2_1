@@ -45,7 +45,6 @@ class AttendanceFactory extends Factory
             ]
         ];
 
-        // 5. 勤務時間の計算
         // (退勤時刻 - 出勤時刻) - 休憩時間 (秒から分に変換)
         $durationSeconds = $clockOut->getTimestamp() - $clockIn->getTimestamp();
         $workTimeMinutes = round(($durationSeconds / 60) - $breakTotalMinutes);

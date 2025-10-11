@@ -43,7 +43,7 @@ class ApplicationFactory extends Factory
         // 勤務時間 (分) - (18:00 - 09:00) = 9時間 (540分) - 休憩1時間 (60分) = 480分
         $workTime = 9 * 60 - $breakTotalTime;
 
-        // ★FIX: マイグレーションのdateTime型に合わせて、日付と時刻を組み合わせた完全な日時文字列を生成
+        // マイグレーションのdateTime型に合わせて、日付と時刻を組み合わせた完全な日時文字列を生成
         $clockInDateTime = Carbon::parse($checkinDate . ' ' . $clockInTime)->toDateTimeString();
         $clockOutDateTime = Carbon::parse($checkinDate . ' ' . $clockOutTime)->toDateTimeString();
 
@@ -53,7 +53,7 @@ class ApplicationFactory extends Factory
             // 勤怠日
             'checkin_date' => $checkinDate,
 
-            // ★FIX: dateTime形式で保存
+            // dateTime形式で保存
             'clock_in_time' => $clockInDateTime,
             'clock_out_time' => $clockOutDateTime,
 
@@ -63,7 +63,7 @@ class ApplicationFactory extends Factory
             // 備考
             'reason' => $this->faker->realText(50),
 
-            // ★FIX: boolean型に合わせて、true（文字列ではない）を設定する
+            // boolean型に合わせて、true（文字列ではない）を設定する
             'pending' => true,
         ];
     }
