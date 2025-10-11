@@ -51,6 +51,7 @@ body {
     display: flex;
     gap: 10px;
     flex-grow: 1;
+    letter-spacing: 3px;
 }
 
 .calendar-title .nav:last-child {
@@ -103,6 +104,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+    letter-spacing: 1px;
 }
 
 .attendance-table th {
@@ -117,7 +119,6 @@ body {
     text-align: center;
     border-bottom: 2px solid #e1e1e1;
     white-space: nowrap;
-    letter-spacing: 2px;
 }
 
 .attendance-table th:nth-child(1),

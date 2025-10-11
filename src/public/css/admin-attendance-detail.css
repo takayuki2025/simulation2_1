@@ -33,6 +33,7 @@ body {
     width: 100%;
     font-size: 16px;
     border-collapse: collapse;
+    letter-spacing: 2px;
 }
 
 .detail-table tr:not(.last-row) th,
@@ -47,12 +48,10 @@ body {
 
 .detail-table th {
     width: 30%;
-    letter-spacing: 2px;
 }
 
 .detail-table td {
     color: #000000;
-    letter-spacing: 2px;
 }
 
 .detail-table tr:first-child td {

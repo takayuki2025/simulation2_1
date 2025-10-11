@@ -90,9 +90,9 @@ class Id09Test extends TestCase
 
         // ナビゲーションリンクのチェック
         $response->assertSee('href="?year=2025&month=8"', false);
-        $response->assertSee('前 月', false);
+        $response->assertSee('前月', false);
         $response->assertSee('href="?year=2025&month=10"', false);
-        $response->assertSee('翌 月', false);
+        $response->assertSee('翌月', false);
     }
 
     // ID09-2 認証されたユーザーがクエリなしでアクセスしたとき、現在月がデフォルトで表示されることをテストします。
@@ -111,9 +111,9 @@ class Id09Test extends TestCase
         $response->assertSee($expectedDisplayDate);
         // ナビゲーションリンクのチェック (前月: 9月, 翌月: 11月)
         $response->assertSee('href="?year=2025&month=9"', false);
-        $response->assertSee('前 月', false);
+        $response->assertSee('前月', false);
         $response->assertSee('href="?year=2025&month=11"', false);
-        $response->assertSee('翌 月', false);
+        $response->assertSee('翌月', false);
     }
 
     // ID09-3 前月へのナビゲーションリンクが正しく機能するかをテストします。
@@ -134,7 +134,7 @@ class Id09Test extends TestCase
         // 基準月（2024/05）が表示されていることと、「前月」リンクのhref属性を確認
         $response->assertSee("{$startYear}/0{$startMonth}");
         $response->assertSee('href="' . $expectedPrevQuery . '"', false);
-        $response->assertSee('前 月', false);
+        $response->assertSee('前月', false);
 
         // 「前月」リンクが示すURLに遷移 (完全なパスを構築)
         $prevMonthResponse = $this->actingAs($this->user)->get("/attendance/list{$expectedPrevQuery}");
@@ -163,7 +163,7 @@ class Id09Test extends TestCase
         // 基準月（2024/05）が表示されていることと、「翌月」リンクのhref属性を確認
         $response->assertSee("{$startYear}/0{$startMonth}");
         $response->assertSee('href="' . $expectedNextQuery . '"', false);
-        $response->assertSee('翌 月', false);
+        $response->assertSee('翌月', false);
 
         // 「翌月」リンクが示すURLに遷移 (完全なパスを構築)
         $nextMonthResponse = $this->actingAs($this->user)->get("/attendance/list{$expectedNextQuery}");
@@ -199,8 +199,8 @@ class Id09Test extends TestCase
         // ナビゲーションリンクが正しい月を指していることを確認
         $response->assertSee('href="?year=2025&month=9"', false); // 前月へのリンク
         $response->assertSee('href="?year=2025&month=11"', false); // 翌月へのリンク
-        $response->assertSee('前 月', false);
-        $response->assertSee('翌 月', false);
+        $response->assertSee('前月', false);
+        $response->assertSee('翌月', false);
     }
 
     // ID09-5 詳細ページへ遷移できること、および勤怠情報がフォームの初期値として正しく表示されることをテストします。

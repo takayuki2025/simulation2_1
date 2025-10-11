@@ -29,7 +29,7 @@
                 <p class="time-only" id="currentTime">{{ $currentTime }}</p>
             <form action="{{ route('attendance.clock_in') }}" method="post">
                 @csrf
-                <input type="submit" class="submit-primary" value="出勤">
+                <input type="submit" class="submit-clock-in-and-out" value="出勤">
             </form>
         @elseif($isClockedOut)
             <h4 class="status">退勤済</h4><br>
@@ -42,7 +42,7 @@
                 <p class="time-only" id="currentTime">{{ $currentTime }}</p>
             <form action="{{ route('attendance.break_end') }}" method="post">
                 @csrf
-                <input type="submit" class="submit-primary" value="休憩戻">
+                <input type="submit" class="submit-break-start-and-end" value="休憩戻">
             </form>
         @else
             <h4 class="status">出勤中</h4><br>
@@ -51,11 +51,11 @@
             <div class="submit-out-or-break">
             <form action="{{ route('attendance.create') }}" method="post">
                 @csrf
-                <input type="submit" class="submit-primary" value="退勤">
+                <input type="submit" class="submit-clock-in-and-out" value="退勤">
             </form>
             <form action="{{ route('attendance.break_start') }}" method="post">
                 @csrf
-                <input type="submit" class="submit-primary" value="休憩入">
+                <input type="submit" class="submit-break-start-and-end" value="休憩入">
             </form>
             </div>
         @endif

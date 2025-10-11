@@ -33,6 +33,7 @@ body {
     width: 100%;
     font-size: 16px;
     border-collapse: collapse;
+    letter-spacing: 2px;
 }
 
 .detail-table th,
@@ -52,7 +53,6 @@ body {
 
 .detail-table td {
     color: #000000;
-    letter-spacing: 2px;
 }
 
 .time-inputs span {

@@ -38,6 +38,7 @@
     background-color: #000000;
     border: #ff5555;
     color: white;
+    cursor: pointer;
 }
 
 .to-login {
@@ -45,6 +46,7 @@
     text-decoration: none;
     display: block;
     font-size: 15px;
+    cursor: pointer;
 }
 
 .label-name {

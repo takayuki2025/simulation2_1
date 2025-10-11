@@ -111,8 +111,8 @@ class Id14Test extends TestCase
         $response->assertSee("{$this->staffUser1->name}さんの勤怠");
         // 日付ナビゲーションが表示されていること
         $response->assertSee($expectedMonthDisplay);
-        $response->assertSee('前 月');
-        $response->assertSee('翌 月');
+        $response->assertSee('前月');
+        $response->assertSee('翌月');
         // CSV出力ボタンのフォームが正しく設定されていること
         $response->assertSee('name="user_id" value="' . $this->staffUser1->id . '"', false);
         $response->assertSee('name="year" value="' . $year . '"', false);
@@ -148,7 +148,7 @@ class Id14Test extends TestCase
         $response->assertSee("{$this->staffUser1->name}さんの勤怠");
         $response->assertSee($expectedMonthDisplay);
         // 翌月へのナビゲーションリンクが存在することを確認
-        $response->assertSee('翌 月');
+        $response->assertSee('翌月');
         // 勤怠データ（2025-09-25）が表示されていないことを検証
         $response->assertDontSee('<td>09:00</td>', false);
         $response->assertDontSee('<td>18:00</td>', false);
@@ -177,7 +177,7 @@ class Id14Test extends TestCase
         $response->assertSee("{$this->staffUser1->name}さんの勤怠");
         $response->assertSee($expectedMonthDisplay);
         // 前月へのナビゲーションリンクが存在することを確認
-        $response->assertSee('前 月');
+        $response->assertSee('前月');
         // 勤怠データ（2025-09-25）が表示されていないことを検証
         $response->assertDontSee('<td>09:00</td>', false);
         $response->assertDontSee('<td>18:00</td>', false);

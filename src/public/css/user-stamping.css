@@ -44,24 +44,34 @@ body {
     font-weight: 800;
 }
 
-.submit-primary {
+.submit-clock-in-and-out {
     margin-top: 40px;
     padding: 10px 20px;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
+    letter-spacing: 5px;
     font-weight: 600;
     cursor: pointer;
     border: none;
-    width: 160px;
-    border-radius: 12px;
-    color: rgb(0, 0, 0);
-    background-color: #ffffff;
-    transition: background-color 0.3s;
+    width: 210px;
+    border-radius: 15px;
+    color: rgb(255, 255, 255);
+    background-color: #000000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.submit-primary:hover {
-    background-color: black;
-    color: white;
+.submit-break-start-and-end {
+    margin-top: 40px;
+    padding: 10px 20px;
+    font-size: 1.5rem;
+    letter-spacing: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    width: 210px;
+    border-radius: 15px;
+    color: rgb(0, 0, 0);
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .status {

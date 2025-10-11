@@ -36,6 +36,7 @@
     font-size: 17px;
     letter-spacing: 1px;
     font-weight: 700;
+    cursor: pointer;
 }
 
 .to-register {
@@ -43,6 +44,7 @@
     text-decoration: none;
     display: block;
     font-size: 15px;
+    cursor: pointer;
 }
 
 .label-email {

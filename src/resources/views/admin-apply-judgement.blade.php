@@ -34,7 +34,7 @@
         @forelse($data['break_times'] as $index => $break)
             <tr>
                     {{-- 休憩回数を表示するために $index + 1 を使用 --}}
-                <th>休憩 {{ $index + 1 }}</th>
+                <th>休憩{{ $index + 1 }}</th>
                 <td class="time-inputs">
                         {{-- null合体演算子 (??) で未定義の場合に備える --}}
                     <span>{{ $break['start_time'] ?? '-' }}</span>

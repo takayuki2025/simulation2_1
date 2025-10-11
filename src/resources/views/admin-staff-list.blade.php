@@ -14,9 +14,9 @@
     <table class="staff-table">
         <thead>
             <tr>
-                <th>名 前</th>
-                <th>メ ー ル ア ド レ ス</th>
-                <th>月 次 勤 怠</th>
+                <th>名前</th>
+                <th>メールアドレス</th>
+                <th>月次勤怠</th>
             </tr>
         </thead>
         <tbody>

@@ -20,12 +20,12 @@
         <div class="calendar-title">
         <div class="nav">
 {{-- prevMonthから年と月を取得してリンクを生成 --}}
-            <a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow-left"><span class="nav-arrow">&#x2B05; </span>前 月</a>
+            <a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow-left"><span class="nav-arrow">&#x2B05;</span>前月</a>
         </div>
             <h2>📅 <span id="current-date-display">{{ $date->format('Y/m') }}</span></h2>
         <div class="nav">
 {{-- nextMonthから年と月を取得してリンクを生成 --}}
-            <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="arrow-right">翌 月<span class="nav-arrow"> &#x27A1;</span></a>
+            <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="arrow-right">翌月<span class="nav-arrow">&#x27A1;</span></a>
         </div>
         </div>
     </div>

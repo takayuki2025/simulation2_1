@@ -80,7 +80,7 @@
                 @if ($index === 0)
                     <th>休憩</th>
                 @else
-                    <th>休憩 {{ $index + 1 }}</th>
+                    <th>休憩{{ $index + 1 }}</th>
                 @endif
                 <td class="time-inputs">
                     {{-- 休憩開始時刻を表示（データがない場合は '-'） --}}

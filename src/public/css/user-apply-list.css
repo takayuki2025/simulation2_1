@@ -32,11 +32,12 @@ body {
 .tab-link {
     padding: 10px 20px;
     text-decoration: none;
-    color: #555;
-    font-weight: 600;
+    color: #000000;
+    font-weight: 400;
     transition: color 0.3s;
     border-bottom: 2px solid transparent;
     margin-right: 15px;
+    letter-spacing: 1px;
 }
 
 .tab-link:hover {
@@ -44,7 +45,6 @@ body {
 }
 
 .tab-link.active {
-    color: #000000;
     font-weight: 900;
 }
 
@@ -58,6 +58,7 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     table-layout: fixed;
+    letter-spacing: 1px;
 }
 
 .apply-table th {

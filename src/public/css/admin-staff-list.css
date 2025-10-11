@@ -30,6 +30,7 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     table-layout: fixed;
+    letter-spacing: 2px;
 }
 
 .staff-table th {
@@ -42,7 +43,6 @@ body {
     padding: 10px;
     text-align: center;
     border-bottom: 2px solid #e1e1e1;
-    letter-spacing: 2px;
 }
 
 .staff-table th:nth-child(1),
@@ -60,6 +60,10 @@ body {
     word-break: break-all;
     overflow-wrap: break-word;
     width: 60%;
+}
+
+.staff-table th:nth-child(2) {
+    letter-spacing: 4px;
 }
 
 .staff-table th:nth-child(3),
