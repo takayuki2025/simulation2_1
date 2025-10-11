@@ -409,7 +409,7 @@ class Id11Test extends TestCase
         );
     }
 
-    // ID11-8 詳細ページへの遷移、勤怠・休憩データのフォーム初期値表示、および申請ステータスに基づいて修正ボタンとメッセージが正しく表示されることをテストします。
+// ID11-8 詳細ページへの遷移、勤怠・休憩データのフォーム初期値表示、および申請ステータスに基づいて修正ボタンとメッセージが正しく表示されることをテストします。
     public function test_attendance_detail_page_displays_data_and_correct_buttons_based_on_status(): void
     {
         $targetDate = Carbon::create(2025, 10, 10);
@@ -425,7 +425,7 @@ class Id11Test extends TestCase
         $attendanceBase = Attendance::factory()->create([
             'user_id' => $this->user->id,
             'checkin_date' => $targetDate->format('Y-m-d'),
-            // 元のデータは 09:00 / 18:00
+        // 元のデータは 09:00 / 18:00
             'clock_in_time' => "{$targetDate->format('Y-m-d')} {$originalCheckIn}:00",
             'clock_out_time' => "{$targetDate->format('Y-m-d')} {$originalCheckOut}:00",
             'break_time' => json_encode($expectedBreakTimesArray),
@@ -437,16 +437,18 @@ class Id11Test extends TestCase
             'id' => $attendanceBase->id,
             'date' => $targetDate->toDateString()
         ]);
-        $updateButtonHtml = '<button type="submit" class="button update-button">修 正</button>';
+    // 【修正】Bladeテンプレートの出力に合わせて、form="attendance-form" 属性を追記しました。
+        $updateButtonHtml = '<button type="submit" form="attendance-form" class="button update-button">修 正</button>';
 
-        // 申請データなし (データ表示と「修正」ボタンの表示検証)
+    // 申請データなし (データ表示と「修正」ボタンの表示検証)
         $detailResponse = $this->actingAs($this->user)->get($detailRouteWithParams);
         $detailResponse->assertStatus(200);
         $detailResponse->assertSee('勤怠詳細', 'h2');
         $detailResponse->assertSee($targetDate->year);
         $detailResponse->assertSee($targetDate->month . '月' . $targetDate->day . '日', false);
 
-        // フォームへのデータ初期値セットを検証
+    // フォームへのデータ初期値セットを検証
+    // このケースは申請がないため、フォームのvalue属性で確認する
         $detailResponse->assertSee('value="' . $originalCheckIn . '"', false);
         $detailResponse->assertSee('value="' . $originalCheckOut . '"', false);
         $detailResponse->assertSee('value="12:00"', false); // 休憩1 開始
@@ -454,14 +456,14 @@ class Id11Test extends TestCase
         $detailResponse->assertSee('value="15:00"', false); // 休憩2 開始
         $detailResponse->assertSee('value="15:15"', false); // 休憩2 終了
 
-        // ボタン表示ロジックの検証（申請データなし => 修正ボタンが表示される）
+    // ボタン表示ロジックの検証（申請データなし => 修正ボタンが表示される）
         $detailResponse->assertSee($updateButtonHtml, false);
         $detailResponse->assertDontSee('＊承認待ちのため修正はできません。');
         $detailResponse->assertDontSee('＊この日は一度承認されたので修正できません。');
 
-        // 承認待ちの申請データが存在する場合
+    // 承認待ちの申請データが存在する場合
         $targetDate2 = $targetDate->copy()->addDay(); // Carbonオブジェクトをコピーして日付を進める
-        // 新しい勤怠データを作成
+    // 新しい勤怠データを作成
         $attendance2 = Attendance::factory()->create([
             'user_id' => $this->user->id,
             'checkin_date' => $targetDate2->format('Y-m-d'),
@@ -472,7 +474,7 @@ class Id11Test extends TestCase
         ]);
 
         $pendingCheckIn = '08:00'; // 申請により 08:00 に修正
-        // 承認待ちの申請データを作成
+    // 承認待ちの申請データを作成
         Application::create([
             'attendance_id' => $attendance2->id,
             'user_id' => $this->user->id,
@@ -489,17 +491,18 @@ class Id11Test extends TestCase
         ]);
         $detailResponse2 = $this->actingAs($this->user)->get($detailRoute2WithParams);
         $detailResponse2->assertStatus(200);
-        $detailResponse2->assertSee('value="' . $pendingCheckIn . '"', false); // 申請値の 08:00 が表示される
+    // 【修正】申請データが存在する場合は読み取り専用ビューになるため、value属性ではなく時刻の文字列そのものを検証します。
+        $detailResponse2->assertSee($pendingCheckIn); // 申請値の 08:00 が表示される
         $detailResponse2->assertDontSee('value="' . $originalCheckIn . '"', false);
 
-        // ボタン表示ロジックの検証（承認待ち => 修正ボタンが非表示になり、メッセージが表示される）
+    // ボタン表示ロジックの検証（承認待ち => 修正ボタンが非表示になり、メッセージが表示される）
         $detailResponse2->assertDontSee('修 正</button>', false);
         $detailResponse2->assertSee('＊承認待ちのため修正はできません。');
         $detailResponse2->assertDontSee('＊この日は一度承認されたので修正できません。');
 
-        // 承認済みの申請データが存在する場合
+    // 承認済みの申請データが存在する場合
         $targetDate3 = $targetDate->copy()->addDays(2);
-        // 新しい勤怠データを作成
+    // 新しい勤怠データを作成
         $attendance3 = Attendance::factory()->create([
             'user_id' => $this->user->id,
             'checkin_date' => $targetDate3->format('Y-m-d'),
@@ -510,7 +513,7 @@ class Id11Test extends TestCase
         ]);
 
         $approvedCheckIn = '07:00';
-        // 承認済みの申請データを作成
+    // 承認済みの申請データを作成
         Application::create([
             'attendance_id' => $attendance3->id,
             'user_id' => $this->user->id,
@@ -523,15 +526,16 @@ class Id11Test extends TestCase
 
         $detailRoute3WithParams = route('user.attendance.detail.index', [
             'id' => $attendance3->id,
-            'date' => $attendance3->checkin_date
+        '   date' => $attendance3->checkin_date
         ]);
         $detailResponse3 = $this->actingAs($this->user)->get($detailRoute3WithParams);
 
         $detailResponse3->assertStatus(200);
-        $detailResponse3->assertSee('value="' . $approvedCheckIn . '"', false); // 申請値の 07:00 が表示される
+    // 【修正】申請データが存在する場合は読み取り専用ビューになるため、value属性ではなく時刻の文字列そのものを検証します。
+        $detailResponse3->assertSee($approvedCheckIn); // 申請値の 07:00 が表示される
         $detailResponse3->assertDontSee('value="' . $originalCheckIn . '"', false);
 
-        // ボタン表示ロジックの検証（承認済み => 修正ボタンが非表示になり、メッセージが表示される）
+    // ボタン表示ロジックの検証（承認済み => 修正ボタンが非表示になり、メッセージが表示される）
         $detailResponse3->assertDontSee('修 正</button>', false);
         $detailResponse3->assertDontSee('＊承認待ちのため修正はできません。');
         $detailResponse3->assertSee('＊この日は一度承認されたので修正できません。');

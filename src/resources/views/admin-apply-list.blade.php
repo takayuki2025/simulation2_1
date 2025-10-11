@@ -10,6 +10,7 @@
 
     <h2 class="page-title">申請一覧</h2>
 
+    <!-- logとともに重要な承認エラーの時のメッセージです。 -->
     @if (session('error'))
         <div class="alert error-alert">
             {{ session('error') }}

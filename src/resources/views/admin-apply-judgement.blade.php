@@ -43,13 +43,12 @@
                 </td>
             </tr>
         @empty
+            {{-- 【修正】休憩データが空の場合、「休憩なし」と表示する --}}
             <tr>
                 <th>休憩</th>
-                <td class="time-inputs">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    </td>
+                <td>
+                    <span>休憩なし</span>
+                </td>
             </tr>
         @endforelse
             <tr class="last-row">

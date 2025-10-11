@@ -11,6 +11,7 @@
     <div class="stamping-container">
         <div class="stamping-container-inner">
 
+        <!-- logとともに重要な勤務終了処理がエラーの時のメッセージです。 -->
         @if (session('error'))
             <div class="alert error-alert">
                 {{ session('error') }}

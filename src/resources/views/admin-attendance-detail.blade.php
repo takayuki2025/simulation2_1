@@ -10,6 +10,7 @@
 
     <h2 class="page-title">勤怠詳細</h2>
 
+    <!-- logとともに重要な修正エラーの時のメッセージです。 -->
     @if (session('error'))
         <div class="alert error-alert">
             {{ session('error') }}
@@ -69,7 +70,8 @@
         {{-- break_times配列をPOST送信 --}}
             @foreach($formBreakTimes as $index => $breakTime)
                 <tr>
-                    <th>休憩{{ $index + 1 }}</th>
+                    {{-- 【修正】最初の休憩(index=0)は「休憩」、2回目以降は「休憩 2」のように表示する --}}
+                    <th>休憩{{ $index === 0 ? '' : ($index + 1) }}</th>
                     <td class="time-inputs">
                 {{-- 休憩開始時刻ブロック --}}
                 <div class="input-block">

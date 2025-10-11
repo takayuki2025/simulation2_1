@@ -107,3 +107,8 @@ td>span:last-child {
     color: white;
 }
 
+.message-approved,
+.message-pending {
+    color: #f44336;
+    letter-spacing: 2px;
+}
