@@ -42,19 +42,19 @@ laravel環境構築
 # 伝えること<br>
 - ユーザー情報（管理者・一般ユーザ）,勤怠記録情報のダミーデーターを作成致しました。(専属コーチと相談して管理者1人,一般ユーザー4人分,勤怠記録62日分作成致しました。)<br>
 　ユーザー情報一覧です。'　'は削除してください。　roleは管理者と一般ユーザーを分けるためのカラムです。<br>
-　　１　名前：'川田　隆之',メールアドレス：'t.principle.k2024@gmail.com',<br>
-　　　パスワード：'takayuki',role：'admin'（管理者）,<br>
-　　２　名前：'山田　太郎',メールアドレス：'taro.y@coachtech.com',<br>
-　　　パスワード：'testtest1',role：'employee'（一般ユーザー）日勤専用,<br>
-　　３　名前：'西　怜奈',メールアドレス：'reina.n@coachtech.com',<br>
-　　　パスワード：'testtest2',role：'employee'（一般ユーザー）,日勤専用<br>
-　　４　名前：'秋田　朋美',メールアドレス：'tomomi.a@coachtech.com',<br>
-　　　パスワード：'testtest3',role：'employee'（一般ユーザー）,夜勤専用<br>
-　　５　名前：'中西　教夫',メールアドレス：'norio.n@coachtech.com',<br>
-　　　パスワード：'testtest4',role：'employee'（一般ユーザー）,２交代制<br>
+　　１　名前：'川田　隆之',　メールアドレス：'t.principle.k2024@gmail.com',<br>
+　　　パスワード：'takayuki',　role：'admin'（管理者）,<br>
+　　２　名前：'山田　太郎',　メールアドレス：'taro.y@coachtech.com',<br>
+　　　パスワード：'testtest1',　role：'employee'（一般ユーザー）,日勤専用,<br>
+　　３　名前：'西　怜奈',　メールアドレス：'reina.n@coachtech.com',<br>
+　　　パスワード：'testtest2',　role：'employee'（一般ユーザー）,日勤専用<br>
+　　４　名前：'秋田　朋美',　メールアドレス：'tomomi.a@coachtech.com',<br>
+　　　パスワード：'testtest3',　role：'employee'（一般ユーザー）,夜勤専用<br>
+　　５　名前：'中西　教夫',　メールアドレス：'norio.n@coachtech.com',<br>
+　　　パスワード：'testtest4',　role：'employee'（一般ユーザー）,２交代制<br>
 　勤怠記録情報はランダムで生成されます。<br>
 　(週休2日制(土日休み)シーダー実行当日より前の62日分,<br>
-　日勤専用(定時9時〜18時),夜勤専用(定時21時〜6時),２交代制(日勤,夜勤を1週間ごと)として<br>
+　4人一般ユーザーを作成したので日勤専用(定時9時〜18時),夜勤専用(定時21時〜6時),２交代制(日勤,夜勤を1週間ごと)として<br>
 　採点時,修正申請等を入れやすいように平日7％の確率でユーザーごとに出勤なし,<br>
 　休憩一般的な1日3回,合計55分〜60分(残業時4回,合計65分〜70分),<br>
 　残業あり30%の確率としてシーダーファイルを作成致しました。)<br><br>
