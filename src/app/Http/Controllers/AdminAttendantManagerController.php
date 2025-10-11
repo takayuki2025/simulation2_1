@@ -116,25 +116,47 @@ class AdminAttendantManagerController extends Controller
         $application = Application::where('user_id', $userId)
             ->where('checkin_date', $date)
             ->first();
+
         // フォームの初期値として使用するデータソースを決定
-        // 申請データがあればそれを優先し、なければ既存の勤怠データを使用する
-        $sourceData = $application ?? $attendance;
+        $primaryData = null;
+
+        if ($attendance && $application) {
+            // 両方のデータが存在する場合、updated_atを比較し、最新の方を優先する
+            // Carbonインスタンスに変換して比較する
+            $attendanceUpdated = Carbon::parse($attendance->updated_at);
+            $applicationUpdated = Carbon::parse($application->updated_at);
+
+            // 申請データと勤怠データのupdated_atを比較し、新しい方をprimaryDataとする
+            if ($applicationUpdated->gt($attendanceUpdated)) {
+                $primaryData = $application;
+            } else {
+                // 勤怠データの方が新しいか、同じ時間の場合は勤怠データを優先
+                $primaryData = $attendance;
+            }
+        } elseif ($application) {
+            // 申請データのみが存在する場合
+            $primaryData = $application;
+        } elseif ($attendance) {
+            // 勤怠データのみが存在する場合
+            $primaryData = $attendance;
+        }
+
         // 休憩時間のフォーム入力欄の準備 (JSON配列から作成)
         $formBreakTimes = [];
         $breakTimeData = [];
-        // 1. $sourceData (申請または勤怠) が存在する
-        // 2. 出勤時刻 または 退勤時刻 のいずれかが存在する
-        $hasClockTime = $sourceData && ($sourceData->clock_in_time || $sourceData->clock_out_time);
+        // $primaryDataが存在し、出勤時刻 または 退勤時刻 のいずれかが存在する
+        $hasClockTime = $primaryData && ($primaryData->clock_in_time || $primaryData->clock_out_time);
 
         if ($hasClockTime) {
-            // 出勤・退勤時刻が存在する場合のみ、break_timeのデータを取得、break_timeがJSON文字列であればデコードを試みる
-            $breakTimeData = is_array($sourceData->break_time) ? $sourceData->break_time : json_decode($sourceData->break_time, true);
+            // break_timeのデータを取得、JSON文字列であればデコードを試みる
+            // $primaryDataからbreak_timeを取得し、JSON形式であればデコードする
+            $breakTimeField = $primaryData->break_time;
+            $breakTimeData = is_array($breakTimeField) ? $breakTimeField : json_decode($breakTimeField, true);
         }
 
         // 既存の休憩データをフォーム形式に整形
         if (is_array($breakTimeData) && !empty($breakTimeData)) {
             foreach ($breakTimeData as $break) {
-                // 内部キーを 'start' と 'end' に変更
                 $start = $break['start'] ?? null;
                 $end = $break['end'] ?? null;
 
@@ -152,26 +174,28 @@ class AdminAttendantManagerController extends Controller
             'end_time' => ''
         ];
 
+        // 申請データがあり、かつ申請が承認待ち（pending == true）の場合に true
+        $isPending = $application && $application->pending == true;
+
         $viewData = [
             'attendance' => $attendance,
             'user' => $staffUser,
             'date' => $date,
             'formBreakTimes' => $formBreakTimes, // 優先度に基づいて構築された休憩時間
             'application' => $application,
-            'primaryData' => $sourceData, // フォームの主要なデータソース（申請データ優先）
+            'primaryData' => $primaryData, // フォームの主要なデータソース（最新の更新時刻のデータ）
+            'isPending' => $isPending, // 承認待ち状態をビューに渡す
         ];
 
         return view('admin-attendance-detail', $viewData);
     }
 
 
-        public function admin_staff_list_index(Request $request)
+    public function admin_staff_list_index(Request $request)
     {
         $users = User::all();
 
-        return view('admin-staff-list', [
-            'users' => $users,
-        ]);
+        return view('admin-staff-list', ['users' => $users,]);
     }
 
 

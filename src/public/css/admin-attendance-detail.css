@@ -122,6 +122,11 @@ textarea {
     transform: translateY(-2px);
 }
 
+.message-pending {
+    color: #f44336;
+    letter-spacing: 2px;
+}
+
 /* --- バリデーションエラー表示用スタイル --- */
 
 /* 1. エラーのある入力フィールドのスタイル */
