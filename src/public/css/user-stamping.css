@@ -94,6 +94,8 @@ body {
 .finish-message {
     font-size: 22px;
     font-weight: 700;
+    margin-top: 50px;
+    letter-spacing: 6px;
 }
 
 .alert {

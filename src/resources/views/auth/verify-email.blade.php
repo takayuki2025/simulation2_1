@@ -14,7 +14,7 @@
     box-sizing: border-box;
 }
 
-.verification-container_1 {
+.verification-container-main {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -28,7 +28,7 @@
     font-weight: bold;
 }
 
-.verification-container_1 h3 {
+.verification-container-main h3 {
     margin: 0;
 }
 
@@ -63,7 +63,7 @@
 </style>
 
 <div class="verification-container">
-    <div class="verification-container_1">
+    <div class="verification-container-main">
         <h3>登録していただいたメールアドレスに認証メールを送付しました。</h3>
         <h3>メール認証を完了してください。</h3>
 
