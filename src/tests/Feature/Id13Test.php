@@ -30,36 +30,98 @@ class Id13Test extends TestCase
         $this->staffUser = User::factory()->create(['role' => 'staff']);
     }
 
-    // ID13-1 日別一覧からのアクセスを想定し、勤怠データと申請データが両方存在する場合、申請データが優先して表示されることを検証する。
+
+    // ID13(追加) 承認待ち（pending==true）の申請データがある場合、フォームの入力が不可になり、「承認待ちのため修正はできません。」が表示されることを検証する。
+    public function test_admin_disables_editing_when_application_is_pending()
+    {
+        $testDate = '2025-10-08';
+
+        // 承認待ちの申請データを作成 (休憩時間もApplicationデータに含める)
+        $application = Application::factory()->create([
+            'user_id' => $this->staffUser->id,
+            'checkin_date' => $testDate,
+            'clock_in_time' => '08:30:00',
+            'clock_out_time' => '17:30:00',
+            'pending' => 1, // 承認待ち
+            'reason' => 'テスト備考',
+            'break_time' => [
+                ['start' => '12:00:00', 'end' => '13:00:00'] // 休憩データを直接含める
+            ],
+        ]);
+
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('admin.user.attendance.detail.index', [
+            'id' => $this->staffUser->id,
+            'date' => $testDate,
+            ]));
+        $response->assertStatus(200);
+
+        // 入力フィールドが全て無効化されていること (disabled属性のチェック)
+        // 出勤時刻
+        $response->assertSeeInOrder([
+            'name="clock_in_time"',
+            'disabled'
+        ], false);
+
+        // 退勤時刻
+        $response->assertSeeInOrder([
+            'name="clock_out_time"',
+            'disabled'
+        ], false);
+
+        // 休憩開始時刻（1つ目）
+        $response->assertSeeInOrder([
+            'name="break_times[0][start_time]"',
+            'disabled'
+        ], false);
+
+        // 備考欄
+        $response->assertSeeInOrder([
+            'name="reason"',
+            'disabled'
+        ], false);
+
+
+        // 修正ボタン（type="submit"）が表示されていないこと
+        $response->assertDontSee('<button type="submit" class="button approve-button">', false);
+        $response->assertDontSee('修 正', false);
+
+        // 修正不可のメッセージが表示されていること
+        $response->assertSee('<span class="message-pending">*承認待ちのため修正はできません。</span>', false);
+    }
+
+
+    // ID13-1 日別一覧からのアクセスを想定し、勤怠データと申請データが両方存在する場合、比較して最新のデーターを優先して表示されることを検証する。
     public function test_admin_prefers_application_data_on_detail_page()
     {
         $testDate = '2025-10-01';
-        // 既存の勤怠データ (Attendance)
-        Attendance::factory()->create([
-            'user_id' => $this->staffUser->id,
-            'checkin_date' => $testDate,
-            'clock_in_time' => '09:00:00',
-            'clock_out_time' => '18:00:00',
-            'break_time' => [['start' => '12:00:00', 'end' => '13:00:00']],
-        ]);
+        $oldApplicationTime = '2025-10-01 10:00:00';
+        $newAttendanceTime = '2025-10-01 11:00:00';
 
-        // 上書きとなる申請データ (Application)
-        Application::factory()->create([
+        // 古い申請データ (Application) を先に作成 (updated_at: 10:00)
+        $application = Application::factory()->create([
             'user_id' => $this->staffUser->id,
             'checkin_date' => $testDate,
-            'clock_in_time' => '09:15:00', // 優先されるデータ
-            'clock_out_time' => '18:15:00', // 優先されるデータ
+            'clock_in_time' => '09:15:00', // 古いデータ
+            'clock_out_time' => '18:15:00', // 古いデータ
             'break_time' => [
                 ['start' => '12:30:00', 'end' => '13:30:00'],
                 ['start' => '15:00:00', 'end' => '15:15:00'],
             ],
-            'reason' => 'Application Reason Override', // 優先されるデータ
+            'reason' => 'Application Reason Override (OLD)', // 古いデータ
+            'updated_at' => $oldApplicationTime, // 意図的に古い時刻を設定
         ]);
 
-        // 備考を取得するために、再取得
-        $application = Application::where('user_id', $this->staffUser->id)
-            ->where('checkin_date', $testDate)
-            ->first();
+        // 最新の勤怠データ (Attendance) を作成 (updated_at: 11:00)
+        // コントローラーのロジックにより、こちらが優先されるべきデータ
+        Attendance::factory()->create([
+            'user_id' => $this->staffUser->id,
+            'checkin_date' => $testDate,
+            'clock_in_time' => '09:00:00', // 最新データ
+            'clock_out_time' => '18:00:00', // 最新データ
+            'break_time' => [['start' => '12:00:00', 'end' => '13:00:00']], // 最新データ
+            'updated_at' => $newAttendanceTime, // 意図的に新しい時刻を設定
+        ]);
 
 
         // 日別勤怠一覧ページからのアクセスをシミュレート
@@ -72,31 +134,30 @@ class Id13Test extends TestCase
             ]));
         $response->assertStatus(200);
 
-        // フォーム内容が申請データと一致していることの検証
+        // フォーム内容が**最新の勤怠データ (Attendance)** と一致していることの検証
         $response->assertSee($this->staffUser->name); // スタッフ名
 
         // 日付の表示形式を検証
         $response->assertSee(Carbon::parse($testDate)->format('Y年'));
         $response->assertSee(Carbon::parse($testDate)->format('n月j日'));
-        // 出勤時刻
+        // 出勤時刻 (最新のAttendance: 09:00)
         $response->assertSee('name="clock_in_time"', false);
-        $response->assertSee('value="09:15"', false);
-        // 退勤時刻
+        $response->assertSee('value="09:00"', false);
+        // 退勤時刻 (最新のAttendance: 18:00)
         $response->assertSee('name="clock_out_time"', false);
-        $response->assertSee('value="18:15"', false);
-        // 休憩1 (既存データ - type="text" でアサート)
+        $response->assertSee('value="18:00"', false);
+        // 休憩1 (最新のAttendance: 12:00-13:00)
         $response->assertSee('name="break_times[0][start_time]"', false);
-        $response->assertSee('value="12:30"', false);
-        // 休憩2 (既存データ - type="text" でアサート)
+        $response->assertSee('value="12:00"', false);
+        $response->assertSee('name="break_times[0][end_time]"', false);
+        $response->assertSee('value="13:00"', false);
+        // 休憩2 (空欄の確保)
         $response->assertSee('name="break_times[1][start_time]"', false);
-        $response->assertSee('value="15:00"', false);
-        // 休憩3 (空欄の確保 - type="text" でアサート)
-        $response->assertSee('name="break_times[2][start_time]"', false);
         $response->assertSee('value=""', false);
-        // 休憩4 (存在しないことを確認)
-        $response->assertDontSee('name="break_times[3][start_time]"', false);
-        // 備考
-        $response->assertSee($application->reason);
+        // 休憩3 (存在しないことを確認)
+        $response->assertDontSee('name="break_times[2][start_time]"', false);
+        // 備考 (最新のAttendanceには備考はないため、古いApplicationの備考は表示されない)
+        $response->assertDontSee($application->reason); // 備考はAttendanceにないため表示されない
 
         // redirect_to (HTMLエンコードされた値 'value="/admin/daily?date=2025-10-01"' を確認)
         $response->assertSee('name="redirect_to"', false);
