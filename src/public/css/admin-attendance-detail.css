@@ -62,7 +62,7 @@ body {
     word-break: break-all;
 }
 
-.time-inputs input[type="text"] {
+.time-inputs input[type='text'] {
     font-weight: 800;
     text-align: center;
     letter-spacing: 2px;
@@ -108,7 +108,9 @@ textarea {
     font-size: 16px;
     text-decoration: none;
     display: inline-block;
-    transition: background-color 0.2s, transform 0.2s;
+    transition:
+        background-color 0.2s,
+        transform 0.2s;
 }
 
 .approve-button {
@@ -131,7 +133,7 @@ textarea {
 
 /* 1. エラーのある入力フィールドのスタイル */
 .is-invalid,
-input[type="text"].is-invalid,
+input[type='text'].is-invalid,
 textarea.is-invalid {
     border: 1px solid #e3342f;
     box-shadow: 0 0 0 0.1rem rgba(227, 52, 47, 0.4);
@@ -139,8 +141,8 @@ textarea.is-invalid {
 
 /* 4. エラーメッセージのスタイル調整 (小さく、下部に表示) */
 .error-message {
-    color: #e3342f ;
-    font-size: 0.60rem;
+    color: #e3342f;
+    font-size: 0.6rem;
     font-weight: 500;
     width: 100%;
 }
@@ -163,7 +165,7 @@ textarea.is-invalid {
 }
 
 /* time-inputs内の入力フィールドの幅調整 */
-.detail-table td.time-inputs input[type="text"] {
+.detail-table td.time-inputs input[type='text'] {
     width: 100%;
     flex-shrink: 0;
 }

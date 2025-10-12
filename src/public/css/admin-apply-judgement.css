@@ -60,14 +60,14 @@ body {
     color: #000000;
 }
 
-td>span {
+td > span {
     border: none;
     background-color: transparent;
     padding: 0;
     margin: 0;
 }
 
-td>span:last-child {
+td > span:last-child {
     overflow-wrap: break-word;
     word-break: break-word;
 }
@@ -87,7 +87,9 @@ td>span:last-child {
     text-decoration: none;
     display: inline-block;
     text-align: center;
-    transition: background-color 0.2s, transform 0.2s;
+    transition:
+        background-color 0.2s,
+        transform 0.2s;
 }
 
 .approve-button {

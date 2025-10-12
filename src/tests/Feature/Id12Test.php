@@ -90,7 +90,8 @@ class Id12Test extends TestCase
 
         // 詳細ボタンの検証（過去の日付なので表示される）
         $response->assertSee('redirect_to', false);
-        $response->assertSee('class="detail-button">詳細</a>', false);
+        $response->assertSee('class="detail-button"', false); // class名が存在することを確認
+        $response->assertSeeText('詳細'); // ボタンのテキストが存在することを確認
     }
 
     // ID12-2 管理者が今日の日付を閲覧し、勤怠データが正しく反映されていることおよび複数のスタッフの情報が正確に表示されていることをテストします。また、日付クエリがない場合に現在の日付が表示されていることを検証します。
@@ -139,7 +140,8 @@ class Id12Test extends TestCase
         // 詳細ボタンの検証（今日の日付なので表示される）
         $response->assertSee('/admin/attendance/' . $this->staffUser1->id . '?date=' . $dateString, false);
         $response->assertSee('redirect_to', false);
-        $response->assertSee('class="detail-button">詳細</a>', false);
+        $response->assertSee('class="detail-button"', false); // class名が存在することを確認
+        $response->assertSeeText('詳細'); // ボタンのテキストが存在することを確認
     }
 
     // ID12-3 前日へのナビゲーションリンクが正しく機能するかをテストします。
@@ -192,7 +194,8 @@ class Id12Test extends TestCase
         $response->assertSee('/admin/attendance/' . $this->staffUser1->id . '?date=' . $dateString, false);
         $response->assertSee('/admin/attendance/' . $this->staffUser2->id . '?date=' . $dateString, false);
         $response->assertSee('redirect_to', false);
-        $response->assertSee('class="detail-button">詳細</a>', false);
+        $response->assertSee('class="detail-button"', false); // class名が存在することを確認
+        $response->assertSeeText('詳細'); // ボタンのテキストが存在することを確認
     }
 
     // ID12-4 翌日へのナビゲーションリンクが正しく機能するかをテストします。

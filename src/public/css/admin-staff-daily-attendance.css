@@ -44,7 +44,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    line-height: 1.0;
+    line-height: 1;
 }
 
 .calendar-title .nav {
@@ -162,5 +162,3 @@ body {
     background-color: #000000;
     color: white;
 }
-
-

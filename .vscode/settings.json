@@ -1,0 +1,44 @@
+{
+    // === グローバルなVS Code設定 ===
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "files.autoSave": "afterDelay",
+    "editor.tabSize": 4,
+    "editor.wordWrap": "on",
+    "editor.guides.bracketPairs": true,
+    "editor.bracketPairColorization.enabled": true,
+    "workbench.colorTheme": "Solarized Light",
+    "containers.containerClient": "com.microsoft.visualstudio.containers.docker",
+    "php.validate.executablePath": "",
+    "hediet.vscode-drawio.resizeImages": null,
+    "git.openRepositoryInParentFolders": "never",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+
+    // Prettierの実行対象に .blade.php ファイルを明示的に追加
+    "prettier.documentSelectors": [
+        "**/*.blade.php"
+    ],
+    // === 言語別の上書き設定 ===
+
+    // 1. BladeファイルにはPrettierをデフォルトとして設定
+    "[blade]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+        // "html.format.enable": false は既に設定されているため削除可能だが残しても問題なし
+    },
+
+    // 2. HTMLの組み込みフォーマッタを無効化（これによりPrettierが主導権を握る）
+    "html.format.enable": false, 
+
+    // 3. ファイルの関連付けを確認（.blade.phpがHTMLとして認識されないようにする）
+    // ほとんどの場合、Laravel Blade Snippetsが自動で行いますが、明示的に記述する場合
+    "files.associations": {
+        "*.blade.php": "blade" 
+    },
+
+    // PHPファイル（blade以外）の設定
+    "[php]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode" 
+    }
+}
