@@ -14,7 +14,6 @@ class Id05Test extends TestCase
 {
     use RefreshDatabase;
 
-    // 各テストで共通して使用するユーザーとテスト時刻を設定します。
     private function setupTestUserAndDate()
     {
         $testDate = Carbon::create(2025, 9, 28, 10, 0, 0);

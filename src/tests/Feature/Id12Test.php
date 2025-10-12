@@ -16,7 +16,7 @@ class Id12Test extends TestCase
     use RefreshDatabase;
 
     /**
-     * テストで使用する管理者ユーザーと一般スタッフユーザー。
+     *
      * @var User
      */
     protected $adminUser;

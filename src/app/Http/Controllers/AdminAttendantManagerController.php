@@ -121,8 +121,7 @@ class AdminAttendantManagerController extends Controller
         $primaryData = null;
 
         if ($attendance && $application) {
-            // 両方のデータが存在する場合、updated_atを比較し、最新の方を優先する
-            // Carbonインスタンスに変換して比較する
+            // 両方のデータが存在する場合、updated_atを比較し、最新の方を優先する、Carbonインスタンスに変換して比較する
             $attendanceUpdated = Carbon::parse($attendance->updated_at);
             $applicationUpdated = Carbon::parse($application->updated_at);
 
@@ -168,7 +167,7 @@ class AdminAttendantManagerController extends Controller
                 }
             }
         }
-        // 常に1つの空の休憩フォームを無条件に追加する
+        // 常に1つの空の休憩フォームを追加する
         $formBreakTimes[] = [
             'start_time' => '',
             'end_time' => ''
@@ -310,10 +309,10 @@ class AdminAttendantManagerController extends Controller
 
         // クエリパラメータ'pending'の値に応じてデータをフィルタリング
         if ($status === 'true') {
-            // 'pending'がtrueの場合は、承認済みの申請のみを取得
+            // 'pending'がtrueの場合は、承認待ちの申請のみを取得
             $query->where('pending', true);
         } else {
-            // 'pending'がfalseまたは指定がない場合は、承認待ちの申請のみを取得
+            // 'pending'がfalseまたは指定がない場合は、承認済みの申請のみを取得
             $query->where('pending', false);
         }
 
@@ -332,7 +331,6 @@ class AdminAttendantManagerController extends Controller
         // 申請IDからApplicationモデルのデータを取得
         $application = Application::with('user')->find($attendance_correct_request_id);
 
-        // もし該当する申請データがなければ、エラーページなどにリダイレクト
         if (!$application) {
             return redirect()->back()->with('error', '申請が見つかりませんでした。');
         }
@@ -365,7 +363,7 @@ class AdminAttendantManagerController extends Controller
             'clock_out_time' => $application->clock_out_time ? Carbon::parse($application->clock_out_time)->format('H:i') : '-',
             'break_times' => $breakTimes, // JSONから整形された休憩データ
             'reason' => $application->reason,
-            'pending' => $application->pending, // pendingステータスを追加
+            'pending' => $application->pending,
             'application_id' => $application->id,
         ];
 
@@ -561,7 +559,6 @@ class AdminAttendantManagerController extends Controller
             DB::rollBack();
             Log::error('勤怠承認エラー: ' . $e->getMessage());
 
-            // エラーメッセージと共にリダイレクト
         return redirect()->route('apply.list')->with('error', '勤怠承認中にエラーが発生しました。');
         }
     }

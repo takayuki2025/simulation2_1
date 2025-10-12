@@ -15,7 +15,6 @@
                     </div>
                 @endif
 
-                {{-- メール認証が完了していない場合 --}}
                 @if (is_null(Auth::user()->email_verified_at))
                     <h3>メール認証処理が完了しませんでした。</h3>
                 @else

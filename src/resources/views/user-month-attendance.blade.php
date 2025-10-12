@@ -60,14 +60,10 @@
                             <td>{{ $data['break_time'] }}</td>
                             <td>{{ $data['work_time'] }}</td>
                             <td>
-                                {{-- ★修正: 日付文字列をCarbonにパースし、今日($today)以前なら表示 --}}
-                                {{-- $data['date_key'] は Y-m-d 形式の文字列 --}}
-
                                 @if (\Carbon\Carbon::parse($data['date_key'])->lte($today))
                                     <a href="{{ $data['detail_url'] }}" class="detail-button">詳細</a>
                                 @else
                                     &nbsp;
-                                    {{-- 未来の場合は空欄 --}}
                                 @endif
                             </td>
                         </tr>

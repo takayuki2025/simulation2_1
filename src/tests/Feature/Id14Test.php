@@ -205,7 +205,6 @@ class Id14Test extends TestCase
         $response->assertStatus(200);
         $response->assertSee('勤怠詳細');
 
-        // 優先されるべき申請データの内容がフォームに表示されていることを検証
         // 申請データ: 09:15:00
         $response->assertSee('name="clock_in_time"', false);
         $response->assertSee('value="09:15"', false);

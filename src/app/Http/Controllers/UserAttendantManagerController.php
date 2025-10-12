@@ -20,7 +20,7 @@ class UserAttendantManagerController extends Controller
         // clock_out_time が null (未退勤) のレコードを取得する。これにより、昨日出勤し、現在が日を跨いでいてもそのレコードが「現在の勤務」となる。
         $attendance = Attendance::where('user_id', $user->id)
             ->whereNull('clock_out_time')
-            ->orderByDesc('checkin_date') // 複数あった場合は最新の日付のもの
+            ->orderByDesc('checkin_date')
             ->first();
 
         // 未退勤のレコードがない場合のみ、今日の完了したレコードを取得する（日を跨がずに勤務が終了した場合など）、昨日の勤務が完了している場合、この処理はスキップされ $attendance は null のままになる
@@ -30,7 +30,7 @@ class UserAttendantManagerController extends Controller
                 ->first();
         }
 
-        // 3. 勤務状態を判定
+        // 勤務状態を判定
         $isClockedIn = isset($attendance) && isset($attendance->clock_in_time);
         $isClockedOut = isset($attendance) && isset($attendance->clock_out_time);
 
@@ -229,17 +229,34 @@ class UserAttendantManagerController extends Controller
             }
         }
 
-        // 常に1つの空の休憩フォームを無条件に追加する
+        // 常に1つの空の休憩フォームを追加する
         $formBreakTimes[] = [
             'start_time' => '',
             'end_time' => ''
         ];
 
+        // 読み取り専用表示用の休憩リストを準備
+        $breaksToDisplay = $formBreakTimes;
+        if ($application && count($formBreakTimes) > 0) {
+            // 申請データがあり、要素がある場合、最後の要素（フォーム用の空行）を除外する
+            $breaksToDisplay = array_slice($formBreakTimes, 0, count($formBreakTimes) - 1);
+        }
+
+        // 休憩なしフラグを準備
+        $hasNoBreakData = $application && count($breaksToDisplay) === 0;
+    
+        // 休憩データが全くない場合、「休憩なし」表示用にダミーの空行を追加（ビューロジックを再現）
+        if ($hasNoBreakData) {
+            $breaksToDisplay = [['start_time' => null, 'end_time' => null]];
+        }
+    
         $viewData = [
             'attendance' => $attendance,
             'user' => $targetUser,
             'date' => Carbon::parse($date)->toDateString(),
             'formBreakTimes' => $formBreakTimes,
+            'breaksToDisplay' => $breaksToDisplay,
+            'hasNoBreakData' => $hasNoBreakData,
             'application' => $application,
             'primaryData' => $sourceData,
         ];
@@ -315,7 +332,6 @@ class UserAttendantManagerController extends Controller
                 'clock_in_time' => Carbon::now(),
             ]);
         } else {
-            // 既に進行中の勤務がある場合は、二重出勤を防ぐためにリダイレクト
             return redirect()->route('user.stamping.index')->with('error', '既に出勤中です。退勤処理を完了してください。');
         }
 
@@ -456,7 +472,7 @@ class UserAttendantManagerController extends Controller
 
                 // 総休憩時間を分単位に変換
                 $totalBreakMinutes = round($totalBreakSeconds / 60);
-                // 3. break_time と break_total_time の両方を更新
+
                 $attendance->update([
                     'break_time' => $breakTimes,
                     'break_total_time' => $totalBreakMinutes,
@@ -538,7 +554,6 @@ class UserAttendantManagerController extends Controller
         $application->reason = $reason;
         $application->save();
 
-        // 日付を「〇月〇日」形式に整形
         $displayDate = Carbon::parse($date)->isoFormat('M月D日');
         $successMessage = "{$user->name}さん、{$displayDate}の修正申請を受け付けました。";
 

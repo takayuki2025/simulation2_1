@@ -18,7 +18,7 @@ use App\Http\Controllers\AdminAttendantManagerController;
 */
 
 
-// ゲストユーザー向けの認証ルート、ログイン済みユーザーはアクセスできません。
+// ゲストユーザー向けの認証ルート、ログイン済みユーザーはアクセスできない。
 Route::middleware(['guest'])->group(function () {
     // 通常ユーザーログイン
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -48,7 +48,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-// ユーザーの勤怠管理のルート
+// 一般ユーザーの勤怠管理のルート
 Route::middleware(['verified'])->group(function () {
     Route::get('/attendance', [UserAttendantManagerController::class, 'user_stamping_index'])->name('user.stamping.index');
     Route::post('/stamping/clock-in', [UserAttendantManagerController::class, 'clockIn'])->name('attendance.clock_in');

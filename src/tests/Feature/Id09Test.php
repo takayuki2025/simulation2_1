@@ -15,7 +15,7 @@ class Id09Test extends TestCase
     use RefreshDatabase;
 
     /**
-     * テストで使用するユーザーをセットアップします。
+     *
      * @var User
      */
     protected $user;

@@ -11,7 +11,6 @@
         <div class="date-nav-frame">
             <div class="calendar-title">
                 <div class="nav">
-                    {{-- 修正: arrow_left -> arrow-left, navigation_arrow -> navigation-arrow --}}
                     <a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow-left">
                         <span class="nav-arrow">&#x2B05;</span>
                         前月
@@ -22,8 +21,6 @@
                     <span id="current-date-display">{{ $date->format('Y/m') }}</span>
                 </h2>
                 <div class="nav">
-                    {{-- 修正: arrow_right -> arrow-right, navigation_arrow -> navigation-arrow --}}
-                    {{-- 次月への移動は常に許可 --}}
                     <a href="?year={{ $nextMonth->year }}&month={{ $nextMonth->month }}" class="arrow-right">
                         翌月
                         <span class="nav-arrow">&#x27A1;</span>
@@ -62,7 +59,6 @@
                                         <a href="{{ route('admin.user.attendance.detail.index', ['id' => $dayData['attendance']->user_id, 'date' => $dayData['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
                                     @else
                                         &nbsp;
-                                        {{-- 未来の場合は空欄 --}}
                                     @endif
                                 </td>
                             @else
@@ -73,13 +69,12 @@
                                 <td></td>
                                 {{-- 詳細ボタン（勤怠データなしの場合、スタッフIDを使用して詳細ページへ） --}}
                                 <td>
-                                    {{-- ★未来の日付ではない場合（今日以前）のみ詳細ボタンを表示 --}}
+                                    {{-- 未来の日付ではない場合（今日以前）のみ詳細ボタンを表示 --}}
 
                                     @if (\Carbon\Carbon::parse($dayData['dateString'])->lte($today))
                                         <a href="{{ route('admin.user.attendance.detail.index', ['id' => $staffUser->id, 'date' => $dayData['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
                                     @else
                                         &nbsp;
-                                        {{-- 未来の場合は空欄 --}}
                                     @endif
                                 </td>
                             @endif

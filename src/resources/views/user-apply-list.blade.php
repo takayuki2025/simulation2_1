@@ -33,8 +33,6 @@
                         <td>{{ $application['reason'] }}</td>
                         <td>{{ $application['created_at_display'] }}</td>
                         <td>
-                            {{-- 日付が有効な場合のみリンクを表示 --}}
-
                             @if ($application['has_target_date'])
                                 <a href="{{ $application['detail_url'] }}" class="detail-button">詳細</a>
                             @else

@@ -43,7 +43,6 @@
                             <th>出勤・退勤</th>
                             <td class="time-inputs">
                                 <div class="input-block">
-                                    {{-- 修正: old()を最優先し、次に既存データを使用。$primaryDataはコントローラーで$application優先で設定済み --}}
                                     <input type="text" name="clock_in_time" value="{{ old('clock_in_time', $primaryData && $primaryData->clock_in_time ? \Carbon\Carbon::parse($primaryData->clock_in_time)->format('H:i') : '') }}" class="@error('clock_in_time') is-invalid @enderror" {{-- 承認待ちの場合は入力フィールドを無効化 --}} @if ($isPending) disabled @endif />
                                     <span class="error-message">
                                         @error('clock_in_time')
@@ -52,9 +51,8 @@
                                     </span>
                                 </div>
                                 <span>〜</span>
-                                {{-- 2. 退勤時刻ブロック --}}
+
                                 <div class="input-block">
-                                    {{-- 修正: old()を最優先し、次に既存データを使用 --}}
                                     <input type="text" name="clock_out_time" value="{{ old('clock_out_time', $primaryData && $primaryData->clock_out_time ? \Carbon\Carbon::parse($primaryData->clock_out_time)->format('H:i') : '') }}" class="@error('clock_out_time') is-invalid @enderror" @if ($isPending) disabled @endif />
                                     <span class="error-message">
                                         @error('clock_out_time')
@@ -67,13 +65,9 @@
 
                         @foreach ($formBreakTimes as $index => $breakTime)
                             <tr>
-                                {{-- 【修正】最初の休憩(index=0)は「休憩」、2回目以降は「休憩 2」のように表示する --}}
                                 <th>休憩{{ $index === 0 ? '' : $index + 1 }}</th>
                                 <td class="time-inputs">
-                                    {{-- 休憩開始時刻ブロック --}}
                                     <div class="input-block">
-                                        {{-- 修正: old()を最優先し、次に既存データを使用 --}}
-                                        {{-- name属性を配列形式 [index][key] にすることで、連想配列としてPOSTされます --}}
                                         <input type="text" name="break_times[{{ $index }}][start_time]" value="{{ old('break_times.' . $index . '.start_time', $breakTime['start_time'] ?? '') }}" class="@error('break_times.' . $index . '.start_time') is-invalid @enderror" @if ($isPending) disabled @endif />
                                         <span class="error-message">
                                             @error('break_times.' . $index . '.start_time')
@@ -82,9 +76,8 @@
                                         </span>
                                     </div>
                                     <span>〜</span>
-                                    {{-- 休憩終了時刻ブロック --}}
+
                                     <div class="input-block">
-                                        {{-- 修正: old()を最優先し、次に既存データを使用 --}}
                                         <input type="text" name="break_times[{{ $index }}][end_time]" value="{{ old('break_times.' . $index . '.end_time', $breakTime['end_time'] ?? '') }}" class="@error('break_times.' . $index . '.end_time') is-invalid @enderror" @if ($isPending) disabled @endif />
                                         <span class="error-message">
                                             @error('break_times.' . $index . '.end_time')
@@ -99,7 +92,6 @@
                         <tr class="last-row">
                             <th>備考</th>
                             <td>
-                                {{-- 修正: old()を最優先し、次に既存データを使用 --}}
                                 <textarea name="reason" class="@error('reason') is-invalid @enderror" @if ($isPending) disabled @endif>{{ old('reason', $primaryData ? $primaryData->reason : '') }}</textarea>
                                 <span class="error-message">
                                     @error('reason')

@@ -18,13 +18,11 @@
             </thead>
             <tbody>
                 @foreach ($users as $user)
-                    {{-- 修正: ハードコードされたID(1)ではなく、ロールで管理者をフィルタリングする --}}
                     @if ($user->role !== 'admin')
                         <tr>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
-                                {{-- 修正: aタグとclassの間にスペースがないか確認 --}}
                                 <a href="{{ route('admin.staff.month.index', ['id' => $user->id]) }}" class="detail-button">詳細</a>
                             </td>
                         </tr>

@@ -21,7 +21,6 @@
                     <span id="current-date-display">{{ $currentDate->format('Y年m月d日') }}</span>
                 </h2>
                 <div class="nav">
-                    {{-- 制限を外し、常に翌日への移動を許可します --}}
                     <a href="?date={{ $currentDate->copy()->addDay()->format('Y-m-d') }}" class="arrow-right">
                         翌日
                         <span class="nav-arrow">&#x27A1;</span>
@@ -57,7 +56,6 @@
                                     @if ($currentDate->lte($today))
                                         <a href="{{ route('admin.user.attendance.detail.index', ['id' => $data['user_id'], 'date' => $data['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
                                     @else
-                                        {{-- 未来の日付の場合は非表示（空のセル）とする --}}
                                         &nbsp;
                                     @endif
                                 </td>
