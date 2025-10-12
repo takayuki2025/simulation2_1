@@ -115,6 +115,7 @@ body {
 }
 
 .attendance-table td {
+    height: 47px;
     padding: 10px;
     text-align: center;
     border-bottom: 2px solid #e1e1e1;

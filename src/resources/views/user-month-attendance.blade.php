@@ -62,8 +62,6 @@
                             <td>
                                 @if (\Carbon\Carbon::parse($data['date_key'])->lte($today))
                                     <a href="{{ $data['detail_url'] }}" class="detail-button">詳細</a>
-                                @else
-                                    &nbsp;
                                 @endif
                             </td>
                         </tr>
