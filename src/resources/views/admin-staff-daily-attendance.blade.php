@@ -51,8 +51,6 @@
                                 <td>{{ $data['breakTimeDisplay'] }}</td>
                                 <td>{{ $data['workTimeDisplay'] }}</td>
                                 <td>
-                                    {{-- 現在の日付が今日の日付以前の場合（未来ではない場合）のみ「詳細」ボタンを表示 --}}
-
                                     @if ($currentDate->lte($today))
                                         <a href="{{ route('admin.user.attendance.detail.index', ['id' => $data['user_id'], 'date' => $data['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
                                     @else

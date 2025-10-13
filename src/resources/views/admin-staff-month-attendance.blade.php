@@ -42,9 +42,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- コントローラーで準備した月次勤怠データ配列をループ --}}
                     @foreach ($monthlyAttendanceData as $dayData)
-                        {{-- 土日クラスはコントローラーから渡されたフラグで設定 --}}
                         <tr class="{{ $dayData['isSunday'] ? 'sunday' : '' }} {{ $dayData['isSaturday'] ? 'saturday' : '' }}">
                             <td class="day-column">{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}/{{ str_pad($dayData['day'], 2, '0', STR_PAD_LEFT) }}({{ $dayData['dayOfWeek'] }})</td>
                             @if ($dayData['attendance'])
@@ -53,8 +51,6 @@
                                 <td>{{ $dayData['breakTimeDisplay'] }}</td>
                                 <td>{{ $dayData['workTimeDisplay'] }}</td>
                                 <td>
-                                    {{-- ★未来の日付ではない場合（今日以前）のみ詳細ボタンを表示 --}}
-
                                     @if (\Carbon\Carbon::parse($dayData['dateString'])->lte($today))
                                         <a href="{{ route('admin.user.attendance.detail.index', ['id' => $dayData['attendance']->user_id, 'date' => $dayData['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
                                     @else
@@ -62,15 +58,12 @@
                                     @endif
                                 </td>
                             @else
-                                {{-- 勤怠データがない場合 --}}
                                 <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                {{-- 詳細ボタン（勤怠データなしの場合、スタッフIDを使用して詳細ページへ） --}}
-                                <td>
-                                    {{-- 未来の日付ではない場合（今日以前）のみ詳細ボタンを表示 --}}
 
+                                <td>
                                     @if (\Carbon\Carbon::parse($dayData['dateString'])->lte($today))
                                         <a href="{{ route('admin.user.attendance.detail.index', ['id' => $staffUser->id, 'date' => $dayData['dateString'], 'redirect_to' => request()->fullUrl()]) }}" class="detail-button">詳細</a>
                                     @else

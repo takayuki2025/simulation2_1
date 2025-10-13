@@ -28,7 +28,7 @@
                                 <span>　　{{ $data['clock_out_time'] }}</span>
                             </td>
                         </tr>
-                        {{-- $data['break_times']がJSONデコードされた配列であることを前提にループ表示 --}}
+
                         @forelse ($data['break_times'] as $index => $break)
                             <tr>
                                 <th>休憩{{ $index + 1 }}</th>

@@ -25,7 +25,6 @@
             @endif
             <input type="hidden" name="checkin_date" value="{{ \Carbon\Carbon::parse($date)->format('Y-m-d') }}" />
 
-            {{-- 元のページに戻るためのURLを隠しフィールドとして追加 --}}
             <input type="hidden" name="redirect_to" value="{{ request()->input('redirect_to') }}" />
 
             <div class="attendance-detail-frame">

@@ -15,7 +15,6 @@ class ApplicationAndAttendantRequest extends FormRequest
 
     public function rules(): array
     {
-        // H:i または HH:ii の形式を許容
         $timeRegex = '/^([0-9]{1,2}):([0-5][0-9])$/';
         return [
             'checkin_date' => ['required', 'date_format:Y-m-d'],
@@ -39,47 +38,37 @@ class ApplicationAndAttendantRequest extends FormRequest
             $clockInCarbon = null;
             $clockOutCarbon = null;
             $isCrossDayShift = false;
-            // 出勤・退勤の順序チェック (日跨ぎ判定を含む)、clock_in/out に形式エラーがないかチェック
             $hasClockTimeFormatError = $validator->errors()->hasAny(['clock_in_time', 'clock_out_time']);
 
             if (!$hasClockTimeFormatError) {
-                // Carbonオブジェクトの生成
                 $clockInCarbon = Carbon::parse($date . ' ' . $checkinTime);
                 $clockOutCarbon = Carbon::parse($date . ' ' . $checkoutTime);
-                // 出勤・退勤の順序チェック
                 if ($clockOutCarbon->lt($clockInCarbon)) {
-                    // 退勤が出勤より前の場合、日跨ぎの可能性をチェック
                     $clockOutCarbonForToday = $clockOutCarbon;
                     $clockOutCarbonForNextDay = $clockOutCarbonForToday->copy()->addDay();
                     $duration = $clockInCarbon->diffInHours($clockOutCarbonForNextDay);
 
                     if ($duration >= 18) {
-                        // 異常な長時間勤務（不正な逆転）はエラー
                         $validator->errors()->add('clock_in_time', $this->messages()['clock_in_time.before']);
                         $validator->errors()->add('clock_out_time', $this->messages()['clock_out_time.after']);
                     } else {
-                        // 正常な日跨ぎとして退勤時間を翌日に補正
                         $clockOutCarbon = $clockOutCarbonForNextDay;
                         $isCrossDayShift = true;
                     }
                 } else {
                     if ($clockInCarbon->gt($clockOutCarbon)) {
-                        // 日跨ぎではないが、退勤時刻が出勤時刻より前
                         $validator->errors()->add('clock_in_time', $this->messages()['clock_in_time.before']);
                         $validator->errors()->add('clock_out_time', $this->messages()['clock_out_time.after']);
                     }
                 }
             }
-            // 休憩時間の検証
             foreach ($breakTimes as $index => $breakTime) {
                 $breakStartTime = $breakTime['start_time'] ?? null;
                 $breakEndTime = $breakTime['end_time'] ?? null;
                 $hasStartTime = !empty($breakStartTime);
                 $hasEndTime = !empty($breakEndTime);
-                // 休憩時間の形式チェックエラー（このインデックスのみ）
                 $hasBreakFormatError = $validator->errors()->has("break_times.{$index}.start_time") ||
                                         $validator->errors()->has("break_times.{$index}.end_time");
-                // 2-a. 休憩の片方のみが入力された場合のチェック
                 if ($hasStartTime XOR $hasEndTime) {
                     if (!$hasStartTime) {
                         $validator->errors()->add("break_times.{$index}.start_time", $this->messages()['break_times.*.start_time.required_with']);
@@ -88,51 +77,48 @@ class ApplicationAndAttendantRequest extends FormRequest
                         $validator->errors()->add("break_times.{$index}.end_time", $this->messages()['break_times.*.end_time.required_with']);
                     }
                 }
-                // 両方とも空欄の場合は、バリデーションをスキップ
                 if (!$hasStartTime && !$hasEndTime) {
                     continue;
                 }
-                // ここから先は、少なくともどちらか一方が入力されている
-                // 休憩時刻に形式エラーがある場合は、以降のCarbonに依存するチェックをスキップ
+
                 if ($hasBreakFormatError) {
                     continue;
                 }
-                // 勤務時間の Carbon オブジェクトが形式エラーなどで作成されなかった場合は、
-                // 勤務時間との境界チェック (2-d以降) はスキップ
+
                 if ($hasClockTimeFormatError) {
                     continue;
                 }
-                // Carbon オブジェクトの生成 (入力がある場合のみ生成し、ない場合は null)
+
                 $breakStartCarbon = $hasStartTime ? Carbon::parse($date . ' ' . $breakStartTime) : null;
                 $breakEndCarbon = $hasEndTime ? Carbon::parse($date . ' ' . $breakEndTime) : null;
-                // 2-c. 日跨ぎ休憩時刻補正
+
                 if ($isCrossDayShift) {
-                    // 開始時刻の補正
+
                     if ($breakStartCarbon && $breakStartCarbon->lt($clockInCarbon) && $breakStartCarbon->isSameDay($clockInCarbon)) {
                         $breakStartCarbon = $breakStartCarbon->addDay();
                     }
-                    // 終了時刻の補正
+
                     if ($breakEndCarbon && $breakEndCarbon->lt($clockInCarbon) && $breakEndCarbon->isSameDay($clockInCarbon)) {
                         $breakEndCarbon = $breakEndCarbon->addDay();
                     }
                 }
-                // 2-b. 休憩開始 >= 休憩終了 (休憩単体の順序チェック: 両方入力されている場合のみ)補正後の時刻でチェック
+
                 if ($breakStartCarbon && $breakEndCarbon && $breakEndCarbon->lte($breakStartCarbon)) {
                     $validator->errors()->add("break_times.{$index}.start_time", $this->messages()['break_times.*.start_time.before']);
                 }
-                // 2-d. 休憩開始時刻が出勤時刻より前
+
                 if ($breakStartCarbon && $breakStartCarbon->lt($clockInCarbon)) {
                     $validator->errors()->add("break_times.{$index}.start_time", $this->messages()['break_times.*.start_time.after_or_equal']); 
                 }
-                // 2-e. 休憩開始時刻が退勤時刻より後
+
                 if ($breakStartCarbon && $breakStartCarbon->gte($clockOutCarbon)) {
                     $validator->errors()->add("break_times.{$index}.start_time", $this->messages()['break_times.*.start_time.before']);
                 }
-                // 2-f. 休憩終了時刻が退勤時刻より後
+
                 if ($breakEndCarbon && $breakEndCarbon->gt($clockOutCarbon)) {
                     $validator->errors()->add("break_times.{$index}.end_time", $this->messages()['break_times.*.end_time.before_or_equal']);
                 }
-                // 2-g. 休憩終了時刻が出勤時刻より前
+
                 if ($breakEndCarbon && $breakEndCarbon->lte($clockInCarbon)) {
                     $validator->errors()->add("break_times.{$index}.end_time", $this->messages()['break_times.*.end_time.after']);
                 }

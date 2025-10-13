@@ -13,7 +13,6 @@
         <h2 class="page-title">勤怠詳細</h2>
 
         <div class="attendance-detail-frame">
-            {{-- 勤怠申請データが存在するかどうかで表示内容を切り替える --}}
             @if ($application)
                 <div id="attendance-detail-view" class="read-only-view">
                     <table class="detail-table">
@@ -33,15 +32,13 @@
                             <tr>
                                 <th>出勤・退勤</th>
                                 <td class="time-inputs">
-                                    {{-- $primaryDataから出勤時刻をフォーマットして表示（未打刻対応） --}}
                                     <span>{{ $primaryData && $primaryData->clock_in_time ? \Carbon\Carbon::parse($primaryData->clock_in_time)->format('H:i') : '未打刻' }}</span>
                                     <span>　　〜</span>
-                                    {{-- $primaryDataから退勤時刻をフォーマットして表示（未打刻対応） --}}
+
                                     <span>　　{{ $primaryData && $primaryData->clock_out_time ? \Carbon\Carbon::parse($primaryData->clock_out_time)->format('H:i') : '未打刻' }}</span>
                                 </td>
                             </tr>
 
-                            {{-- $formBreakTimes（調整後の休憩データ）をループ表示 --}}
                             @if ($hasNoBreakData)
                                 <tr>
                                     <th>休憩</th>
@@ -50,7 +47,6 @@
                                     </td>
                                 </tr>
                             @else
-                                {{-- 休憩データがある場合（1つ以上ある場合）はループで表示する --}}
                                 @foreach ($breaksToDisplay as $index => $break)
                                     <tr>
                                         @if ($index === 0)
@@ -78,11 +74,9 @@
                     </table>
                 </div>
             @else
-                {{-- 申請データが存在しない場合：修正可能なフォーム表示ブロック --}}
                 <form action="{{ route('application.create') }}" method="POST" id="attendance-form">
                     @csrf
 
-                    {{-- フォーム送信に必要な隠しフィールド --}}
                     @if ($attendance)
                         <input type="hidden" name="attendance_id" value="{{ $attendance->id }}" />
                     @endif
@@ -125,7 +119,6 @@
                                     </div>
                                 </td>
                             </tr>
-                            {{-- break_times配列をPOST送信するための入力フィールド --}}
                             @foreach ($formBreakTimes as $index => $breakTime)
                                 <tr>
                                     @if ($index === 0)

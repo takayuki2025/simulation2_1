@@ -17,7 +17,6 @@
         <div class="date-nav-frame">
             <div class="calendar-title">
                 <div class="nav">
-                    {{-- prevMonthから年と月を取得してリンクを生成 --}}
                     <a href="?year={{ $prevMonth->year }}&month={{ $prevMonth->month }}" class="arrow-left">
                         <span class="nav-arrow">&#x2B05;</span>
                         前月
@@ -50,9 +49,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- コントローラで整形されたデータをループ --}}
                     @foreach ($formattedAttendanceData as $data)
-                        {{-- 週末判定に基づいてクラスを適用 --}}
                         <tr class="{{ $data['is_weekend'] ? 'weekend' : '' }}">
                             <td class="day-column-td">{{ $data['day_label'] }}</td>
                             <td>{{ $data['clock_in'] }}</td>

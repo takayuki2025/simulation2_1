@@ -76,12 +76,9 @@ Route::middleware(['admin'])->group(function () {
 
 // 申請一覧共通ルート
 Route::get('/stamp_correction_request/list', function (Request $request) {
-    // ユーザーの`role`が`admin`かどうかをチェックします
     if ($request->user()->role === 'admin') {
-        // 管理者であれば、管理者のコントローラーを呼び出す、$request を渡す
         return app(AdminAttendantManagerController::class)->admin_apply_list_index($request);
     } else {
-        // ユーザーが管理者でなければ、通常ユーザーのコントローラーを呼び出す、$request を渡す
         return app(UserAttendantManagerController::class)->user_apply_index($request);
     }
 })->middleware(['auth', 'verified'])->name('apply.list');

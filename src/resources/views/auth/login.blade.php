@@ -34,7 +34,6 @@
 
             <a class="to-register" href="{{ route('register') }}">会員登録はこちら</a>
             <br />
-            <a href="/admin/login">移動できないけど管理者ログインページへ</a>
         </div>
     </div>
 @endsection

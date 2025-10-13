@@ -31,8 +31,6 @@
                     <input type="submit" class="login-button" value="管理者ログインする" />
                 </div>
             </form>
-
-            <a href="/login">移動できないけどユーザーログインページへ</a>
         </div>
     </div>
 @endsection

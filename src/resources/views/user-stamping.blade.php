@@ -21,7 +21,7 @@
                     @if (! $isClockedIn)
                         <h4 class="status">勤務外</h4>
                         <br />
-                        {{-- コントローラから渡された初期値を表示 --}}
+
                         <p class="day-and-week" id="currentDayOfWeek">{{ $currentDate }} ({{ $currentDay }})</p>
                         <p class="time-only" id="currentTime">{{ $currentTime }}</p>
                         <form action="{{ route('attendance.clock_in') }}" method="post">
