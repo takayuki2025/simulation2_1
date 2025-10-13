@@ -1,3 +1,4 @@
 docker/mysql/data/
 src/.bash_history
 src/.phpunit.cache/
+src/.composer/
