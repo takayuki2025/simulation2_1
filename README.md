@@ -126,7 +126,7 @@ ApplicationAndAttendantRequest.phpにwithValidator(追加検証)も追加して�
 <br>
 
 # ER図<br>
-<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/7f31046d-aea5-4fc7-b934-37f04743c92b" />
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/f62d7a3d-29ca-4866-b6ef-ba39d6eac8f5" />
 <br>
 
 # 使用技術<br>
