@@ -23,6 +23,7 @@ class Application extends Model
     ];
 
         protected $casts = [
+        'pending' => 'boolean', // ← 明示しておくとDBの1/0がtrue/falseに変換される
         'break_time' => 'array',
         'clock_in_time' => 'datetime',
         'clock_out_time' => 'datetime',

@@ -23,7 +23,7 @@
                             <a class="apply-list-button" href="{{ route('apply.list') }}">申請一覧</a>
                         @else
                             @if ($isClockedOut)
-                                <a class="model-1-button" href="{{ route('user.month.index') }}">今月の勤怠一覧</a>
+                                <a class="model-1-button" href="{{ route('user.month.index') }}">今月の出勤一覧</a>
                                 <a class="model-2-button" href="{{ route('apply.list') }}">申請一覧</a>
                             @else
                                 <a class="model-1-button" href="{{ route('user.stamping.index') }}">勤怠</a>

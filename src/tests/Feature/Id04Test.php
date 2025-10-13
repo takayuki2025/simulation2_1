@@ -23,7 +23,7 @@ class Id04Test extends TestCase
         $response->assertStatus(200);
     }
 
-    // ID04-1 ページに初期表示される挨拶、日付、時刻が、モックされた時刻と一致していることを確認します。
+    // ID04-1 ページに初期表示される日付、時刻が、モックされた時刻と一致していることを確認します。
     public function test_attendance_page_displays_initial_correct_date_and_time(): void
     {
         $testTime = Carbon::create(2025, 9, 28, 10, 30, 0, 'Asia/Tokyo');

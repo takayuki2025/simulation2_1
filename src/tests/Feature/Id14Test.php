@@ -70,7 +70,7 @@ class Id14Test extends TestCase
         ]);
     }
 
-    // ID14-1 管理者スタッフ一覧ページ (admin.staff.list.index) の表示を検証する。
+    // ID14-1 管理者からスタッフ一覧ページの表示を検証する。
     public function test_admin_staff_list_index_displays_all_staff()
     {
         $response = $this->actingAs($this->adminUser)
@@ -186,7 +186,7 @@ class Id14Test extends TestCase
         $response->assertDontSee('<td>17:30</td>', false);
     }
 
-    // ID14-5 日次勤怠詳細ページ (admin.user.attendance.detail.index) の表示を検証する。
+    // ID14-5 詳細を押すと勤怠詳細ページの表示を検証する。
     public function test_admin_user_attendance_detail_index_prefers_application_data()
     {
         $testDate = $this->testDatePast; // 勤怠/申請データが両方ある日付

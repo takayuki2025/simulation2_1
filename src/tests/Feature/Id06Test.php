@@ -38,7 +38,7 @@ class Id06Test extends TestCase
         $response->assertDontSee('休憩入');
     }
 
-    // ID06-1(2) ユーザーが出勤ボタンを押す（POSTリクエスト）ことで勤怠レコードが作成され、勤務中状態になることをテストする。
+    // ID06-1(2) ユーザーが出勤ボタンを押す（POSTリクエスト）ことで勤怠レコードが作成され、出勤中状態になることをテストする。
     public function test_user_can_clock_in()
     {
         $now = Carbon::create(2025, 1, 15, 9, 0, 0);
@@ -87,7 +87,7 @@ class Id06Test extends TestCase
 
         $response->assertSee('退勤済');
         $response->assertSee('お疲れ様でした。');
-        $response->assertDontSee('出勤');
+        $response->assertDontSee('<input type="submit" class="submit-clock-in-and-out" value="出勤"', false);
         $response->assertDontSee('休憩入');
         $response->assertDontSee('休憩戻');
     }

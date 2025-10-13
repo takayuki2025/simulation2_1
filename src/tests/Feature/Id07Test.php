@@ -166,7 +166,7 @@ class Id07Test extends TestCase
         Carbon::setTestNow();
     }
 
-    // ID07-5 休憩時刻が勤怠一覧画面で確認できる（複数回の休憩後月次勤怠リスト（user_month_index）ページで総休憩時間が正しく表示される）ことのテスト。
+    // ID07-5 休憩時刻が勤怠一覧画面で確認できる（複数回の休憩後月次勤怠リストページで総休憩時間が正しく表示される）ことのテスト。
     public function test_total_break_time_is_displayed_on_monthly_list()
     {
         $user = User::factory()->create(['email_verified_at' => Carbon::now()]);

@@ -92,8 +92,16 @@ class Id15Test extends TestCase
             'created_at' => $requestDate,
             'updated_at' => $requestDate,
         ]);
-    }
 
+        // スタッフAの既存勤怠レコード（修正対象）
+        $this->attendance = \App\Models\Attendance::factory()->create([
+            'user_id' => $this->staffUser1->id,
+            'checkin_date' => '2025-09-20',
+            'clock_in_time' => '2025-09-20 09:00:00',
+            'clock_out_time' => '2025-09-20 18:00:00',
+        ]);
+    }
+    
     // ID15-1 承認待ちタブ (デフォルト) の表示とフィルタリングを検証します。
     public function test_admin_apply_list_shows_pending_applications_by_default()
     {
@@ -234,5 +242,43 @@ class Id15Test extends TestCase
         // 承認していない申請2（スタッフB）はまだ残っていること
         $responseAfterApproval->assertSee($this->pendingApplication2->user->name);
         $responseAfterApproval->assertSee($this->pendingApplication2->reason);
+    }
+
+
+    // ID15-4 管理者が承認を実行したとき、該当の勤怠情報が申請内容で更新されることを確認
+    public function test_admin_approval_updates_attendance_record()
+    {
+        // 管理者が承認を実行
+        $response = $this->actingAs($this->adminUser)
+            ->post(route('admin.apply.attendance.approve'), [
+                'id' => $this->pendingApplication1->id,
+            ]);
+
+        $response->assertStatus(302);
+        $response->assertRedirect(route('apply.list'));
+
+        // Applicationレコードが承認済みに変更されている
+        $this->assertDatabaseHas('applications', [
+            'id' => $this->pendingApplication1->id,
+            'pending' => false,
+        ]);
+
+        // 勤怠情報が申請内容で上書きされていることを確認
+        $today = Carbon::now()->format('Y-m-d');
+
+        $this->assertDatabaseHas('attendances', [
+            'user_id' => $this->staffUser1->id,
+            'checkin_date' => '2025-09-20',
+            'clock_in_time' => $today . ' 09:10:00',
+            'clock_out_time' => $today . ' 18:10:00',
+            'reason' => '電車遅延による打刻修正（承認待ち 1）',
+        ]);
+
+        // 実オブジェクトで確認（DB更新確認）
+        $updatedAttendance = $this->attendance->fresh();
+
+        $this->assertEquals($today . ' 09:10:00', $updatedAttendance->clock_in_time);
+        $this->assertEquals($today . ' 18:10:00', $updatedAttendance->clock_out_time);
+        $this->assertEquals('電車遅延による打刻修正（承認待ち 1）', $updatedAttendance->reason);
     }
 }
